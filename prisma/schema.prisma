@@ -1,0 +1,170 @@
+
+
+//USER
+
+
+model User {
+	id	String @id @default(uuid())
+	firstName String
+	lastName String
+    email String @unique
+	role Role @default(USER)
+	orders Order[]
+	tables Table[]
+	payments Payment[]
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+}
+
+enum Role {
+    ADMIN
+    USER
+	HOST
+	MANAGER
+}
+
+//ORDERS
+
+model Order {
+    id    String @id @default(uuid())
+   	table Table @relation(fields: [tableNumber], references: [tableNumber]) 
+	tableNumber Int 
+	orderNumber Int 
+	guestsCount Int 
+	payments Payment[]
+	paymentStatus PaymentStatus @default(NONE)
+	orderTime DateTime @default(now())
+	foodItems FoodItem[]
+	drinkItems DrinkItem[]
+	allergies Allergies @default(NONE)
+	server User @relation(fields: [serverId], references: [id])
+	serverId String
+}
+	
+
+enum PaymentStatus {
+	NONE
+    PAID
+    REFUNDED
+	CANCELLED
+	PENDING
+}
+
+enum Allergies {
+	NONE
+    GLUTEN
+    DAIRY
+    EGG
+    PEANUT
+    TREENUT
+    FISH
+    SHELLFISH
+    SOY
+    SESAME
+    CELERY
+    MUSTARD
+    LUPIN
+    SULPHITES
+    MOLLUSCS
+}
+
+//TABLES
+
+model Table {
+	id String @id @default(uuid())
+    tableNumber Int @unique
+    capacity Int
+    order Order[]
+	payments Payment[]
+	status TableStatus @default(AVAILABLE)
+	server User? @relation(fields: [serverId], references: [id])
+	serverId String?
+}
+
+enum TableStatus {
+	AVAILABLE
+	OCCUPIED
+	RESERVED
+	ORDERING
+	SERVING
+	PAYMENT
+}
+
+//PAYMENT
+
+model Payment {
+	id String @id @default(uuid())
+    amount Float
+    paymentType PaymentType @default(CASH)
+    paymentTime DateTime @default(now())
+    order Order @relation(fields: [orderId], references: [id])
+	table Table @relation(fields: [tableId], references: [id])
+	server User @relation(fields: [serverId], references: [id])
+	tableId String
+	orderId String
+	serverId String
+}
+
+enum PaymentType {
+    CASH
+    CREDIT_CARD
+    DEBIT_CARD
+}
+
+//FOOD ITEMS
+
+model FoodItem {
+	id String @id @default(uuid())
+    name String
+    price Float
+    type FoodType @default(OTHER)
+	category FoodCategory @default(OTHER)
+	alleries Allergies @default(NONE)
+    order Order[]
+    orderId String? 
+}
+
+enum FoodType {
+	APPETIZER
+	MAIN_COURSE
+	DESERT
+    SIDES
+	SOUSE
+	OTHER
+}
+
+enum FoodCategory {
+	SALAD
+	MEAT
+	SOUP
+	FISH
+	VEGGIES
+	OTHER
+	SEAFOOD
+}
+
+
+//DRINK ITEMS
+
+model DrinkItem {
+    id String @id @default(uuid())
+    name String
+    price Float
+	category DrinkCategory @default(OTHER)
+	order Order[]
+    orderId String? 
+	}
+
+enum DrinkCategory {
+	BEER
+    WINE
+    SPIRITS
+    COFFEE
+    TEA
+    OTHER
+    SODA
+    ALCOHOLIC
+    NON_ALCOHOLIC
+}
+
+
