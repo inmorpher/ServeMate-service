@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
+import { injectable } from 'inversify';
 import { z } from 'zod';
 import { IMiddleware } from './middleware.interface';
 
 /**
  * Middleware for validating request query parameters using a Zod schema.
  */
+@injectable()
 export class ValidateMiddleware implements IMiddleware {
 	/**
 	 * Creates an instance of ValidateMiddleware.
