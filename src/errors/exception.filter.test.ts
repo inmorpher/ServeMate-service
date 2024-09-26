@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import 'reflect-metadata';
-import { ILogger } from '../logger/logger.service.interface';
+import { ILogger } from '../services/logger/logger.service.interface';
 import { ExceptionFilter } from './exception.filter';
 import { IExceptionFilter } from './exception.filter.interface';
 import { HTTPError } from './http-error.class';
@@ -14,6 +14,8 @@ describe('ExceptionFilter', () => {
 
 	beforeEach(() => {
 		mockLogger = {
+			setContext: jest.fn(),
+
 			log: jest.fn(),
 			error: jest.fn(),
 			warn: jest.fn(),
