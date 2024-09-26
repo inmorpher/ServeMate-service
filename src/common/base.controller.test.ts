@@ -1,8 +1,8 @@
 import { Response } from 'express';
 
 import 'reflect-metadata';
-import { ILogger } from '../logger/logger.service.interface';
-import { BaseController } from './base.constroller';
+import { ILogger } from '../services/logger/logger.service.interface';
+import { BaseController } from './base.controller';
 import { IControllerRoute } from './route.interface';
 class TestController extends BaseController {
 	constructor(logger: ILogger) {
@@ -21,6 +21,7 @@ describe('BaseController', () => {
 
 	beforeEach(() => {
 		mockLogger = {
+			setContext: jest.fn(),
 			log: jest.fn(),
 			error: jest.fn(),
 			warn: jest.fn(),
