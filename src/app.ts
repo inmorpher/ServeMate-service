@@ -9,6 +9,11 @@ import { IExceptionFilter } from './errors/exception.filter.interface';
 import { ILogger } from './services/logger/logger.service.interface';
 import { TYPES } from './types';
 
+/**
+ * Initializes the Express application.
+ *
+ * @returns void
+ */
 @injectable()
 export class App {
 	app: Express;
