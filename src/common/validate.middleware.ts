@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import { z } from 'zod';
 import { IMiddleware } from './middleware.interface';
 
+type ValidationType = 'body' | 'query' | 'params';
 /**
  * Middleware for validating request query parameters using a Zod schema.
  */
@@ -12,7 +13,7 @@ export class ValidateMiddleware implements IMiddleware {
 	 * Creates an instance of ValidateMiddleware.
 	 * @param schema - The Zod schema to use for validation.
 	 */
-	constructor(private schema: z.ZodType) {}
+	constructor(private schema: z.ZodType, private type: ValidationType = 'body') {}
 
 	/**
 	 * Executes the middleware to validate the request query.
@@ -24,12 +25,26 @@ export class ValidateMiddleware implements IMiddleware {
 	 * @param next - The Express next function to call the next middleware.
 	 * @returns void
 	 */
-	execute({ query }: Request, res: Response, next: NextFunction): void {
-		const result = this.schema.safeParse(query);
+	execute(req: Request, res: Response, next: NextFunction): void {
+		const dataToValidate = this.getDataToValidate(req);
+		const result = this.schema.safeParse(dataToValidate);
 		if (!result.success) {
 			res.status(422).send(result.error.issues);
 		} else {
 			next();
+		}
+	}
+
+	private getDataToValidate(req: Request): unknown {
+		switch (this.type) {
+			case 'body':
+				return req.body;
+			case 'query':
+				return req.query;
+			case 'params':
+				return req.params;
+			default:
+				throw new Error(`Invalid validation type: ${this.type}`);
 		}
 	}
 }
