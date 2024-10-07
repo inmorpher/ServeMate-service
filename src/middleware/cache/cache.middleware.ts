@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 import NodeCache from 'node-cache';
-import { IMiddleware } from '../common/middleware.interface';
+import 'reflect-metadata';
+import { IMiddleware } from '../../common/middleware.interface';
 
 @injectable()
 export class CacheMiddleware implements IMiddleware {
