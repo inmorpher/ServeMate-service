@@ -27,7 +27,8 @@ export class ExceptionFilter implements IExceptionFilter {
 	 */
 	catch(err: Error | HTTPError, req: Request, res: Response, next: NextFunction): void {
 		if (err instanceof HTTPError) {
-			this.logger.error(`[${err.context}] Error ${err.statusCode} : ${err.message}`);
+			const path = req.originalUrl ? `(${req.method} ${req.originalUrl})` : '';
+			this.logger.error(`[${err.context}] ${path} Error ${err.statusCode} : ${err.message}`);
 			res.status(err.statusCode).json({ error: err.message });
 		} else {
 			this.logger.error(`[${req.originalUrl}] Error : ${err.message}`);
