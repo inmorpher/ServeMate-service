@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { compare } from 'bcrypt';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
+import { BaseService } from '../../common/base.service';
 import {
 	CreatedUserData,
 	CreateUser,
@@ -18,9 +19,10 @@ import { hashPassword } from '../../utils/password';
 import { IUserService } from './user.service.interface';
 
 @injectable()
-export class UserService implements IUserService {
+export class UserService extends BaseService implements IUserService {
 	private prisma: PrismaClient;
 	constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient) {
+		super();
 		this.prisma = prisma;
 	}
 
@@ -79,20 +81,25 @@ export class UserService implements IUserService {
 	 *
 	 */
 	async findAllUsers(): Promise<UserListItem[]> {
-		const users = await this.prisma.user.findMany({
-			select: {
-				id: true,
-				email: true,
-				name: true,
-				role: true,
-				isActive: true,
-				createdAt: true,
-				updatedAt: true,
-				lastLogin: true,
-			},
-		});
+		try {
+			const users = await this.prisma.user.findMany({
+				select: {
+					id: true,
+					email: true,
+					name: true,
+					role: true,
+					isActive: true,
+					createdAt: true,
+					updatedAt: true,
+					lastLogin: true,
+				},
+			});
 
-		return users.map((user) => ({ ...user, role: user.role as unknown as Role }));
+			return users.map((user) => ({ ...user, role: user.role as unknown as Role }));
+		} catch (error) {
+			this.handleServiceError(error);
+			return [];
+		}
 	}
 
 	/**
@@ -116,61 +123,41 @@ export class UserService implements IUserService {
 	 *
 	 */
 	async findUser(criteria: UserSearchCriteria): Promise<UserListItem[]> {
-		const { id, email, name } = criteria;
+		try {
+			const { id, email, name } = criteria;
 
-		if (!id && !email && !name) {
-			throw new HTTPError(400, 'UserService', 'At least one search criteria must be provided');
-		}
+			if (!id && !email && !name) {
+				throw new HTTPError(400, 'UserService', 'At least one search criteria must be provided');
+			}
 
-		const where: {
-			id?: number;
-			email?: {
-				contains: string;
-				mode: 'insensitive';
+			const where = {
+				...(id !== undefined && { id: Number(id) }),
+				...(email && { email: { contains: email, mode: 'insensitive' as const } }),
+				...(name && { name: { contains: name, mode: 'insensitive' as const } }),
 			};
-			name?: {
-				contains: string;
-				mode: 'insensitive';
-			};
-		} = {};
 
-		if (id !== undefined) {
-			where.id = Number(id);
+			const users = await this.prisma.user.findMany({
+				where,
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					role: true,
+					isActive: true,
+					lastLogin: true,
+					createdAt: true,
+					updatedAt: true,
+				},
+			});
+
+			if (users.length === 0) {
+				throw new HTTPError(404, 'UserService', 'No users found matching the provided criteria');
+			}
+
+			return users.map((user) => ({ ...user, role: user.role as Role }));
+		} catch (error) {
+			throw this.handleServiceError(error);
 		}
-
-		if (email) {
-			where.email = {
-				contains: email,
-				mode: 'insensitive',
-			};
-		}
-
-		if (name) {
-			where.name = {
-				contains: name,
-				mode: 'insensitive',
-			};
-		}
-
-		const users = await this.prisma.user.findMany({
-			where,
-			select: {
-				id: true,
-				name: true,
-				email: true,
-				role: true,
-				isActive: true,
-				lastLogin: true,
-				createdAt: true,
-				updatedAt: true,
-			},
-		});
-
-		if (!users.length) {
-			throw new HTTPError(404, 'UserService', 'No users found matching the provided criteria');
-		}
-
-		return users.map((user) => ({ ...user, role: user.role as unknown as Role }));
 	}
 
 	/**
@@ -186,30 +173,38 @@ export class UserService implements IUserService {
 	 * @throws {HTTPError} If a user with the same email already exists (400 Bad Request).
 	 */
 	async createUser(user: CreateUser): Promise<CreatedUserData> {
-		const hashedPassword = await hashPassword(user.password);
-		const existingUser = await this.prisma.user.findUnique({
-			where: {
-				email: user.email,
-			},
-		});
+		try {
+			const hashedPassword = await hashPassword(user.password);
+			const existingUser = await this.prisma.user.findUnique({
+				where: {
+					email: user.email,
+				},
+			});
 
-		if (existingUser) {
-			throw new HTTPError(400, 'UserService', `User with this email ${user.email} already exists`);
+			if (existingUser) {
+				throw new HTTPError(
+					400,
+					'UserService',
+					`User with this email ${user.email} already exists`
+				);
+			}
+
+			const newUser = await this.prisma.user.create({
+				data: {
+					name: user.name,
+					email: user.email,
+					role: user.role,
+					password: hashedPassword,
+				},
+			});
+
+			return {
+				name: newUser.name,
+				email: newUser.email,
+			};
+		} catch (error) {
+			throw this.handleServiceError(error);
 		}
-
-		const newUser = await this.prisma.user.create({
-			data: {
-				name: user.name,
-				email: user.email,
-				role: user.role,
-				password: hashedPassword,
-			},
-		});
-
-		return {
-			name: newUser.name,
-			email: newUser.email,
-		};
 	}
 
 	/**
@@ -219,21 +214,15 @@ export class UserService implements IUserService {
 	 * @throws {HTTPError} If the user with the given ID is not found.
 	 */
 	async deleteUser(id: number): Promise<void> {
-		const existingUser = await this.prisma.user.findUnique({
-			where: {
-				id,
-			},
-		});
-
-		if (!existingUser) {
-			throw new HTTPError(404, 'UserService', `User with ID ${id} not found`);
+		try {
+			await this.prisma.user.delete({
+				where: {
+					id,
+				},
+			});
+		} catch (error) {
+			throw this.handleServiceError(error);
 		}
-
-		await this.prisma.user.delete({
-			where: {
-				id,
-			},
-		});
 	}
 
 	/**
@@ -250,21 +239,25 @@ export class UserService implements IUserService {
 	 * @throws {Error} If there's an issue with the database operation.
 	 */
 	async updateUser(id: number, user: UpdateUserDto): Promise<void> {
-		const existingUser = await this.prisma.user.findUnique({
-			where: {
-				id,
-			},
-		});
-
-		if (!existingUser) {
-			throw new HTTPError(404, 'UserService', `User with ID ${id} not found`);
+		try {
+			await this.prisma.user.update({
+				where: { id },
+				data: user,
+			});
+		} catch (error) {
+			throw this.handleServiceError(error);
 		}
+	}
 
-		await this.prisma.user.update({
-			where: {
-				id,
-			},
-			data: user,
-		});
+	/**
+	 * Handles errors that occur during database operations.
+	 * This method specifically handles Prisma-related errors and converts them into appropriate HTTPError instances.
+	 *
+	 * @param error - The error object to be handled. This can be any type of error thrown during database operations.
+	 * @returns An HTTPError instance with an appropriate status code and message based on the Prisma error code,
+	 *          or a generic Error if the input is not a PrismaClientKnownRequestError.
+	 */
+	private handleServiceError(error: unknown): HTTPError | Error {
+		return super.handleError(error, 'UserService');
 	}
 }
