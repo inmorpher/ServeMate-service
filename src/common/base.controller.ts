@@ -1,5 +1,6 @@
 import { CookieOptions, Response, Router } from 'express';
 import { inject, injectable } from 'inversify';
+import NodeCache from 'node-cache';
 import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
 import { IControllerRoute } from './route.interface';
@@ -7,12 +8,15 @@ import { IControllerRoute } from './route.interface';
 @injectable()
 export abstract class BaseController {
 	private readonly _router: Router;
-
+	private readonly _cache: NodeCache;
+	private context: string;
 	/**
 	 * Creates an instance of BaseController.
 	 * @param logger - The logger service to be used for logging.
 	 */
 	constructor(@inject(TYPES.ILogger) private logger: ILogger) {
+		this.context = this.constructor.name;
+		this._cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 		this._router = Router();
 	}
 
@@ -22,6 +26,10 @@ export abstract class BaseController {
 	 */
 	get router(): Router {
 		return this._router;
+	}
+
+	get cache(): NodeCache {
+		return this._cache;
 	}
 
 	/**
@@ -130,10 +138,15 @@ export abstract class BaseController {
 	 * Binds the provided routes to the router.
 	 * @param routes - An array of route configurations.
 	 */
+
 	protected bindRoutes(routes: IControllerRoute[]) {
 		for (const route of routes) {
-			this.logger.log(`Binding route: ${route.method.toUpperCase()} ${route.path}`);
-			const middleware = route.middlewares?.map((m) => m.execute.bind(m)) ?? [];
+			this.logger.log(
+				`[${this.context}] \t Binding route: ${route.method.toUpperCase()} ${route.path}`
+			);
+			let middleware = route.middlewares?.map((m) => m.execute.bind(m)) ?? [];
+			// const cacheMiddleware = new CacheMiddleware(this.cache, this.context).execute.bind(this);
+			// middleware = [cacheMiddleware, ...middleware];
 			const handler = route.func.bind(this);
 			const pipeline = middleware ? [...middleware, handler] : handler;
 			this.router[route.method](route.path, pipeline);
