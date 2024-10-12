@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
-import NodeCache from 'node-cache';
 import { BaseController } from '../../common/base.controller';
 import {
 	CreateUserSchema,
@@ -15,54 +14,52 @@ import { ValidateMiddleware } from '../../middleware/validate/validate.middlewar
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
 import { TYPES } from '../../types';
+import { IUserController } from './user.controller.interface';
 
 @injectable()
-export class UserController extends BaseController {
-	private cache: NodeCache;
+export class UserController extends BaseController implements IUserController {
+	private cacheMiddleware: CacheMiddleware;
 	private authMiddleware: AuthMiddleware;
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
 		@inject(TYPES.UserService) private userService: UserService
 	) {
 		super(loggerService);
-		this.cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
-		this.loggerService.setContext('UserController');
+		this.cacheMiddleware = new CacheMiddleware(this.cache, 'users');
 		this.authMiddleware = new AuthMiddleware();
 		this.bindRoutes([
 			{
 				method: 'get',
-				path: '/users/all',
+				path: '/',
 				func: this.getAllUsers,
-				middlewares: [new CacheMiddleware(this.cache)],
+				middlewares: [],
 			},
 			{
 				method: 'get',
-				path: '/users',
+				path: '/search',
 				func: this.getUser,
-				middlewares: [
-					new ValidateMiddleware(UserParamSchema, 'query'),
-					new CacheMiddleware(this.cache),
-				],
+				middlewares: [new ValidateMiddleware(UserParamSchema, 'query'), this.cacheMiddleware],
 			},
 			{
 				method: 'post',
-				path: '/users/',
+				path: '/',
 				func: this.createUser,
-				middlewares: [new ValidateMiddleware(CreateUserSchema, 'body')],
+				middlewares: [new ValidateMiddleware(CreateUserSchema, 'body'), this.cacheMiddleware],
 			},
 			{
 				method: 'delete',
-				path: '/users/:id',
+				path: '/:id',
 				func: this.deleteUser,
-				middlewares: [new ValidateMiddleware(IdParamSchema, 'params')],
+				middlewares: [new ValidateMiddleware(IdParamSchema, 'params'), this.cacheMiddleware],
 			},
 			{
 				method: 'put',
-				path: '/users/:id',
+				path: '/:id',
 				func: this.updateUser,
 				middlewares: [
 					new ValidateMiddleware(IdParamSchema, 'params'),
 					new ValidateMiddleware(UpdateUserSchema, 'body'),
+					this.cacheMiddleware,
 				],
 			},
 		]);
