@@ -29,7 +29,7 @@ const logColors = {
 @injectable()
 export class LoggerService implements ILogger {
 	private logger: Logger<{}> | null = null;
-	private context = 'LoggerService';
+	private context = '';
 	private logToFile: boolean;
 	private logFilePath: string;
 
