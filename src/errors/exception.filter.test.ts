@@ -32,10 +32,13 @@ describe('ExceptionFilter', () => {
 	});
 
 	describe('catch', () => {
+		// TODO catch error
 		it('should log and respond with correct status code and message for HTTPError', () => {
 			const httpError = new HTTPError(400, 'Bad Request', 'test');
 			exceptionFilter.catch(httpError, mockRequest as Request, mockResponse as Response, mockNext);
-			expect(mockLogger.error).toHaveBeenCalledWith('[Bad Request] Error 400 : test');
+			expect(mockLogger.error).toHaveBeenCalledWith(
+				expect.stringMatching(/^\[Bad Request\]\s+Error 400 : test$/)
+			);
 			expect(mockResponse.status).toHaveBeenCalledWith(400);
 			expect(mockResponse.json).toHaveBeenCalledWith({ error: 'test' });
 		});

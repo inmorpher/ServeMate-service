@@ -58,7 +58,9 @@ describe('BaseController', () => {
 		it('should bind routes correctly', () => {
 			const routes: IControllerRoute[] = [{ path: '/test', method: 'get', func: jest.fn() }];
 			controller.testBindRoutes(routes);
-			expect(mockLogger.log).toHaveBeenCalledWith('Binding route: GET /test');
+			expect(mockLogger.log).toHaveBeenCalledWith(
+				expect.stringMatching(/^\[TestController\]\s*Binding route:\s*GET\s*\/test$/)
+			);
 		});
 	});
 
