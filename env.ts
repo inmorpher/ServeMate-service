@@ -4,7 +4,12 @@ import { z } from 'zod';
 dotenv.config();
 
 const envSchema = z.object({
-	PORT: z.string().default('3000'),
+	//production
+	PRODUCTION: z
+		.enum(['true', 'false', '1', '0'])
+		.transform((value) => value === 'true' || value === '1'),
+	//SERVER
+	PORT: z.coerce.number().int().positive().default(3000),
 	DATABASE_URL: z.string(),
 	// JWT TOKENS
 	JWT_SECRET: z.string(),
