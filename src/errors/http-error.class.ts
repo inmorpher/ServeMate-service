@@ -12,7 +12,7 @@ export class HTTPError extends Error {
 
 	/** Optional context information about where the error occurred. */
 	context?: string;
-
+	path?: string;
 	/**
 	 * Creates a new HTTPError instance.
 	 *
@@ -20,22 +20,25 @@ export class HTTPError extends Error {
 	 * @param context - Optional. Additional context information about where the error occurred.
 	 * @param message - Optional. A custom error message. If not provided, a default message will be used based on the error type.
 	 */
-	constructor(error: ErrorType, context?: string, message?: string) {
+	constructor(error: ErrorType, context?: string, message?: string, path?: string) {
 		if (typeof error === 'number') {
 			super(message);
 			this.statusCode = error;
 			this.message = message || 'An unknown error occurred';
 			this.context = context;
+			this.path = path;
 		} else if (axios.isAxiosError(error)) {
 			super(error.message);
 			this.statusCode = error.response?.status || 500;
 			this.message = error.response?.data?.message || error.message;
 			this.context = context;
+			this.path = path;
 		} else {
 			super(message);
 			this.statusCode = 500;
 			this.message = message || 'An unknown error occurred';
 			this.context = context;
+			this.path = path;
 		}
 	}
 }
