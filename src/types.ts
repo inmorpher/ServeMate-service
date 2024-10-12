@@ -1,11 +1,15 @@
 export const TYPES = {
 	Application: Symbol.for('Application'),
+	// Core services
 	ILogger: Symbol.for('Logger'),
+	PrismaClient: Symbol.for('PrismaClient'),
+	// Middleware
 	ExceptionFilter: Symbol.for('ExceptionFilter'),
 	AuthMiddleware: Symbol.for('AuthMiddleware'),
-	IControllerRoute: Symbol.for('IControllerRoute'),
-	UserController: Symbol.for('UserController'),
+	// Users
+	UserService: Symbol.for('IUserService'),
+	UserController: Symbol.for('IUserController'),
+	// Auth
 	AuthenticationController: Symbol.for('AuthenticationController'),
-	UserService: Symbol.for('UserService'),
-	PrismaClient: Symbol.for('PrismaClient'),
+	ITokenService: Symbol.for('ITokenService'),
 };
