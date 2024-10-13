@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
+import 'reflect-metadata';
 import { z } from 'zod';
 import { IMiddleware } from '../../common/middleware.interface';
-
 type ValidationType = 'body' | 'query' | 'params';
 /**
  * Middleware for validating request query parameters using a Zod schema.
