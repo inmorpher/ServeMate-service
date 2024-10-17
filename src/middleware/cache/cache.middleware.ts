@@ -86,7 +86,6 @@ export class CacheMiddleware implements IMiddleware {
 		if (req.params.id) {
 			const userCacheKey = `$_${this.scheme}_{"id":"${req.params.id}"}`;
 			this.cache.del(userCacheKey);
-			console.log(`Deleted cache for user: ${userCacheKey}`);
 		}
 	}
 }

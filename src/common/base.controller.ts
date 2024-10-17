@@ -63,7 +63,8 @@ export abstract class BaseController {
 	 * @returns The Express Response object.
 	 */
 	public cookie<T>(res: Response, key: string, value: T, options?: CookieOptions) {
-		return res.cookie(key, JSON.stringify(value), options || {});
+		const cookieValue = typeof value === 'object' ? JSON.stringify(value) : value;
+		return res.cookie(key, cookieValue, options || {});
 	}
 
 	/**

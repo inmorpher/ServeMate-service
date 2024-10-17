@@ -152,14 +152,12 @@ describe('LoggerService', () => {
 		await new Promise(process.nextTick);
 
 		// Debug: Check if logToFile is true
-		console.log('logToFile:', (loggerService as any).logToFile);
 
 		await loggerService.log('Info message');
 		await loggerService.error('Error message');
 		await loggerService.warn('Warning message');
 
 		// Debug: Log the calls to mockAppendFile
-		console.log('mockAppendFile calls:', mockAppendFile.mock.calls);
 
 		expect(mockAppendFile).toHaveBeenCalledTimes(3);
 

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
 import { UserCredentials, UserLoginSchema } from '../../dto/user.dto';
@@ -9,7 +10,7 @@ import { ITokenService } from '../../services/tokens/token.service.interface';
 import { UserService } from '../../services/users/user.service';
 import { TYPES } from '../../types';
 
-const COOKIE_OPTIONS = {
+export const COOKIE_OPTIONS = {
 	httpOnly: true,
 	maxAge: 60 * 60 * 1000 * 24 * 30, // 30 days
 	secure: process.env.NODE_ENV === 'production',
@@ -54,12 +55,24 @@ export class AuthenticationController extends BaseController {
 			{
 				method: 'post',
 				path: '/logout',
-				func: () => {},
+				func: this.logout,
 				middlewares: [],
 			},
 		]);
 	}
 
+	/**
+	 * Handles user login process.
+	 *
+	 * This function authenticates a user based on provided credentials, generates access and refresh tokens,
+	 * sets a refresh token cookie, updates the user's last login time, and returns an access token.
+	 *
+	 * @param req - The Express request object containing user credentials in the body.
+	 * @param res - The Express response object used to send the response and set cookies.
+	 * @param next - The Express next function for error handling.
+	 * @returns A Promise that resolves when the login process is complete.
+	 * @throws Will throw an error if authentication fails or if there's an issue during the process.
+	 */
 	async login(req: Request<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
 		try {
 			const { email, password } = req.body;
@@ -73,18 +86,25 @@ export class AuthenticationController extends BaseController {
 
 			const accessToken = await this.tokenService.generateToken(user, false);
 			const refreshToken = await this.tokenService.generateToken(user, true);
-			console.log(refreshToken);
 
 			this.setCookie(res, 'refreshToken', refreshToken);
 			this.loggerService.log(`\x1b[1mUser logged in: ${email}\x1b[0m`);
-			this.userService.updateUser(user.id, { lastLogin: new Date() });
+			await this.userService.updateUser(user.id, { lastLogin: new Date() });
 			this.ok(res, { accessToken });
 		} catch (error) {
 			next(error);
 		}
 	}
 
-	async logout(req: Request, res: Response, next: NextFunction) {
+	/**
+	 * Handles user logout by clearing the refresh token cookie and logging the action.
+	 *
+	 * @param req - The Express request object.
+	 * @param res - The Express response object used to clear the cookie and send the response.
+	 * @param next - The Express next function for error handling.
+	 * @returns A Promise that resolves when the logout process is complete.
+	 */
+	async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			res.clearCookie('refreshToken');
 			this.loggerService.log('User logged out');
@@ -94,9 +114,19 @@ export class AuthenticationController extends BaseController {
 		}
 	}
 
+	/**
+	 * Handles the token refresh process for authenticated users.
+	 *
+	 * This function verifies the provided refresh token, generates new access and refresh tokens,
+	 * sets a new refresh token cookie, and returns a new access token to the client.
+	 *
+	 * @param req - The Express request object containing the refresh token in cookies.
+	 * @param res - The Express response object used to send the response and set cookies.
+	 * @param next - The Express next function for error handling.
+	 * @returns A Promise that resolves when the token refresh process is complete.
+	 * @throws Will pass any caught errors to the next middleware for handling.
+	 */
 	async refreshToken(req: Request, res: Response, next: NextFunction) {
-		console.log(req.cookies?.refreshToken.replace(/^"|"$/g, ''));
-
 		try {
 			const refreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
 
@@ -110,22 +140,24 @@ export class AuthenticationController extends BaseController {
 				return this.unauthorized(res, 'Invalid refresh token');
 			}
 
-			const newAccessToken = this.tokenService.generateToken(decodedUser, false);
-			const newRefreshToken = this.tokenService.generateToken(decodedUser, true);
+			const newAccessToken = await this.tokenService.generateToken(decodedUser, false);
+			const newRefreshToken = await this.tokenService.generateToken(decodedUser, true);
 
-			this.cookie(res, 'refreshToken', newRefreshToken, {
-				httpOnly: true,
-				maxAge: 60 * 60 * 1000 * 24 * 30, // 30 days
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'strict',
-			});
-
+			this.setCookie(res, 'refreshToken', newRefreshToken);
 			this.ok(res, { accessToken: newAccessToken });
 		} catch (error) {
 			next(error);
 		}
 	}
 
+	/**
+	 * Sets a cookie on the response object with predefined options.
+	 *
+	 * @param res - The Express response object on which to set the cookie.
+	 * @param name - The name of the cookie to be set.
+	 * @param value - The value to be stored in the cookie.
+	 * @private
+	 */
 	private setCookie(res: Response, name: string, value: string) {
 		this.cookie(res, name, value, COOKIE_OPTIONS);
 	}

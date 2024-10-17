@@ -35,7 +35,6 @@ export class App {
 			res.setHeader('Permission-Policy', 'geolocation=(), microphone=(), camera=()');
 			next();
 		});
-		console.log(ENV.PRODUCTION);
 
 		if (ENV.PRODUCTION) {
 			this.app.use('/api', (req, res, next) => {
