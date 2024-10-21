@@ -44,12 +44,6 @@ export class App {
 				this.authMiddleware.execute(req, res, next);
 			});
 		}
-		// this.app.use('/api', (req, res, next) => {
-		// 	if (req.path.startsWith('/auth')) {
-		// 		return next();
-		// 	}
-		// 	this.authMiddleware.execute(req, res, next);
-		// });
 	}
 
 	private useRoutes(): void {

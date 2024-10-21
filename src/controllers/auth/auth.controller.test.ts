@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
-import { ENV } from '../../../env';
 import { Role, ValidatedUserData } from '../../dto/user.dto';
 import { HTTPError } from '../../errors/http-error.class';
 import { ILogger } from '../../services/logger/logger.service.interface';
@@ -177,7 +176,7 @@ describe('AuthenticationController', () => {
 		expect(mockResponse.cookie).toHaveBeenCalledWith('refreshToken', 'newRefreshToken', {
 			httpOnly: true,
 			maxAge: 60 * 60 * 1000 * 24 * 30, // 30 days
-			secure: ENV.PRODUCTION,
+			secure: false,
 			sameSite: 'strict',
 		});
 		expect(mockResponse.json).toHaveBeenCalledWith({ accessToken: 'newAccessToken' });

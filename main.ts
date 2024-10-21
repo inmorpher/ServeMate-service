@@ -7,6 +7,7 @@ import { UserController } from './src/controllers/users/users.controller';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
+import { RoleMiddleware } from './src/middleware/role/role.middleware';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
 import { TokenService } from './src/services/tokens/token.service';
@@ -19,6 +20,7 @@ export const coreServicesModule = new ContainerModule((bind: interfaces.Bind) =>
 	bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope();
 	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter).inSingletonScope();
 	bind<ITokenService>(TYPES.ITokenService).to(TokenService).inSingletonScope();
+	bind<RoleMiddleware>(TYPES.RoleMiddleware).to(RoleMiddleware).inSingletonScope();
 	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(new PrismaClient());
 });
 

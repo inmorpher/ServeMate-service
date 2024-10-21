@@ -4,12 +4,14 @@ import { BaseController } from '../../common/base.controller';
 import {
 	CreateUserSchema,
 	IdParamSchema,
+	Role,
 	UpdateUserSchema,
 	UserParamSchema,
 	UserQueryParamDto,
 } from '../../dto/user.dto';
 import { AuthMiddleware } from '../../middleware/auth/auth.middleware';
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
+import { RoleMiddleware } from '../../middleware/role/role.middleware';
 import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
@@ -44,19 +46,28 @@ export class UserController extends BaseController implements IUserController {
 				method: 'post',
 				path: '/',
 				func: this.createUser,
-				middlewares: [new ValidateMiddleware(CreateUserSchema, 'body'), this.cacheMiddleware],
+				middlewares: [
+					new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
+					new ValidateMiddleware(CreateUserSchema, 'body'),
+					this.cacheMiddleware,
+				],
 			},
 			{
 				method: 'delete',
 				path: '/:id',
 				func: this.deleteUser,
-				middlewares: [new ValidateMiddleware(IdParamSchema, 'params'), this.cacheMiddleware],
+				middlewares: [
+					new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
+					new ValidateMiddleware(IdParamSchema, 'params'),
+					this.cacheMiddleware,
+				],
 			},
 			{
 				method: 'put',
 				path: '/:id',
 				func: this.updateUser,
 				middlewares: [
+					new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
 					new ValidateMiddleware(IdParamSchema, 'params'),
 					new ValidateMiddleware(UpdateUserSchema, 'body'),
 					this.cacheMiddleware,
