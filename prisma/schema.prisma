@@ -16,16 +16,15 @@ model User {
 	password String
 	role Role @default(USER)
 	orders Order[]
-	tables Table[]
+	// tables Table[]
+	userActions orderServerAction[]
+	tableAssigments TableAssigment[]
 	payments Payment[]
 	createdAt DateTime @default(now())
 	updatedAt DateTime @updatedAt
 	//authentication 
 	isActive Boolean @default(true)
 	lastLogin DateTime?
-	refreshToken String?
-	resetPasswordToken String?
-	resetPasswordExpires DateTime?
 }
 
 enum Role {
@@ -52,6 +51,7 @@ model Order {
 	allergies Allergies[] @default([])
 	server User @relation(fields: [serverId], references: [id])
 	serverId Int
+	serverActions orderServerAction[]
 	//
 
 	totalAmount Float @default(0)
@@ -172,14 +172,15 @@ enum DrinkTemperature {
 //TABLES
 
 model Table {
-	id Int @id @default(autoincrement())
+    id Int @id @default(autoincrement())
     tableNumber Int @unique
-    capacity Int
-    order Order[]
-	payments Payment[]
-	status TableStatus @default(AVAILABLE)
-	server User? @relation(fields: [serverId], references: [id])
-	serverId Int?
+    capacity Int 
+    additionalCapacity Int @default(0)
+    originalCapacity Int
+    orders Order[]
+    isOccupied Boolean @default(false)
+    status TableStatus @default(AVAILABLE)
+    assignment TableAssigment[]
 }
 
 enum TableStatus {
@@ -191,6 +192,38 @@ enum TableStatus {
 	PAYMENT
 }
 
+model TableAssigment {
+	id Int @id @default(autoincrement())
+    table Table @relation(fields: [tableId], references: [id])
+	tableId Int
+	server User @relation(fields: [serverId], references: [id])
+	serverId Int
+	isPrimary Boolean @default(false)
+	assignedAt DateTime @default(now())
+	isActive Boolean @default(true)
+
+	@@unique([tableId, serverId])
+}
+
+model orderServerAction {
+    id Int @id @default(autoincrement())
+    order Order @relation(fields: [orderId], references: [id])
+    orderId Int
+    server User @relation(fields: [serverId], references: [id])
+    serverId Int
+    actionType OrderActionType
+    actionTime DateTime @default(now())
+    details String?
+}
+
+enum OrderActionType {
+	CREATE
+	UPDATE
+	ADD_ITEM
+	REMOVE_ITEM
+	CHANGE_STATUS
+}
+
 //PAYMENT
 
 model Payment {
@@ -199,7 +232,7 @@ model Payment {
     paymentType PaymentType @default(CASH)
     paymentTime DateTime @default(now())
     order Order @relation(fields: [orderId], references: [id])
-	table Table @relation(fields: [tableId], references: [id])
+	tableNumber Int
 	server User @relation(fields: [serverId], references: [id])
 	tableId Int
 	orderId Int
