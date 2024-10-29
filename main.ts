@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { Container, ContainerModule, interfaces } from 'inversify';
 import { App } from './src/app';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
+import { TableController } from './src/controllers/tables/table.controller';
 import { IUserController } from './src/controllers/users/user.controller.interface';
 import { UserController } from './src/controllers/users/users.controller';
 import { ExceptionFilter } from './src/errors/exception.filter';
@@ -10,6 +11,7 @@ import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
 import { RoleMiddleware } from './src/middleware/role/role.middleware';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
+import { TableService } from './src/services/tables/table.service';
 import { TokenService } from './src/services/tokens/token.service';
 import { ITokenService } from './src/services/tokens/token.service.interface';
 import { UserService } from './src/services/users/user.service';
@@ -40,7 +42,12 @@ export const appModule = new ContainerModule((bind: interfaces.Bind) => {
 	bind<App>(TYPES.Application).to(App).inSingletonScope();
 });
 
-export const appBindings = [coreServicesModule, authModule, userModule, appModule];
+export const tablesModule = new ContainerModule((bind: interfaces.Bind) => {
+	bind<TableService>(TYPES.TableService).to(TableService).inSingletonScope();
+	bind<TableController>(TYPES.TableController).to(TableController).inSingletonScope();
+});
+
+export const appBindings = [coreServicesModule, authModule, userModule, tablesModule, appModule];
 
 const bootstrap = () => {
 	const appContainer = new Container();
