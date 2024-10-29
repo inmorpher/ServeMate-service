@@ -10,6 +10,7 @@ import {
 	UpdateUserDto,
 	UserCredentials,
 	UserListItem,
+	UserListResult,
 	UserSearchCriteria,
 	ValidatedUserData,
 } from '../../dto/user.dto';
@@ -20,6 +21,7 @@ import { IUserService } from './user.service.interface';
 
 @injectable()
 export class UserService extends BaseService implements IUserService {
+	protected serviceName = 'UserService';
 	private prisma: PrismaClient;
 	constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient) {
 		super();
@@ -67,42 +69,6 @@ export class UserService extends BaseService implements IUserService {
 	}
 
 	/**
-	 * Retrieves all users from the database.
-	 * @returns {Promise<UserListItem[]>} A promise that resolves to an array of UserListItem objects.
-	 *          Each UserListItem contains the following properties:
-	 *          - id: number - The unique identifier of the user.
-	 *          - name: string - The name of the user.
-	 *          - email: string - The email address of the user.
-	 *          - role: Role - The role of the user in the system (ADMIN, USER, HOST, or MANAGER).
-	 *          - isActive: boolean - Indicates whether the user account is active.
-	 *          - createdAt: Date - The date and time when the user account was created.
-	 *          - updatedAt: Date - The date and time when the user account was last updated.
-	 *          - lastLogin: Date | null - The date and time of the user's last login, or null if never logged in.
-	 *
-	 */
-	async findAllUsers(): Promise<UserListItem[]> {
-		try {
-			const users = await this.prisma.user.findMany({
-				select: {
-					id: true,
-					email: true,
-					name: true,
-					role: true,
-					isActive: true,
-					createdAt: true,
-					updatedAt: true,
-					lastLogin: true,
-				},
-			});
-
-			return users.map((user) => ({ ...user, role: user.role as unknown as Role }));
-		} catch (error) {
-			this.handleServiceError(error);
-			return [];
-		}
-	}
-
-	/**
 	 * Searches for users based on the provided criteria.
 	 * @param {UserSearchCriteria} criteria - The search criteria to use for finding users.
 	 *        UserSearchCriteria is an object that may contain the following properties:
@@ -122,41 +88,58 @@ export class UserService extends BaseService implements IUserService {
 	 * @throws {HTTPError} If no search criteria is provided (400) or no users are found (404).
 	 *
 	 */
-	async findUser(criteria: UserSearchCriteria): Promise<UserListItem[]> {
+	async findUsers(
+		criteria: UserSearchCriteria,
+		page: number = 1,
+		pageSize: number = 10,
+		sortBy: string = 'name',
+		sortOrder: 'asc' | 'desc' = 'asc'
+	): Promise<UserListResult> {
 		try {
-			const { id, email, name } = criteria;
-
-			if (!id && !email && !name) {
-				throw new HTTPError(400, 'UserService', 'At least one search criteria must be provided');
-			}
+			const { id, email, name, role, isActive, createdAfter, createdBefore } = criteria;
 
 			const where = {
 				...(id !== undefined && { id: Number(id) }),
 				...(email && { email: { contains: email, mode: 'insensitive' as const } }),
 				...(name && { name: { contains: name, mode: 'insensitive' as const } }),
+				...(role && { role: { equals: role.toUpperCase() as Role } }),
+				...(isActive !== undefined && { isActive }),
+				...(createdAfter && { createdAt: { gte: createdAfter } }),
+				...(createdBefore && { createdAt: { lte: createdBefore } }),
 			};
 
-			const users = await this.prisma.user.findMany({
-				where,
-				select: {
-					id: true,
-					name: true,
-					email: true,
-					role: true,
-					isActive: true,
-					lastLogin: true,
-					createdAt: true,
-					updatedAt: true,
-				},
-			});
+			const [users, total] = await Promise.all([
+				this.prisma.user.findMany({
+					where,
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						role: true,
+						isActive: true,
+						lastLogin: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+					skip: (page - 1) * pageSize,
+					take: pageSize,
+					orderBy: {
+						[sortBy]: sortOrder,
+					},
+				}),
+				this.prisma.user.count({ where }),
+				page,
+			]);
 
-			if (users.length === 0) {
-				throw new HTTPError(404, 'UserService', 'No users found matching the provided criteria');
-			}
-
-			return users.map((user) => ({ ...user, role: user.role as Role }));
+			return {
+				users: users.map((user) => ({ ...user, role: user.role as Role })),
+				totalCount: total,
+				page,
+				pageSize,
+				totalPages: Math.ceil(total / pageSize),
+			};
 		} catch (error) {
-			throw this.handleServiceError(error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -203,7 +186,7 @@ export class UserService extends BaseService implements IUserService {
 				email: newUser.email,
 			};
 		} catch (error) {
-			throw this.handleServiceError(error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -221,7 +204,7 @@ export class UserService extends BaseService implements IUserService {
 				},
 			});
 		} catch (error) {
-			throw this.handleServiceError(error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -245,19 +228,7 @@ export class UserService extends BaseService implements IUserService {
 				data: user,
 			});
 		} catch (error) {
-			throw this.handleServiceError(error);
+			throw this.handleError(error);
 		}
-	}
-
-	/**
-	 * Handles errors that occur during database operations.
-	 * This method specifically handles Prisma-related errors and converts them into appropriate HTTPError instances.
-	 *
-	 * @param error - The error object to be handled. This can be any type of error thrown during database operations.
-	 * @returns An HTTPError instance with an appropriate status code and message based on the Prisma error code,
-	 *          or a generic Error if the input is not a PrismaClientKnownRequestError.
-	 */
-	private handleServiceError(error: unknown): HTTPError | Error {
-		return super.handleError(error, 'UserService');
 	}
 }

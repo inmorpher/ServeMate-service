@@ -3,7 +3,7 @@ import {
 	CreateUser,
 	UpdateUserDto,
 	UserCredentials,
-	UserListItem,
+	UserListResult,
 	UserSearchCriteria,
 	ValidatedUserData,
 } from '../../dto/user.dto';
@@ -17,17 +17,11 @@ export interface IUserService {
 	validateUser(credentials: UserCredentials): Promise<ValidatedUserData>;
 
 	/**
-	 * Retrieves a list of all users.
-	 * @returns A promise that resolves to an array of user list items.
-	 */
-	findAllUsers(): Promise<UserListItem[]>;
-
-	/**
 	 * Searches for users based on specified criteria.
 	 * @param criteria - The search criteria to filter users.
 	 * @returns A promise that resolves to an array of matching user list items.
 	 */
-	findUser(criteria: UserSearchCriteria): Promise<UserListItem[]>;
+	findUsers(criteria: UserSearchCriteria): Promise<UserListResult>;
 
 	/**
 	 * Creates a new user.

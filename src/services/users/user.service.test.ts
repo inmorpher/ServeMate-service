@@ -1,5 +1,6 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { Container } from 'inversify';
 import 'reflect-metadata';
 import {
 	CreateUser,
@@ -9,50 +10,47 @@ import {
 	UserSearchCriteria,
 } from '../../dto/user.dto';
 import { HTTPError } from '../../errors/http-error.class';
-import * as passwordUtils from '../../utils/password';
+import { TYPES } from '../../types';
 import { UserService } from './user.service';
-// Extend PrismaClient type to include Jest mock methods
-type MockPrismaClient = {
-	[K in keyof PrismaClient]: jest.Mocked<PrismaClient[K]>;
-};
+import { IUserService } from './user.service.interface';
 
 describe('UserService', () => {
-	let userService: UserService;
-	let mockPrismaClient: MockPrismaClient;
+	let container: Container;
+	let userService: IUserService;
+	let mockPrismaClient: jest.Mocked<PrismaClient>;
 
 	beforeEach(() => {
+		container = new Container();
 		mockPrismaClient = {
 			user: {
 				findUnique: jest.fn(),
 				findMany: jest.fn(),
+				count: jest.fn(),
 				create: jest.fn(),
 				delete: jest.fn(),
 				update: jest.fn(),
 			},
-		} as unknown as MockPrismaClient;
+		} as unknown as jest.Mocked<PrismaClient>;
 
-		userService = new UserService(mockPrismaClient as unknown as PrismaClient);
+		container.bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(mockPrismaClient);
+		container.bind<IUserService>(TYPES.UserService).to(UserService);
+
+		userService = container.get<IUserService>(TYPES.UserService);
 	});
 
 	describe('validateUser', () => {
-		it('should validate user credentials and return user data for valid input', async () => {
-			const mockUser: Partial<User> = {
+		it('should validate user credentials and return correct user data for valid input', async () => {
+			const mockUser = {
 				id: 1,
 				name: 'John Doe',
 				email: 'john@example.com',
 				password: 'hashedPassword123',
-				role: Role.USER,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				isActive: true,
-				lastLogin: null,
-				refreshToken: null,
-				resetPasswordToken: null,
-				resetPasswordExpires: null,
+				role: 'USER',
 			};
 
-			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(mockUser as User);
-			jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+
+			jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
 
 			const userCredentials: UserCredentials = {
 				email: 'john@example.com',
@@ -65,58 +63,74 @@ describe('UserService', () => {
 				where: { email: userCredentials.email },
 				select: { id: true, password: true, email: true, name: true, role: true },
 			});
-			expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPassword123');
+
+			expect(bcrypt.compare).toHaveBeenCalledWith(userCredentials.password, mockUser.password);
+
 			expect(result).toEqual({
-				id: 1,
-				name: 'John Doe',
-				email: 'john@example.com',
+				id: mockUser.id,
+				name: mockUser.name,
+				email: mockUser.email,
 				role: Role.USER,
 			});
 		});
 
-		it('should throw HTTPError 404 when validating non-existent user', async () => {
-			const nonExistentUser: UserCredentials = {
+		it('should throw HTTPError with 404 status when user is not found during validation', async () => {
+			const userCredentials: UserCredentials = {
 				email: 'nonexistent@example.com',
 				password: 'password123',
 			};
 
 			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-			await expect(userService.validateUser(nonExistentUser)).rejects.toThrow(
+			await expect(userService.validateUser(userCredentials)).rejects.toThrow(
 				new HTTPError(404, 'UserService', 'User not found')
 			);
 
 			expect(mockPrismaClient.user.findUnique).toHaveBeenCalledWith({
-				where: { email: nonExistentUser.email },
+				where: { email: userCredentials.email },
 				select: { id: true, password: true, email: true, name: true, role: true },
 			});
 		});
 
-		it('should throw HTTPError 401 when validating user with incorrect password', async () => {
-			const mockUser: Partial<User> = {
+		it('should throw HTTPError with 401 status when password is invalid during validation', async () => {
+			const mockUser = {
 				id: 1,
 				name: 'John Doe',
 				email: 'john@example.com',
 				password: 'hashedPassword123',
-				role: Role.USER,
+				role: 'USER',
 			};
 
-			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(mockUser as User);
-			jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+
+			jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(false));
 
 			const userCredentials: UserCredentials = {
 				email: 'john@example.com',
-				password: 'incorrectPassword',
+				password: 'wrongPassword',
 			};
 
 			await expect(userService.validateUser(userCredentials)).rejects.toThrow(
 				new HTTPError(401, 'UserService', 'Invalid password')
 			);
+
+			expect(mockPrismaClient.user.findUnique).toHaveBeenCalledWith({
+				where: { email: userCredentials.email },
+				select: { id: true, password: true, email: true, name: true, role: true },
+			});
+
+			expect(bcrypt.compare).toHaveBeenCalledWith(userCredentials.password, mockUser.password);
 		});
 	});
 
-	describe('findAllUsers', () => {
-		it('should retrieve all users from the database successfully', async () => {
+	describe('findUsers', () => {
+		it('should find users based on multiple search criteria and return paginated results', async () => {
+			const searchCriteria: UserSearchCriteria = {
+				name: 'John',
+				role: Role.USER,
+				isActive: true,
+			};
+
 			const mockUsers = [
 				{
 					id: 1,
@@ -124,9 +138,86 @@ describe('UserService', () => {
 					email: 'john@example.com',
 					role: 'USER',
 					isActive: true,
+					lastLogin: new Date('2023-06-01'),
+					createdAt: new Date('2023-05-01'),
+					updatedAt: new Date('2023-06-01'),
+				},
+				{
+					id: 2,
+					name: 'John Smith',
+					email: 'smith@example.com',
+					role: 'USER',
+					isActive: true,
+					lastLogin: new Date('2023-06-15'),
+					createdAt: new Date('2023-05-15'),
+					updatedAt: new Date('2023-06-15'),
+				},
+			];
+
+			(mockPrismaClient.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
+			(mockPrismaClient.user.count as jest.Mock).mockResolvedValue(2);
+
+			const result = await userService.findUsers(searchCriteria);
+
+			const expectedWhere: any = {
+				name: { contains: 'John', mode: 'insensitive' },
+				role: { equals: 'USER' },
+				isActive: true,
+			};
+
+			if (searchCriteria.createdAfter || searchCriteria.createdBefore) {
+				expectedWhere.createdAt = {};
+				if (searchCriteria.createdAfter) {
+					expectedWhere.createdAt.gte = searchCriteria.createdAfter;
+				}
+				if (searchCriteria.createdBefore) {
+					expectedWhere.createdAt.lte = searchCriteria.createdBefore;
+				}
+			}
+
+			expect(mockPrismaClient.user.findMany).toHaveBeenCalledWith({
+				where: expectedWhere,
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					role: true,
+					isActive: true,
+					lastLogin: true,
+					createdAt: true,
+					updatedAt: true,
+				},
+				skip: 0,
+				take: 10,
+				orderBy: {
+					name: 'asc',
+				},
+			});
+
+			expect(mockPrismaClient.user.count).toHaveBeenCalledWith({
+				where: expectedWhere,
+			});
+
+			expect(result).toEqual({
+				users: mockUsers.map((user) => ({ ...user, role: Role.USER })),
+				totalCount: 2,
+				page: 1,
+				pageSize: 10,
+				totalPages: 1,
+			});
+		});
+
+		it('should handle case-insensitive email and name searches in findUsers method', async () => {
+			const mockUsers = [
+				{
+					id: 1,
+					name: 'John Doe',
+					email: 'john@example.com',
+					role: 'USER',
+					isActive: true,
+					lastLogin: new Date(),
 					createdAt: new Date(),
 					updatedAt: new Date(),
-					lastLogin: null,
 				},
 				{
 					id: 2,
@@ -134,175 +225,93 @@ describe('UserService', () => {
 					email: 'jane@example.com',
 					role: 'ADMIN',
 					isActive: true,
-					createdAt: new Date(),
-					updatedAt: new Date(),
 					lastLogin: new Date(),
-				},
-			];
-
-			(mockPrismaClient.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
-
-			const result = await userService.findAllUsers();
-
-			expect(mockPrismaClient.user.findMany).toHaveBeenCalledWith({
-				select: {
-					id: true,
-					email: true,
-					name: true,
-					role: true,
-					isActive: true,
-					createdAt: true,
-					updatedAt: true,
-					lastLogin: true,
-				},
-			});
-
-			expect(result).toEqual(
-				mockUsers.map((user) => ({ ...user, role: Role[user.role as keyof typeof Role] }))
-			);
-		});
-	});
-
-	describe('findUser', () => {
-		it('should find users based on partial name match (case-insensitive)', async () => {
-			const mockUsers = [
-				{
-					id: 1,
-					name: 'John Doe',
-					email: 'john@example.com',
-					role: 'USER',
-					isActive: true,
-					lastLogin: null,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				{
-					id: 2,
-					name: 'Jane Doe',
-					email: 'jane@example.com',
-					role: 'ADMIN',
-					isActive: true,
-					lastLogin: null,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
 			];
 
 			(mockPrismaClient.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
+			(mockPrismaClient.user.count as jest.Mock).mockResolvedValue(mockUsers.length);
 
-			const result = await userService.findUser({ name: 'doe' });
+			const criteria: UserSearchCriteria = {
+				email: 'JOHN@example.com',
+				name: 'doe',
+			};
 
-			expect(mockPrismaClient.user.findMany).toHaveBeenCalledWith({
-				where: {
-					name: { contains: 'doe', mode: 'insensitive' },
-				},
-				select: {
-					id: true,
-					name: true,
-					email: true,
-					role: true,
-					isActive: true,
-					lastLogin: true,
-					createdAt: true,
-					updatedAt: true,
-				},
-			});
+			const result = await userService.findUsers(criteria);
 
-			expect(result).toEqual(
-				mockUsers.map((user) => ({ ...user, role: Role[user.role as keyof typeof Role] }))
-			);
-		});
-
-		it('should throw HTTPError 400 when searching for users without any search criteria', async () => {
-			const emptyCriteria: UserSearchCriteria = {};
-
-			await expect(userService.findUser(emptyCriteria)).rejects.toThrow(
-				new HTTPError(400, 'UserService', 'At least one search criteria must be provided')
+			expect(mockPrismaClient.user.findMany).toHaveBeenCalledWith(
+				expect.objectContaining({
+					where: expect.objectContaining({
+						email: { contains: 'JOHN@example.com', mode: 'insensitive' },
+						name: { contains: 'doe', mode: 'insensitive' },
+					}),
+				})
 			);
 
-			expect(mockPrismaClient.user.findMany).not.toHaveBeenCalled();
-		});
-
-		it('should throw 404 when user not found in findUser method', async () => {
-			const criteria: UserSearchCriteria = { email: 'nonexistent@example.com' };
-			(mockPrismaClient.user.findMany as jest.Mock).mockResolvedValue([]);
-
-			await expect(userService.findUser(criteria)).rejects.toThrow(
-				new HTTPError(404, 'UserService', 'No users found matching the provided criteria')
-			);
-
-			expect(mockPrismaClient.user.findMany).toHaveBeenCalledWith({
-				where: {
-					email: { contains: 'nonexistent@example.com', mode: 'insensitive' },
-				},
-				select: {
-					id: true,
-					name: true,
-					email: true,
-					role: true,
-					isActive: true,
-					lastLogin: true,
-					createdAt: true,
-					updatedAt: true,
-				},
-			});
+			expect(result.users).toHaveLength(2);
+			expect(result.totalCount).toBe(2);
 		});
 	});
 
 	describe('createUser', () => {
-		it('should create a new user successfully and return created user data', async () => {
-			const newUser: CreateUser = {
-				name: 'John Doe',
-				email: 'john@example.com',
+		it('should create a new user successfully when valid data is provided', async () => {
+			const mockUser: CreateUser = {
+				name: 'Test User',
+				email: 'test@example.com',
 				password: 'password123',
 				role: Role.USER,
 			};
 
-			const hashedPassword = 'hashedPassword123';
-			jest.spyOn(passwordUtils, 'hashPassword').mockResolvedValue(hashedPassword);
+			const hashedPassword = 'hashedPassword123' as never;
+			jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword);
 
 			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(null);
 			(mockPrismaClient.user.create as jest.Mock).mockResolvedValue({
-				name: newUser.name,
-				email: newUser.email,
+				name: mockUser.name,
+				email: mockUser.email,
 			});
 
-			const result = await userService.createUser(newUser);
+			const result = await userService.createUser(mockUser);
 
 			expect(mockPrismaClient.user.findUnique).toHaveBeenCalledWith({
-				where: { email: newUser.email },
+				where: { email: mockUser.email },
 			});
+
 			expect(mockPrismaClient.user.create).toHaveBeenCalledWith({
 				data: {
-					name: newUser.name,
-					email: newUser.email,
-					role: newUser.role,
+					name: mockUser.name,
+					email: mockUser.email,
+					role: mockUser.role,
 					password: hashedPassword,
 				},
 			});
+
 			expect(result).toEqual({
-				name: newUser.name,
-				email: newUser.email,
+				name: mockUser.name,
+				email: mockUser.email,
 			});
 		});
 
-		it('should throw HTTPError 400 when attempting to create user with existing email', async () => {
+		it('should throw HTTPError with 400 status when attempting to create a user with an existing email', async () => {
 			const existingUser = {
 				id: 1,
 				name: 'Existing User',
 				email: 'existing@example.com',
 				password: 'hashedPassword123',
-				role: Role.USER,
+				role: 'USER',
 			};
 
 			const newUser: CreateUser = {
 				name: 'New User',
 				email: 'existing@example.com',
-				password: 'newPassword123',
+				password: 'password123',
 				role: Role.USER,
 			};
 
 			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(existingUser);
+			jest.spyOn(bcrypt, 'hash').mockImplementation(() => Promise.resolve('hashedPassword456'));
 
 			await expect(userService.createUser(newUser)).rejects.toThrow(
 				new HTTPError(
@@ -313,44 +322,65 @@ describe('UserService', () => {
 			);
 
 			expect(mockPrismaClient.user.findUnique).toHaveBeenCalledWith({
-				where: { email: 'existing@example.com' },
+				where: { email: newUser.email },
 			});
+
 			expect(mockPrismaClient.user.create).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('deleteUser', () => {
-		it('should throw HTTPError when attempting to delete non-existent user', async () => {
-			const nonExistentUserId = 999;
-			(mockPrismaClient.user.delete as jest.Mock).mockRejectedValue(new Error('User not found'));
+		it('should delete a user successfully when a valid ID is provided', async () => {
+			const userId = 1;
 
-			await expect(userService.deleteUser(nonExistentUserId)).rejects.toThrow(HTTPError);
+			(mockPrismaClient.user.delete as jest.Mock).mockResolvedValue(undefined);
+
+			await expect(userService.deleteUser(userId)).resolves.not.toThrow();
+
 			expect(mockPrismaClient.user.delete).toHaveBeenCalledWith({
-				where: { id: nonExistentUserId },
+				where: {
+					id: userId,
+				},
 			});
 		});
 	});
 
 	describe('updateUser', () => {
-		it('should update user information successfully for valid input', async () => {
+		it('should update user information correctly when valid data is provided', async () => {
 			const userId = 1;
-			const updateUserDto: UpdateUserDto = {
+			const updateData: UpdateUserDto = {
 				name: 'Updated Name',
 				email: 'updated@example.com',
-				role: Role.ADMIN,
-				isActive: true,
+				role: Role.MANAGER,
+				isActive: false,
 			};
 
 			(mockPrismaClient.user.update as jest.Mock).mockResolvedValue({
 				id: userId,
-				...updateUserDto,
+				...updateData,
 			});
 
-			await userService.updateUser(userId, updateUserDto);
+			await userService.updateUser(userId, updateData);
 
 			expect(mockPrismaClient.user.update).toHaveBeenCalledWith({
 				where: { id: userId },
-				data: updateUserDto,
+				data: updateData,
+			});
+		});
+
+		it('should throw HTTPError when user is not found during update', async () => {
+			const userId = 999;
+			const updateData: UpdateUserDto = { name: 'Updated Name' };
+
+			(mockPrismaClient.user.update as jest.Mock).mockRejectedValue(new Error('User not found'));
+
+			await expect(userService.updateUser(userId, updateData)).rejects.toThrow(
+				new HTTPError(404, 'UserService', 'An unexpected error occurred')
+			);
+
+			expect(mockPrismaClient.user.update).toHaveBeenCalledWith({
+				where: { id: userId },
+				data: updateData,
 			});
 		});
 	});
