@@ -32,6 +32,7 @@ export class CacheMiddleware implements IMiddleware {
 	 */
 	execute(req: Request, res: Response, next: NextFunction) {
 		const cacheKey = this.getCacheKey(req);
+
 		switch (req.method) {
 			case 'GET':
 				this.handleGet(cacheKey, req, res, next);
@@ -69,9 +70,10 @@ export class CacheMiddleware implements IMiddleware {
 
 	private cacheResponse(cacheKey: string, res: Response) {
 		const originalJson = res.json;
+
 		res.json = (body: any) => {
 			// Check if the response is successful (status code 2xx)
-			if (res.statusCode >= 200 && res.statusCode < 300) {
+			if (res.statusCode >= 200 && res.statusCode < 300 && !body.error) {
 				this.cache.set(cacheKey, body, this.cacheTTL);
 			}
 			return originalJson.call(res, body);
