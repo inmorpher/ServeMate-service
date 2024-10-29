@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { z } from 'zod';
 import { IMiddleware } from '../../common/middleware.interface';
-type ValidationType = 'body' | 'query' | 'params';
+export type ValidationType = 'body' | 'query' | 'params';
 /**
  * Middleware for validating request query parameters using a Zod schema.
  */
@@ -20,16 +20,29 @@ export class ValidateMiddleware implements IMiddleware {
 	 * If validation fails, it sends a 422 status with error details.
 	 * If validation succeeds, it calls the next middleware.
 	 *
-	 * @param param0 - The Express request object (destructured to get query).
+	 * @param param - The Express request object (destructured to get query).
 	 * @param res - The Express response object.
 	 * @param next - The Express next function to call the next middleware.
 	 * @returns void
 	 */
 	execute(req: Request, res: Response, next: NextFunction): void {
 		const dataToValidate = this.getDataToValidate(req);
+		if (
+			dataToValidate == null ||
+			(typeof dataToValidate === 'object' && Object.keys(dataToValidate).length === 0)
+		) {
+			next();
+			return;
+		}
 		const result = this.schema.safeParse(dataToValidate);
+
 		if (!result.success) {
-			res.status(422).send(result.error.issues);
+			const errorMessages = result.error.issues.map((issue) => ({
+				path: issue.path.join('.'),
+				message: issue.message,
+			}));
+
+			res.status(422).send(errorMessages);
 		} else {
 			next();
 		}

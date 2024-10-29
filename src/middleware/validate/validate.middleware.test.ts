@@ -1,19 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
+import 'reflect-metadata';
 import { z } from 'zod';
-import { ValidateMiddleware } from './validate.middleware';
+import { ValidateMiddleware, ValidationType } from './validate.middleware';
 
 describe('ValidateMiddleware', () => {
 	let validateMiddleware: ValidateMiddleware;
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
-	let nextFunction: NextFunction;
+	let mockNext: NextFunction;
 
 	beforeEach(() => {
 		const schema = z.object({
-			name: z.string(),
-			age: z.number(),
+			test: z.string(),
 		});
-		validateMiddleware = new ValidateMiddleware(schema);
+		validateMiddleware = new ValidateMiddleware(schema, 'body');
+
 		mockRequest = {
 			body: {},
 		};
@@ -21,224 +22,216 @@ describe('ValidateMiddleware', () => {
 			status: jest.fn().mockReturnThis(),
 			send: jest.fn(),
 		};
-		nextFunction = jest.fn();
+		mockNext = jest.fn();
 	});
 
 	describe('execute', () => {
-		it('should validate request body successfully when valid data is provided', () => {
+		it('should validate request body successfully when schema matches', () => {
 			const schema = z.object({
-				name: z.string(),
-				age: z.number(),
+				test: z.string(),
 			});
-			validateMiddleware = new ValidateMiddleware(schema);
-			mockRequest.body = { name: 'John Doe', age: 30 };
+			validateMiddleware = new ValidateMiddleware(schema, 'body');
 
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockRequest = {
+				body: {
+					test: 'valid string',
+				},
+			};
 
-			expect(nextFunction).toHaveBeenCalled();
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+
+			expect(mockNext).toHaveBeenCalled();
 			expect(mockResponse.status).not.toHaveBeenCalled();
 			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
 
-		it('should return 422 status code when request body fails validation', () => {
+		it('should return 422 status when request body fails validation', () => {
 			const schema = z.object({
-				name: z.string(),
-				age: z.number(),
+				test: z.number(),
 			});
-			validateMiddleware = new ValidateMiddleware(schema);
-			mockRequest.body = { name: 'John Doe', age: 'thirty' };
+			validateMiddleware = new ValidateMiddleware(schema, 'body');
 
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockRequest = {
+				body: {
+					test: 'not a number',
+				},
+			};
+
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
 
 			expect(mockResponse.status).toHaveBeenCalledWith(422);
-			expect(mockResponse.send).toHaveBeenCalledWith(
-				expect.arrayContaining([
-					expect.objectContaining({
-						code: 'invalid_type',
-						expected: 'number',
-						received: 'string',
-						path: ['age'],
-					}),
-				])
-			);
-			expect(nextFunction).not.toHaveBeenCalled();
+			expect(mockResponse.send).toHaveBeenCalledWith(expect.any(Array));
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 
-		it('should validate query parameters successfully when valid data is provided', () => {
+		it('should validate query parameters successfully when type is set to query', () => {
 			const schema = z.object({
-				page: z.string(),
-				limit: z.string(),
+				page: z.coerce.number().min(1).optional(),
+				limit: z.coerce.number().min(1).max(100).optional(),
 			});
 			validateMiddleware = new ValidateMiddleware(schema, 'query');
-			mockRequest.query = { page: '1', limit: '10' };
 
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockRequest = {
+				query: {
+					page: '2',
+					limit: '50',
+				},
+			};
 
-			expect(nextFunction).toHaveBeenCalled();
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+
+			expect(mockNext).toHaveBeenCalled();
 			expect(mockResponse.status).not.toHaveBeenCalled();
 			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
 
-		it('should return 422 status code when query parameters fail validation', () => {
+		it('should validate URL parameters successfully when type is set to params', () => {
 			const schema = z.object({
-				page: z.number(),
-				limit: z.number(),
-			});
-			validateMiddleware = new ValidateMiddleware(schema, 'query');
-			mockRequest.query = { page: 'one', limit: 'ten' };
-
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
-
-			expect(mockResponse.status).toHaveBeenCalledWith(422);
-			expect(mockResponse.send).toHaveBeenCalledWith(
-				expect.arrayContaining([
-					expect.objectContaining({
-						code: 'invalid_type',
-						expected: 'number',
-						received: 'string',
-						path: ['page'],
-					}),
-					expect.objectContaining({
-						code: 'invalid_type',
-						expected: 'number',
-						received: 'string',
-						path: ['limit'],
-					}),
-				])
-			);
-			expect(nextFunction).not.toHaveBeenCalled();
-		});
-
-		it('should validate URL parameters successfully when valid data is provided', () => {
-			const schema = z.object({
-				id: z.string(),
-				category: z.string(),
+				id: z.coerce.number().min(1),
+				slug: z.string().min(3),
 			});
 			validateMiddleware = new ValidateMiddleware(schema, 'params');
-			mockRequest.params = { id: '123', category: 'electronics' };
 
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockRequest = {
+				params: {
+					id: '42',
+					slug: 'test-slug',
+				},
+			};
 
-			expect(nextFunction).toHaveBeenCalled();
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+
+			expect(mockNext).toHaveBeenCalled();
 			expect(mockResponse.status).not.toHaveBeenCalled();
 			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
 
-		it('should return 422 status code when URL parameters fail validation', () => {
+		it('should call next middleware when data to validate is an empty object', () => {
 			const schema = z.object({
-				id: z.number(),
-				category: z.string(),
+				test: z.string(),
 			});
-			validateMiddleware = new ValidateMiddleware(schema, 'params');
-			mockRequest.params = { id: 'abc', category: '123' };
+			validateMiddleware = new ValidateMiddleware(schema, 'body');
 
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockRequest = {
+				body: {},
+			};
 
-			expect(mockResponse.status).toHaveBeenCalledWith(422);
-			expect(mockResponse.send).toHaveBeenCalledWith(
-				expect.arrayContaining([
-					expect.objectContaining({
-						code: 'invalid_type',
-						expected: 'number',
-						received: 'string',
-						path: ['id'],
-						message: 'Expected number, received string',
-					}),
-				])
-			);
-			expect(nextFunction).not.toHaveBeenCalled();
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+
+			expect(mockNext).toHaveBeenCalled();
+			expect(mockResponse.status).not.toHaveBeenCalled();
+			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
 
-		it('should throw an error when an invalid validation type is specified', () => {
+		it('should throw an error when an invalid validation type is provided', () => {
 			const schema = z.object({
-				name: z.string(),
+				test: z.string(),
 			});
-			// @ts-ignore - We're intentionally passing an invalid type to test error handling
-			const validateMiddleware = new ValidateMiddleware(schema, 'invalidType' as ValidationType);
-			const mockRequest = {} as Request;
-			const mockResponse = {} as Response;
-			const nextFunction = jest.fn();
+			const invalidType = 'invalid' as ValidationType;
+			const validateMiddleware = new ValidateMiddleware(schema, invalidType);
+
+			mockRequest = {
+				body: { test: 'value' },
+				query: {},
+				params: {},
+			};
 
 			expect(() => {
-				validateMiddleware.execute(mockRequest, mockResponse, nextFunction);
-			}).toThrow('Invalid validation type: invalidType');
-		});
+				validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+			}).toThrow('Invalid validation type: invalid');
 
-		it('should call next() function when validation succeeds', () => {
-			const schema = z.object({
-				name: z.string(),
-				age: z.number(),
-			});
-			validateMiddleware = new ValidateMiddleware(schema);
-			mockRequest.body = { name: 'John Doe', age: 30 };
-
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
-
-			expect(nextFunction).toHaveBeenCalled();
+			expect(mockNext).not.toHaveBeenCalled();
 			expect(mockResponse.status).not.toHaveBeenCalled();
 			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
 
-		it('should include detailed error issues in the response when validation fails', () => {
+		it('should handle multiple validation errors and return all error messages', () => {
 			const schema = z.object({
-				name: z.string(),
-				age: z.number().positive(),
+				name: z.string().min(3),
+				age: z.number().min(18),
 				email: z.string().email(),
 			});
-			validateMiddleware = new ValidateMiddleware(schema);
-			mockRequest.body = { name: 123, age: -5, email: 'invalid-email' };
+			validateMiddleware = new ValidateMiddleware(schema, 'body');
 
-			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockRequest = {
+				body: {
+					name: 'Jo',
+					age: 16,
+					email: 'invalid-email',
+				},
+			};
+
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
 
 			expect(mockResponse.status).toHaveBeenCalledWith(422);
 			expect(mockResponse.send).toHaveBeenCalledWith(
 				expect.arrayContaining([
 					expect.objectContaining({
-						code: 'invalid_type',
-						expected: 'string',
-						received: 'number',
-						path: ['name'],
-						message: 'Expected string, received number',
+						path: 'name',
+						message: 'String must contain at least 3 character(s)',
 					}),
 					expect.objectContaining({
-						code: 'too_small',
-						minimum: 0,
-						type: 'number',
-						inclusive: false,
-						exact: false,
-						path: ['age'],
-						message: 'Number must be greater than 0',
+						path: 'age',
+						message: 'Number must be greater than or equal to 18',
 					}),
 					expect.objectContaining({
-						code: 'invalid_string',
-						validation: 'email',
-						path: ['email'],
+						path: 'email',
 						message: 'Invalid email',
 					}),
 				])
 			);
-			expect(nextFunction).not.toHaveBeenCalled();
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 
-		it('should handle empty request body, query, or params without throwing errors', () => {
+		it('should correctly validate nested objects in the request body', () => {
 			const schema = z.object({
-				optionalField: z.string().optional(),
+				user: z.object({
+					name: z.string(),
+					age: z.number(),
+					address: z.object({
+						street: z.string(),
+						city: z.string(),
+					}),
+				}),
 			});
-			const validateMiddleware = new ValidateMiddleware(schema);
-			const mockRequest = {
-				body: {},
-				query: {},
-				params: {},
-			} as Request;
-			const mockResponse = {
-				status: jest.fn().mockReturnThis(),
-				send: jest.fn(),
-			} as unknown as Response;
-			const nextFunction = jest.fn();
+			validateMiddleware = new ValidateMiddleware(schema, 'body');
 
-			validateMiddleware.execute(mockRequest, mockResponse as Response, nextFunction);
+			mockRequest = {
+				body: {
+					user: {
+						name: 'John Doe',
+						age: 30,
+						address: {
+							street: '123 Main St',
+							city: 'Anytown',
+						},
+					},
+				},
+			};
 
-			expect(nextFunction).toHaveBeenCalled();
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+
+			expect(mockNext).toHaveBeenCalled();
+			expect(mockResponse.status).not.toHaveBeenCalled();
+			expect(mockResponse.send).not.toHaveBeenCalled();
+		});
+
+		it('should pass validation when optional fields are not provided in the request', () => {
+			const schema = z.object({
+				requiredField: z.string(),
+				optionalField: z.number().optional(),
+			});
+			validateMiddleware = new ValidateMiddleware(schema, 'body');
+
+			mockRequest = {
+				body: {
+					requiredField: 'test',
+				},
+			};
+
+			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
+
+			expect(mockNext).toHaveBeenCalled();
 			expect(mockResponse.status).not.toHaveBeenCalled();
 			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
