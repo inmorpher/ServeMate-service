@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
 /**
+ * User-related enums
+ */
+
+/**
  * Enum representing the possible roles a user can have in the system.
  * These roles determine the user's permissions and access levels.
  * @enum {string}
@@ -15,6 +19,31 @@ export enum Role {
 	/** User with management responsibilities, having elevated permissions compared to standard users */
 	MANAGER = 'MANAGER',
 }
+
+/**
+ * Enumeration of possible columns for sorting user data.
+ * This enum defines the valid columns that can be used for sorting in user-related queries or operations.
+ *
+ * @enum {string}
+ */
+export enum UserSortColumn {
+	/** Sort by user ID */
+	ID = 'id',
+	/** Sort by user name */
+	NAME = 'name',
+	/** Sort by user email */
+	EMAIL = 'email',
+	/** Sort by user role */
+	ROLE = 'role',
+	/** Sort by user creation date */
+	CREATED_AT = 'createdAt',
+	/** Sort by user last update date */
+	UPDATED_AT = 'updatedAt',
+}
+
+/**
+ * User schemas
+ */
 
 /**
  * Schema for a complete user object.
@@ -32,22 +61,6 @@ export const UserSchema = z.object({
 	updatedAt: z.date().default(() => new Date()),
 	lastLogin: z.date().optional().nullable(),
 });
-
-/**
- * Type definition for a complete user object.
- * This type is inferred from the UserSchema, ensuring type safety when working with user data.
- * @typedef {Object} UserDto
- * @property {number} id - The unique identifier for the user
- * @property {string} name - The user's full name
- * @property {string} email - The user's email address
- * @property {Role} role - The user's role in the system
- * @property {boolean} isActive - Whether the user account is active
- * @property {string} password - The user's hashed password
- * @property {Date} createdAt - The timestamp when the user account was created
- * @property {Date} updatedAt - The timestamp when the user account was last updated
- * @property {Date | null} [lastLogin] - The timestamp of the user's last login (optional)
- */
-export type UserDto = z.infer<typeof UserSchema>;
 
 /**
  * Schema for creating a new user.
@@ -70,24 +83,6 @@ export const CreateUserSchema = UserSchema.pick({
 });
 
 /**
- * Type definition for the data required to create a new user.
- * This type is inferred from the CreateUserSchema, ensuring type safety when creating users.
- *
- * @property {string} name - The user's name (non-empty string)
- * @property {string} email - The user's email address (valid email format)
- * @property {Role} role - The user's role in the system. Must be one of the following:
- *   - ADMIN: Administrator with full system access
- *   - USER: Standard user with basic privileges
- *   - HOST: User with hosting capabilities
- *   - MANAGER: User with management responsibilities
- * @property {string} password - The user's password (will be hashed before storage)
- *
- * @see {@link Role} for the complete list of available roles
- * @see {@link UserSchema} for the full user schema including additional fields
- */
-export type CreateUserDto = z.infer<typeof CreateUserSchema>;
-
-/**
  * Schema for a single ID parameter.
  * Used when an API endpoint requires only an ID as input.
  *
@@ -98,21 +93,23 @@ export const IdParamSchema = z.object({
 });
 
 /**
- * Type definition for an ID parameter.
- * This type is inferred from the IdParamSchema.
- *
- * @property {string} id - The unique identifier (non-empty string)
- */
-export type IdParamDto = z.infer<typeof IdParamSchema>;
-
-/**
  * Schema for user query parameters.
- * Used when searching or filtering users.
- * At least one of these parameters must be provided.
+ * This schema defines and validates the structure of query parameters used for searching, filtering, and sorting users.
  *
- * @property {number} [id] - The user's ID (optional).
- * @property {string} [email] - The user's email address (optional).
- * @property {string} [name] - The user's name (optional, minimum 3 characters).
+ * @param {object} params - The object containing user query parameters
+ * @param {string} [params.id] - The user's ID (optional, will be transformed to a number)
+ * @param {string} [params.email] - The user's email address (optional, must be a valid email)
+ * @param {string} [params.name] - The user's name (optional, minimum 3 characters)
+ * @param {string} [params.page] - The page number for pagination (optional, will be transformed to a number)
+ * @param {string} [params.pageSize] - The number of items per page (optional, will be transformed to a number)
+ * @param {UserSortColumn} [params.sortBy] - The column to sort by (optional, must be a valid UserSortColumn)
+ * @param {'asc' | 'desc'} [params.sortOrder] - The order to sort in (optional, 'asc' or 'desc')
+ * @param {string} [params.role] - The user's role (optional, will be transformed to uppercase and validated against Role enum)
+ * @param {boolean} [params.isActive] - The user's active status (optional)
+ * @param {string} [params.createdAfter] - The date after which users were created (optional, must be a valid date string)
+ * @param {string} [params.createdBefore] - The date before which users were created (optional, must be a valid date string)
+ *
+ * @returns {z.ZodObject} A Zod schema object that can be used to validate and transform user query parameters
  */
 export const UserParamSchema = z
 	.object({
@@ -122,20 +119,37 @@ export const UserParamSchema = z
 			.transform((value) => (value ? parseInt(value) : undefined)),
 		email: z.string().email().optional(),
 		name: z.string().min(3).optional(),
+		page: z
+			.string()
+			.optional()
+			.transform((value) => (value ? parseInt(value) : undefined)),
+		pageSize: z
+			.string()
+			.optional()
+			.transform((value) => (value ? parseInt(value) : undefined)),
+		sortBy: z.nativeEnum(UserSortColumn).optional(),
+		sortOrder: z.enum(['asc', 'desc']).optional(),
+		role: z
+			.string()
+			.optional()
+			.transform((value) => value?.toUpperCase())
+			.pipe(z.nativeEnum(Role))
+			.optional(),
+		isActive: z.boolean().optional(),
+		createdAfter: z
+			.string()
+			.optional()
+			.refine((value) => !value || !isNaN(Date.parse(value)), {
+				message: 'createdAfter must be a valid date string',
+			}),
+		createdBefore: z
+			.string()
+			.optional()
+			.refine((value) => !value || !isNaN(Date.parse(value)), {
+				message: 'createdBefore must be a valid date string',
+			}),
 	})
-	.refine((data) => data.id || data.email || data.name, {
-		message: 'At least one of id, email, or name must be provided in the path',
-	});
-
-/**
- * Type definition for user query parameters.
- * This type is inferred from the UserParamSchema.
- *
- * @property {number} [id] - The user's ID (optional)
- * @property {string} [email] - The user's email address (optional)
- * @property {string} [name] - The user's name (optional, minimum 3 characters)
- */
-export type UserQueryParamDto = z.infer<typeof UserParamSchema>;
+	.partial();
 
 /**
  * Schema for updating user information.
@@ -160,6 +174,86 @@ export const UpdateUserSchema = UserSchema.pick({
 	});
 
 /**
+ * Schema for user login credentials.
+ * Used for authenticating users in the system.
+ *
+ * @property {string} email - The user's email address.
+ * @property {string} password - The user's password.
+ */
+export const UserLoginSchema = UserSchema.pick({
+	email: true,
+	password: true,
+});
+
+/**
+ * User types
+ */
+
+/**
+ * Type definition for a complete user object.
+ * This type is inferred from the UserSchema, ensuring type safety when working with user data.
+ * @typedef {Object} UserDto
+ * @property {number} id - The unique identifier for the user
+ * @property {string} name - The user's full name
+ * @property {string} email - The user's email address
+ * @property {Role} role - The user's role in the system
+ * @property {boolean} isActive - Whether the user account is active
+ * @property {string} password - The user's hashed password
+ * @property {Date} createdAt - The timestamp when the user account was created
+ * @property {Date} updatedAt - The timestamp when the user account was last updated
+ * @property {Date | null} [lastLogin] - The timestamp of the user's last login (optional)
+ */
+export type UserDto = z.infer<typeof UserSchema>;
+
+/**
+ * Type definition for the data required to create a new user.
+ * This type is inferred from the CreateUserSchema, ensuring type safety when creating users.
+ *
+ * @property {string} name - The user's name (non-empty string)
+ * @property {string} email - The user's email address (valid email format)
+ * @property {Role} role - The user's role in the system. Must be one of the following:
+ *   - ADMIN: Administrator with full system access
+ *   - USER: Standard user with basic privileges
+ *   - HOST: User with hosting capabilities
+ *   - MANAGER: User with management responsibilities
+ * @property {string} password - The user's password (will be hashed before storage)
+ *
+ * @see {@link Role} for the complete list of available roles
+ * @see {@link UserSchema} for the full user schema including additional fields
+ */
+export type CreateUserDto = z.infer<typeof CreateUserSchema>;
+
+/**
+ * Type definition for an ID parameter.
+ * This type is inferred from the IdParamSchema.
+ *
+ * @property {string} id - The unique identifier (non-empty string)
+ */
+export type IdParamDto = z.infer<typeof IdParamSchema>;
+
+/**
+ * Represents the shape of query parameters used for user-related operations.
+ * This type is inferred from the UserParamSchema, ensuring type safety and consistency
+ * with the defined schema for user query parameters.
+ *
+ *
+ * @property {number} [id] - The user's ID (optional)
+ * @property {string} [email] - The user's email address (optional)
+ * @property {string} [name] - The user's name (optional, minimum 3 characters)
+ * @property {number} [page] - The page number for pagination (optional)
+ * @property {number} [pageSize] - The number of items per page (optional)
+ * @property {UserSortColumn} [sortBy] - The column to sort by (optional)
+ * @property {'asc' | 'desc'} [sortOrder] - The order to sort in (optional)
+ * @property {Role} [role] - The user's role (optional)
+ * @property {boolean} [isActive] - The user's active status (optional)
+ * @property {string} [createdAfter] - The date after which users were created (optional)
+ * @property {string} [createdBefore] - The date before which users were created (optional)
+ * @see {@link UserSortColumn} for the available sort columns
+ * @see {@link Role} for the available user roles
+ */
+export type UserSearchCriteria = z.infer<typeof UserParamSchema>;
+
+/**
  * Type definition for updating user information.
  * This type is inferred from the UpdateUserSchema.
  *
@@ -171,18 +265,6 @@ export const UpdateUserSchema = UserSchema.pick({
  * @see {@link Role} for the available user roles
  */
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
-
-/**
- * Schema for user login credentials.
- * Used for authenticating users in the system.
- *
- * @property {string} email - The user's email address.
- * @property {string} password - The user's password.
- */
-export const UserLoginSchema = UserSchema.pick({
-	email: true,
-	password: true,
-});
 
 /**
  * Type definition for user validation credentials.
@@ -223,14 +305,37 @@ export type ValidatedUserData = Omit<
 export type UserListItem = Omit<UserDto, 'password'>;
 
 /**
- * Type definition for user search criteria.
- * This type is inferred from the UserParamSchema and used for searching or filtering users.
+ * Represents the result of a user list query.
+ * This type encapsulates both the list of users and the total count of users matching the query criteria.
  *
- * @property {number} [id] - The user's ID (optional)
- * @property {string} [email] - The user's email address (optional)
- * @property {string} [name] - The user's name (optional, minimum 3 characters)
+ * @see {@link UserListItem}
+ * @property { UserListItem[]} users -  An array of user objects, each containing non-sensitive user information.
+ * @property {number} totalCount - The total number of users that match the query criteria, regardless of pagination.
  */
-export type UserSearchCriteria = z.infer<typeof UserParamSchema>;
+export type UserListResult = {
+	users: UserListItem[];
+	totalCount: number;
+	page: number;
+	pageSize: number;
+	totalPages: number;
+};
+
+/**
+ * Represents the filters that can be applied when querying users.
+ *
+ * @interface IUserFilters
+ * @property {Role} [role] - Optional. The role to filter users by.
+ * @property {boolean} [isActive] - Optional. Whether to filter for active or inactive users.
+ * @property {Date} [createdAfter] - Optional. The date after which users were created.
+ * @property {Date} [createdBefore] - Optional. The date before which users were created.
+ * @see {@link Role} for the available user roles.
+ */
+export type IUserFilters = {
+	role?: Role;
+	isActive?: boolean;
+	createdAfter?: Date;
+	createdBefore?: Date;
+};
 
 /**
  * Type definition for creating a new user.
@@ -240,6 +345,7 @@ export type UserSearchCriteria = z.infer<typeof UserParamSchema>;
  * @property {string} email - The user's email address
  * @property {Role} role - The user's role in the system
  * @property {string} password - The user's password (will be hashed before storage)
+ * @see {@link Role} for the available user roles
  */
 export type CreateUser = z.infer<typeof CreateUserSchema>;
 
