@@ -4,6 +4,7 @@ import { HTTPError } from '../errors/http-error.class';
 
 @injectable()
 export abstract class BaseService {
+	protected abstract serviceName: string;
 	constructor() {}
 	/**
 	 * Handles various types of errors and converts them into HTTPError instances.
@@ -14,21 +15,21 @@ export abstract class BaseService {
 	 * @param serviceName - The name of the service where the error occurred.
 	 * @returns An HTTPError instance with appropriate status code, service name, and error message.
 	 */
-	protected handleError(error: unknown, serviceName: string): HTTPError {
+	protected handleError(error: unknown): HTTPError {
 		if (error instanceof PrismaClientKnownRequestError) {
 			const baseMessage = 'Database operation failed';
 			switch (error.code) {
 				case 'P2002':
 					return new HTTPError(
 						409,
-						serviceName,
+						this.serviceName,
 						'Unique constraint violation',
 						`${baseMessage}: ${error.message}`
 					);
 				case 'P2025':
 					return new HTTPError(
 						404,
-						serviceName,
+						this.serviceName,
 						'Record not found',
 						`${baseMessage}: ${error.message}`
 					);
@@ -37,22 +38,22 @@ export abstract class BaseService {
 				case 'P2023':
 					return new HTTPError(
 						400,
-						serviceName,
+						this.serviceName,
 						'Invalid input data',
 						`${baseMessage}: ${error.message}`
 					);
 				default:
-					return new HTTPError(500, serviceName, baseMessage, error.message);
+					return new HTTPError(500, this.serviceName, baseMessage, error.message);
 			}
 		}
 
 		if (error instanceof HTTPError) {
-			return new HTTPError(error.statusCode, serviceName, error.message, error.path);
+			return new HTTPError(error.statusCode, this.serviceName, error.message, error.path);
 		}
 
 		return new HTTPError(
 			500,
-			serviceName,
+			this.serviceName,
 			'An unexpected error occurred',
 			error instanceof Error ? error.message : String(error)
 		);
