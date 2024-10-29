@@ -1,254 +1,466 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
 import 'reflect-metadata';
-import { Role } from '../../dto/user.dto';
+import { Role, UserListResult, UserParamSchema } from '../../dto/user.dto';
+import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
 import { TYPES } from '../../types';
 import { UserController } from './users.controller';
 
 describe('UserController', () => {
+	let container: Container;
 	let userController: UserController;
-	let mockUserService: jest.Mocked<UserService>;
 	let mockLogger: jest.Mocked<ILogger>;
+	let mockUserService: jest.Mocked<UserService>;
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
-	let nextFunction: NextFunction;
+	let mockNext: NextFunction;
 
 	beforeEach(() => {
-		mockUserService = {
-			findAllUsers: jest.fn(),
-			findUser: jest.fn(),
-			createUser: jest.fn(),
-			deleteUser: jest.fn(),
-			updateUser: jest.fn(),
-		} as unknown as jest.Mocked<UserService>;
-
+		container = new Container();
 		mockLogger = {
 			log: jest.fn(),
 			error: jest.fn(),
 			warn: jest.fn(),
+			setContext: jest.fn(),
 			debug: jest.fn(),
 			silly: jest.fn(),
-			setContext: jest.fn(),
 		} as jest.Mocked<ILogger>;
 
-		const container = new Container();
+		mockUserService = {
+			findUsers: jest.fn(),
+			createUser: jest.fn(),
+			deleteUser: jest.fn(),
+			updateUser: jest.fn(),
+			validateUser: jest.fn(),
+		} as Partial<jest.Mocked<UserService>> as jest.Mocked<UserService>;
+
 		container.bind<ILogger>(TYPES.ILogger).toConstantValue(mockLogger);
 		container.bind<UserService>(TYPES.UserService).toConstantValue(mockUserService);
+		container.bind<UserController>(UserController).toSelf();
 
-		userController = new UserController(mockLogger, mockUserService);
-
+		userController = container.get<UserController>(UserController);
 		userController.ok = jest.fn();
-
 		mockRequest = {};
 		mockResponse = {
 			status: jest.fn().mockReturnThis(),
-			json: jest.fn().mockReturnThis(),
-			send: jest.fn().mockReturnThis(),
+			json: jest.fn(),
 		};
-		nextFunction = jest.fn();
+		mockNext = jest.fn();
 	});
 
-	describe('getAllUsers', () => {
-		it('should retrieve all users successfully when the database is populated', async () => {
-			const users = [
-				{
-					id: 1,
-					name: 'John Doe',
-					email: 'john@example.com',
-					role: Role.USER,
-					isActive: true,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				{
-					id: 2,
-					name: 'Jane Doe',
-					email: 'jane@example.com',
-					role: Role.ADMIN,
-					isActive: true,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-			];
+	describe('getUsers', () => {
+		it('should retrieve users with default pagination when no query parameters are provided', async () => {
+			const mockRequest = {
+				query: {},
+			} as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
 
-			mockUserService.findAllUsers.mockResolvedValue(users);
+			const expectedResult: UserListResult = {
+				users: [
+					{
+						id: 1,
+						name: 'John Doe',
+						email: 'john@example.com',
+						role: Role.USER,
+						isActive: true,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+						lastLogin: new Date(),
+					},
+				],
+				totalCount: 1,
+				page: 1,
+				pageSize: 10,
+				totalPages: 1,
+			};
 
-			await userController.getAllUsers(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
+			mockUserService.findUsers.mockResolvedValue(expectedResult);
+
+			await userController.getUsers(mockRequest, mockResponse, mockNext);
+
+			expect(mockUserService.findUsers).toHaveBeenCalledWith({}, 1, 10, 'name', 'asc');
+			expect(userController.ok).toHaveBeenCalledWith(mockResponse, expectedResult);
+			expect(mockNext).not.toHaveBeenCalled();
+		});
+
+		it('should filter users by role and return only matching results', async () => {
+			const mockRequest = {
+				query: {
+					role: Role.MANAGER,
+				},
+			} as unknown as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
+
+			const expectedResult = {
+				users: [
+					{
+						id: 1,
+						name: 'John Doe',
+						email: 'john@example.com',
+						role: Role.MANAGER,
+						isActive: true,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+						lastLogin: new Date(),
+					},
+				],
+				totalCount: 1,
+				page: 1,
+				pageSize: 10,
+				totalPages: 1,
+			};
+
+			mockUserService.findUsers.mockResolvedValue(expectedResult);
+
+			await userController.getUsers(mockRequest, mockResponse, mockNext);
+
+			expect(mockUserService.findUsers).toHaveBeenCalledWith(
+				{ role: Role.MANAGER },
+				1,
+				10,
+				'name',
+				'asc'
 			);
-
-			expect(mockUserService.findAllUsers).toHaveBeenCalled();
-			expect(userController.ok).toHaveBeenCalledWith(mockResponse, users);
+			expect(userController.ok).toHaveBeenCalledWith(mockResponse, expectedResult);
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 
-		it('should return an empty array when no users exist in the database', async () => {
-			mockUserService.findAllUsers.mockResolvedValue([]);
-
-			await userController.getAllUsers(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
-			);
-
-			expect(mockUserService.findAllUsers).toHaveBeenCalled();
-			expect(userController.ok).toHaveBeenCalledWith(mockResponse, []);
-		});
-	});
-
-	describe('getUser', () => {
-		it('should return user details when queried with a valid email', async () => {
-			const user = [
-				{
-					id: 1,
-					name: 'John Doe',
-					email: 'john@example.com',
-					role: Role.USER,
-					isActive: true,
-					createdAt: new Date(),
-					updatedAt: new Date(),
+		it('should sort users by a specified column in ascending and descending order', async () => {
+			const mockRequest = {
+				query: {
+					sortBy: 'email',
+					sortOrder: 'desc',
 				},
-			];
+			} as unknown as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
 
-			mockUserService.findUser.mockResolvedValue(user);
-			mockRequest.query = { email: 'john@example.com' };
+			const expectedResultDesc: UserListResult = {
+				users: [
+					{
+						id: 2,
+						name: 'Zoe Smith',
+						email: 'zoe@example.com',
+						role: Role.USER,
+						isActive: true,
+						createdAt: new Date('2023-05-02T10:00:00Z'),
+						updatedAt: new Date('2023-05-02T10:00:00Z'),
+						lastLogin: new Date('2023-05-02T11:00:00Z'),
+					},
+					{
+						id: 1,
+						name: 'Alice Johnson',
+						email: 'alice@example.com',
+						role: Role.ADMIN,
+						isActive: true,
+						createdAt: new Date('2023-05-01T09:00:00Z'),
+						updatedAt: new Date('2023-05-01T09:00:00Z'),
+						lastLogin: new Date('2023-05-02T08:30:00Z'),
+					},
+				],
+				totalCount: 2,
+				page: 1,
+				pageSize: 10,
+				totalPages: 1,
+			};
 
-			await userController.getUser(mockRequest as Request, mockResponse as Response, nextFunction);
+			mockUserService.findUsers.mockResolvedValueOnce(expectedResultDesc);
 
-			expect(mockUserService.findUser).toHaveBeenCalledWith({ email: 'john@example.com' });
-			expect(userController.ok).toHaveBeenCalledWith(mockResponse, user);
+			await userController.getUsers(mockRequest, mockResponse, mockNext);
+
+			expect(mockUserService.findUsers).toHaveBeenCalledWith(
+				{ sortBy: 'email', sortOrder: 'desc' },
+				1,
+				10,
+				'email',
+				'desc'
+			);
+			expect(userController.ok).toHaveBeenCalledWith(mockResponse, expectedResultDesc);
+
+			// Test ascending order
+			mockRequest.query.sortOrder = 'asc';
+			const expectedResultAsc: UserListResult = {
+				users: [
+					{
+						id: 1,
+						name: 'Alice Johnson',
+						email: 'alice@example.com',
+						role: Role.ADMIN,
+						isActive: true,
+						createdAt: new Date('2023-05-01T09:00:00Z'),
+						updatedAt: new Date('2023-05-01T09:00:00Z'),
+						lastLogin: new Date('2023-05-02T08:30:00Z'),
+					},
+					{
+						id: 2,
+						name: 'Zoe Smith',
+						email: 'zoe@example.com',
+						role: Role.USER,
+						isActive: true,
+						createdAt: new Date('2023-05-02T10:00:00Z'),
+						updatedAt: new Date('2023-05-02T10:00:00Z'),
+						lastLogin: new Date('2023-05-02T11:00:00Z'),
+					},
+				],
+				totalCount: 2,
+				page: 1,
+				pageSize: 10,
+				totalPages: 1,
+			};
+
+			mockUserService.findUsers.mockResolvedValueOnce(expectedResultAsc);
+
+			await userController.getUsers(mockRequest, mockResponse, mockNext);
+
+			expect(mockUserService.findUsers).toHaveBeenCalledWith(
+				{ sortBy: 'email', sortOrder: 'asc' },
+				1,
+				10,
+				'email',
+				'asc'
+			);
+			expect(userController.ok).toHaveBeenCalledWith(mockResponse, expectedResultAsc);
+
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 
-		it('should return an error when queried with an invalid user ID format', async () => {
-			mockRequest.query = { id: 'invalid-id' };
+		it('should handle invalid query parameters', () => {
+			const mockRequest = {
+				query: {
+					page: 'invalid',
+					pageSize: 'invalid',
+					sortBy: 'invalidColumn',
+					sortOrder: 'invalid',
+				},
+			} as unknown as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				send: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
 
-			await userController.getUser(mockRequest as Request, mockResponse as Response, nextFunction);
+			const validateMiddleware = new ValidateMiddleware(UserParamSchema, 'query');
 
-			expect(mockUserService.findUser).toHaveBeenCalledWith({ id: 'invalid-id' });
-			expect(userController.ok).toHaveBeenCalledWith(mockResponse, undefined);
+			validateMiddleware.execute(mockRequest, mockResponse, mockNext);
+
+			expect(mockResponse.status).toHaveBeenCalledWith(422);
+			expect(mockResponse.send).toHaveBeenCalledWith(expect.any(Array));
+			expect(mockNext).not.toHaveBeenCalled();
+
+			expect(mockUserService.findUsers).not.toHaveBeenCalled();
+			expect(userController.ok).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('createUser', () => {
-		it('should create a new user successfully with valid input data', async () => {
-			mockRequest.body = {
-				name: 'Alice Smith',
-				email: 'alice@example.com',
-				role: Role.USER,
-				password: 'securePassword123',
-			};
+		it('should create a new user with valid input data and return a success message', async () => {
+			const mockRequest = {
+				body: {
+					name: 'John Doe',
+					email: 'john@example.com',
+					role: Role.USER,
+					password: 'password123',
+				},
+			} as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
 
-			const newUser = {
-				id: 3,
-				name: 'Alice Smith',
-				email: 'alice@example.com',
+			const createdUser = {
+				id: 1,
+				name: 'John Doe',
+				email: 'john@example.com',
 				role: Role.USER,
 				isActive: true,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
 
-			mockUserService.createUser.mockResolvedValue(newUser);
+			mockUserService.createUser.mockResolvedValue(createdUser);
 
-			await userController.createUser(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
-			);
+			await userController.createUser(mockRequest, mockResponse, mockNext);
 
 			expect(mockUserService.createUser).toHaveBeenCalledWith({
-				name: 'Alice Smith',
-				email: 'alice@example.com',
+				name: 'John Doe',
+				email: 'john@example.com',
 				role: Role.USER,
-				password: 'securePassword123',
+				password: 'password123',
 			});
 			expect(mockLogger.log).toHaveBeenCalledWith(
-				'User ALICE SMITH alice@example.com created successfully'
+				'User JOHN DOE john@example.com created successfully'
 			);
 			expect(userController.ok).toHaveBeenCalledWith(
 				mockResponse,
-				'User ALICE SMITH alice@example.com created successfully'
+				'User JOHN DOE john@example.com created successfully'
 			);
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 
-		it('should return an error when creating a user with missing required fields', async () => {
-			mockRequest.body = {
-				name: 'Alice Smith',
-				// Missing email, role, and password fields
-			};
+		it('should return an error when trying to create a user without proper role permissions', async () => {
+			const mockRequest = {
+				body: {
+					name: 'John Doe',
+					email: 'john@example.com',
+					role: Role.USER,
+					password: 'password123',
+				},
+			} as Request;
 
-			await userController.createUser(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
-			);
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
 
-			expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
+			const mockNext = jest.fn() as NextFunction;
+
+			const mockError = new Error('Unauthorized: Insufficient role permissions');
+			mockUserService.createUser.mockRejectedValue(mockError);
+
+			await userController.createUser(mockRequest, mockResponse, mockNext);
+
+			expect(mockUserService.createUser).toHaveBeenCalledWith({
+				name: 'John Doe',
+				email: 'john@example.com',
+				role: Role.USER,
+				password: 'password123',
+			});
+			expect(mockNext).toHaveBeenCalledWith(mockError);
+			expect(mockLogger.log).toHaveBeenCalled();
+			expect(userController.ok).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('deleteUser', () => {
-		it('should delete a user successfully when provided with a valid user ID', async () => {
+		it('should delete a user by ID and return a success message', async () => {
 			const userId = 1;
-			mockRequest.params = { id: userId.toString() };
+			const mockRequest = {
+				params: { id: userId.toString() },
+			} as unknown as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
 
-			await userController.deleteUser(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
-			);
+			mockUserService.deleteUser.mockResolvedValue(undefined);
+
+			await userController.deleteUser(mockRequest, mockResponse, mockNext);
 
 			expect(mockUserService.deleteUser).toHaveBeenCalledWith(userId);
 			expect(userController.ok).toHaveBeenCalledWith(
 				mockResponse,
 				`User with ID ${userId} deleted successfully`
 			);
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 
-		it('should return an error when attempting to delete a non-existent user', async () => {
-			mockRequest.params = { id: '999' }; // Assuming 999 is a non-existent user ID
+		it('should return an error when trying to delete a non-existent user', async () => {
+			const mockRequest = {
+				params: { id: '999' },
+			} as unknown as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
+
 			const error = new Error('User not found');
 			mockUserService.deleteUser.mockRejectedValue(error);
 
-			await userController.deleteUser(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
-			);
+			await userController.deleteUser(mockRequest, mockResponse, mockNext);
 
 			expect(mockUserService.deleteUser).toHaveBeenCalledWith(999);
-			expect(nextFunction).toHaveBeenCalledWith(error);
+			expect(mockNext).toHaveBeenCalledWith(error);
+			expect(userController.ok).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('updateUser', () => {
-		it('should update user details successfully with valid input data', async () => {
-			const userId = 1;
-			mockRequest.params = { id: userId.toString() };
-			mockRequest.body = {
+		it("should update a user's information and return a success message", async () => {
+			const mockRequest = {
+				params: { id: '1' },
+				body: { name: 'Updated Name', email: 'updated@example.com' },
+			} as unknown as Request;
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+			const mockNext = jest.fn() as NextFunction;
+
+			mockUserService.updateUser.mockResolvedValue(undefined);
+
+			await userController.updateUser(mockRequest, mockResponse, mockNext);
+
+			expect(mockUserService.updateUser).toHaveBeenCalledWith(1, {
 				name: 'Updated Name',
 				email: 'updated@example.com',
-				role: Role.ADMIN,
-			};
-
-			await userController.updateUser(
-				mockRequest as Request,
-				mockResponse as Response,
-				nextFunction
-			);
-
-			expect(mockUserService.updateUser).toHaveBeenCalledWith(userId, {
-				name: 'Updated Name',
-				email: 'updated@example.com',
-				role: Role.ADMIN,
 			});
 			expect(userController.ok).toHaveBeenCalledWith(
 				mockResponse,
-				`User with ID ${userId} updated successfully`
+				'User with ID 1 updated successfully'
 			);
+			expect(mockNext).not.toHaveBeenCalled();
+		});
+
+		it('should handle concurrent requests to create and update users without conflicts', async () => {
+			const createUserData = {
+				name: 'John Doe',
+				email: 'john@example.com',
+				role: Role.USER,
+				password: 'password123',
+			};
+
+			const updateUserData = {
+				name: 'Jane Doe',
+				email: 'jane@example.com',
+			};
+
+			const createRequest = {
+				body: createUserData,
+			} as Request;
+
+			const updateRequest = {
+				params: { id: '1' },
+				body: updateUserData,
+			} as unknown as Request;
+
+			const mockResponse = {
+				status: jest.fn().mockReturnThis(),
+				json: jest.fn(),
+			} as unknown as Response;
+
+			const mockNext = jest.fn() as NextFunction;
+
+			mockUserService.createUser.mockResolvedValue({
+				...createUserData,
+			});
+
+			mockUserService.updateUser.mockResolvedValue(undefined);
+
+			const createPromise = userController.createUser(createRequest, mockResponse, mockNext);
+			const updatePromise = userController.updateUser(updateRequest, mockResponse, mockNext);
+
+			await Promise.all([createPromise, updatePromise]);
+
+			expect(mockUserService.createUser).toHaveBeenCalledWith(createUserData);
+			expect(mockUserService.updateUser).toHaveBeenCalledWith(1, updateUserData);
+			expect(userController.ok).toHaveBeenCalledTimes(2);
+			expect(mockNext).not.toHaveBeenCalled();
 		});
 	});
 });

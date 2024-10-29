@@ -6,10 +6,11 @@ import {
 	IdParamSchema,
 	Role,
 	UpdateUserSchema,
+	UserListResult,
 	UserParamSchema,
-	UserQueryParamDto,
+	UserSearchCriteria,
+	UserSortColumn,
 } from '../../dto/user.dto';
-import { AuthMiddleware } from '../../middleware/auth/auth.middleware';
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
 import { RoleMiddleware } from '../../middleware/role/role.middleware';
 import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
@@ -21,25 +22,17 @@ import { IUserController } from './user.controller.interface';
 @injectable()
 export class UserController extends BaseController implements IUserController {
 	private cacheMiddleware: CacheMiddleware;
-	private authMiddleware: AuthMiddleware;
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
 		@inject(TYPES.UserService) private userService: UserService
 	) {
 		super(loggerService);
 		this.cacheMiddleware = new CacheMiddleware(this.cache, 'users');
-		this.authMiddleware = new AuthMiddleware();
 		this.bindRoutes([
 			{
 				method: 'get',
 				path: '/',
-				func: this.getAllUsers,
-				middlewares: [],
-			},
-			{
-				method: 'get',
-				path: '/search',
-				func: this.getUser,
+				func: this.getUsers,
 				middlewares: [new ValidateMiddleware(UserParamSchema, 'query'), this.cacheMiddleware],
 			},
 			{
@@ -77,52 +70,70 @@ export class UserController extends BaseController implements IUserController {
 	}
 
 	/**
-	 * Retrieves all users from the database.
-	 *
-	 * This method fetches all user records using the userService and sends them
-	 * as a response. If an error occurs during the process, it's passed to the
-	 * next middleware for error handling.
-	 *
-	 * @param {Request} req - The Express request object.
-	 * @param {Response} res - The Express response object used to send the list of users.
-	 * @param {NextFunction} next - The Express next middleware function for error handling.
-	 *
-	 *  * @example
-	 * // GET /users/all
-	 *
-	 * @returns {Promise<void>} A promise that resolves when the operation is complete.
-	 *                          The actual user data is sent via the response object.
-	 */
-	async getAllUsers(req: Request, res: Response, next: NextFunction) {
-		try {
-			const users = await this.userService.findAllUsers();
-			this.ok(res, users);
-		} catch (error) {
-			next(error);
-		}
-	}
-
-	/**
-	 * Retrieves a user based on the provided query parameters.
+	 * Retrieves users based on the provided query parameters.
 	 *
 	 * @param {Request} req - The Express request object containing query parameters.
-	 * @param {Response} res - The Express response object.
-	 * @param {NextFunction} next - The Express next middleware function.
+	 * @param {Response} res - The Express response object used to send the result.
+	 * @param {NextFunction} next - The Express next middleware function for error handling.
 	 *
-	 * @throws {Error} Throws an error if the user is not found or if there's a server error.
+	 * @param {number} [req.query.id] - The user ID to filter by.
+	 * @param {string} [req.query.email] - The email to filter by.
+	 * @param {string} [req.query.name] - The name to filter by.
+	 * @param {number} [req.query.page=1] - The page number for pagination.
+	 * @param {number} [req.query.pageSize=10] - The number of items per page.
+	 * @param {UserSortColumn} [req.query.sortBy='name'] - The column to sort by.
+	 * @param {'asc' | 'desc'} [req.query.sortOrder='asc'] - The sort order.
+	 * @param {Role} [req.query.role] - The role to filter by.
+	 * @param {boolean} [req.query.isActive] - The active status to filter by.
+	 * @param {string} [req.query.createdAfter] - The date to filter users created after.
+	 * @param {string} [req.query.createdBefore] - The date to filter users created before.
 	 *
-	 * @example
-	 * // GET /users?id=1
-	 * // GET /users?email=user@example.com
-	 * // GET /users?name=John
-	 *
-	 * @returns {Promise<void>} Sends a JSON response with the user data if found.
+	 * @returns {Promise<void>} Sends a JSON response with the retrieved users if successful.
+	 *                          If an error occurs, it's passed to the next middleware for handling.
 	 */
-	async getUser({ query }: Request, res: Response, next: NextFunction) {
+	async getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const criteria: UserQueryParamDto = query;
-			const user = await this.userService.findUser(criteria);
-			this.ok(res, user);
+			const {
+				id,
+				email,
+				name,
+				page,
+				pageSize,
+				sortBy,
+				sortOrder,
+				role,
+				isActive,
+				createdAfter,
+				createdBefore,
+			}: UserSearchCriteria = req.query;
+
+			const queryParams: UserSearchCriteria = {
+				...(id && { id: Number(id) }),
+				...(email && { email: email as string }),
+				...(name && { name: name as string }),
+				...(role && { role: role as Role }),
+				...(isActive !== undefined && { isActive: isActive === true }),
+				...(createdAfter && { createdAfter: createdAfter as string }),
+				...(createdBefore && { createdBefore: createdBefore as string }),
+				...(page && { page: Number(page) }),
+				...(pageSize && { pageSize: Number(pageSize) }),
+				...(sortBy && { sortBy: sortBy as UserSortColumn }),
+				...(sortOrder && { sortOrder: sortOrder as 'asc' | 'desc' }),
+			};
+			const pageNum = Number(page) || 1;
+			const pageSizeNum = Number(pageSize) || 10;
+			const sortByStr = (sortBy as string) || 'name';
+			const sortOrderStr = (sortOrder as 'asc' | 'desc') || 'asc';
+
+			const result: UserListResult = await this.userService.findUsers(
+				queryParams,
+				pageNum,
+				pageSizeNum,
+				sortByStr,
+				sortOrderStr
+			);
+
+			this.ok(res, result);
 		} catch (error) {
 			next(error);
 		}
