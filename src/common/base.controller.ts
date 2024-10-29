@@ -146,8 +146,6 @@ export abstract class BaseController {
 				`[${this.context}] \t Binding route: ${route.method.toUpperCase()} ${route.path}`
 			);
 			let middleware = route.middlewares?.map((m) => m.execute.bind(m)) ?? [];
-			// const cacheMiddleware = new CacheMiddleware(this.cache, this.context).execute.bind(this);
-			// middleware = [cacheMiddleware, ...middleware];
 			const handler = route.func.bind(this);
 			const pipeline = middleware ? [...middleware, handler] : handler;
 			this.router[route.method](route.path, pipeline);
