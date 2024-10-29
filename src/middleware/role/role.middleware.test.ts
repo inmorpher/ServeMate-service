@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { Role } from '../../dto/user.dto';
 import { RoleMiddleware } from './role.middleware';
 
+jest.mock('../../../env', () => ({ ENV: { PRODUCTION: true } }));
 describe('RoleMiddleware', () => {
 	let roleMiddleware: RoleMiddleware;
 	let mockRequest: Partial<Request>;
