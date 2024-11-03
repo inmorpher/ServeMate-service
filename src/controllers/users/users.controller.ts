@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
 import {
+	CreateUser,
 	CreateUserSchema,
 	IdParamSchema,
 	Role,
+	UpdateUserDto,
 	UpdateUserSchema,
 	UserListResult,
 	UserParamSchema,
@@ -91,7 +94,11 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with the retrieved users if successful.
 	 *                          If an error occurs, it's passed to the next middleware for handling.
 	 */
-	async getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+	async getUsers(
+		req: TypedRequest<{}, UserSearchCriteria, {}>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
 		try {
 			const {
 				id,
@@ -105,7 +112,7 @@ export class UserController extends BaseController implements IUserController {
 				isActive,
 				createdAfter,
 				createdBefore,
-			}: UserSearchCriteria = req.query;
+			} = req.query;
 
 			const queryParams: UserSearchCriteria = {
 				...(id && { id: Number(id) }),
@@ -154,7 +161,7 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is created successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
-	async createUser(req: Request, res: Response, next: NextFunction) {
+	async createUser(req: TypedRequest<{}, {}, CreateUser>, res: Response, next: NextFunction) {
 		try {
 			const newUser = await this.userService.createUser({
 				name: req.body.name,
@@ -184,8 +191,8 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is deleted successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
-	async deleteUser(req: Request, res: Response, next: NextFunction) {
-		const userId = parseInt(req.params.id);
+	async deleteUser(req: TypedRequest<{ id: string | number }>, res: Response, next: NextFunction) {
+		const userId = typeof req.params.id === 'string' ? parseInt(req.params.id, 10) : req.params.id;
 
 		try {
 			await this.userService.deleteUser(userId);
@@ -208,9 +215,14 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is updated successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
-	async updateUser(req: Request, res: Response, next: NextFunction) {
+	async updateUser(
+		req: TypedRequest<{ id: number | string }, {}, UpdateUserDto>,
+		res: Response,
+		next: NextFunction
+	) {
 		try {
-			const userId = parseInt(req.params.id);
+			const userId =
+				typeof req.params.id === 'string' ? parseInt(req.params.id, 10) : req.params.id;
 			const updateData = req.body;
 
 			await this.userService.updateUser(userId, updateData);

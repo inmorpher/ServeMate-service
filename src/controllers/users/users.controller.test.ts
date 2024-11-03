@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
 import 'reflect-metadata';
+import { TypedRequest } from '../../common/route.interface';
 import { Role, UserListResult, UserParamSchema } from '../../dto/user.dto';
 import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
@@ -350,7 +351,7 @@ describe('UserController', () => {
 			const userId = 1;
 			const mockRequest = {
 				params: { id: userId.toString() },
-			} as unknown as Request;
+			} as unknown as TypedRequest<{ id: number }, {}, {}>;
 			const mockResponse = {
 				status: jest.fn().mockReturnThis(),
 				json: jest.fn(),
@@ -372,7 +373,7 @@ describe('UserController', () => {
 		it('should return an error when trying to delete a non-existent user', async () => {
 			const mockRequest = {
 				params: { id: '999' },
-			} as unknown as Request;
+			} as unknown as TypedRequest<{ id: number }, {}, {}>;
 			const mockResponse = {
 				status: jest.fn().mockReturnThis(),
 				json: jest.fn(),
@@ -395,7 +396,7 @@ describe('UserController', () => {
 			const mockRequest = {
 				params: { id: '1' },
 				body: { name: 'Updated Name', email: 'updated@example.com' },
-			} as unknown as Request;
+			} as unknown as TypedRequest<{ id: number }, {}, {}>;
 			const mockResponse = {
 				status: jest.fn().mockReturnThis(),
 				json: jest.fn(),
@@ -432,12 +433,12 @@ describe('UserController', () => {
 
 			const createRequest = {
 				body: createUserData,
-			} as Request;
+			} as TypedRequest<{}, {}, typeof createUserData>;
 
 			const updateRequest = {
 				params: { id: '1' },
 				body: updateUserData,
-			} as unknown as Request;
+			} as unknown as TypedRequest<{ id: number }, {}, typeof updateUserData>;
 
 			const mockResponse = {
 				status: jest.fn().mockReturnThis(),

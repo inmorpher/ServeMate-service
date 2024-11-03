@@ -135,7 +135,14 @@ export const UserParamSchema = z
 			.transform((value) => value?.toUpperCase())
 			.pipe(z.nativeEnum(Role))
 			.optional(),
-		isActive: z.boolean().optional(),
+		isActive: z
+			.enum(['true', 'false'])
+			.optional()
+			.transform((val) => {
+				if (val === 'true') return true;
+				if (val === 'false') return false;
+				return undefined;
+			}),
 		createdAfter: z
 			.string()
 			.optional()
