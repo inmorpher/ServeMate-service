@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { z } from 'zod';
 import { IMiddleware } from '../../common/middleware.interface';
+
 export type ValidationType = 'body' | 'query' | 'params';
 /**
  * Middleware for validating request query parameters using a Zod schema.
@@ -27,24 +28,23 @@ export class ValidateMiddleware implements IMiddleware {
 	 */
 	execute(req: Request, res: Response, next: NextFunction): void {
 		const dataToValidate = this.getDataToValidate(req);
-		if (
-			dataToValidate == null ||
-			(typeof dataToValidate === 'object' && Object.keys(dataToValidate).length === 0)
-		) {
-			next();
-			return;
-		}
-		const result = this.schema.safeParse(dataToValidate);
 
-		if (!result.success) {
-			const errorMessages = result.error.issues.map((issue) => ({
-				path: issue.path.join('.'),
-				message: issue.message,
-			}));
+		try {
+			const validatedData = this.schema.parse(dataToValidate);
 
-			res.status(422).send(errorMessages);
-		} else {
+			req[this.type] = validatedData;
 			next();
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				const errorMessages = error.issues.map((issue) => ({
+					path: issue.path.join('.'),
+					message: issue.message,
+				}));
+				res.status(422).send(errorMessages);
+			} else {
+				// console.error('Unexpected error during validation:', error);
+				res.status(500).send('Internal Server Error');
+			}
 		}
 	}
 

@@ -106,7 +106,7 @@ describe('ValidateMiddleware', () => {
 			expect(mockResponse.send).not.toHaveBeenCalled();
 		});
 
-		it('should call next middleware when data to validate is an empty object', () => {
+		it('should return 422 status when data to validate is an empty object and schema requires fields', () => {
 			const schema = z.object({
 				test: z.string(),
 			});
@@ -118,9 +118,16 @@ describe('ValidateMiddleware', () => {
 
 			validateMiddleware.execute(mockRequest as Request, mockResponse as Response, mockNext);
 
-			expect(mockNext).toHaveBeenCalled();
-			expect(mockResponse.status).not.toHaveBeenCalled();
-			expect(mockResponse.send).not.toHaveBeenCalled();
+			expect(mockNext).not.toHaveBeenCalled();
+			expect(mockResponse.status).toHaveBeenCalledWith(422);
+			expect(mockResponse.send).toHaveBeenCalledWith(
+				expect.arrayContaining([
+					expect.objectContaining({
+						path: 'test',
+						message: expect.stringContaining('Required'),
+					}),
+				])
+			);
 		});
 
 		it('should throw an error when an invalid validation type is provided', () => {
