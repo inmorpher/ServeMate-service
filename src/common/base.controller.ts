@@ -140,7 +140,9 @@ export abstract class BaseController {
 	 * @param routes - An array of route configurations.
 	 */
 
-	protected bindRoutes(routes: IControllerRoute[]) {
+	protected bindRoutes<TParams = any, TQuery = any, TBody = any>(
+		routes: IControllerRoute<TParams, TQuery, TBody>[]
+	) {
 		for (const route of routes) {
 			this.logger.log(
 				`[${this.context}] \t Binding route: ${route.method.toUpperCase()} ${route.path}`

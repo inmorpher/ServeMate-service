@@ -218,7 +218,7 @@ describe('BaseController', () => {
 					super(logger);
 				}
 
-				public testBindRoutes(routes: IControllerRoute[]) {
+				public testBindRoutes(routes: IControllerRoute<{}, {}, {}>[]) {
 					this.bindRoutes(routes);
 				}
 			}
@@ -229,7 +229,7 @@ describe('BaseController', () => {
 				execute: jest.fn(),
 			};
 
-			const mockRoutes: IControllerRoute[] = [
+			const mockRoutes: IControllerRoute<{}, {}, {}>[] = [
 				{
 					path: '/test',
 					method: 'get',
