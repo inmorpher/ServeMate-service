@@ -3,10 +3,10 @@ import { compare } from 'bcrypt';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseService } from '../../common/base.service';
+import { Role } from '../../dto/enums';
 import {
 	CreatedUserData,
 	CreateUser,
-	Role,
 	UpdateUserDto,
 	UserCredentials,
 	UserListItem,

@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
+import { Role } from '../../dto/enums';
 import {
 	CreateUser,
 	CreateUserSchema,
 	IdParamSchema,
-	Role,
 	UpdateUserDto,
 	UpdateUserSchema,
 	UserListResult,
