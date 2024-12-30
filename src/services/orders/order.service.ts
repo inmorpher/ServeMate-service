@@ -1,0 +1,485 @@
+import { Prisma, PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
+import { OrderStatus } from '../../dto/enums';
+import {
+	OrderCreateDTO,
+	OrderFullSingleDTO,
+	OrderSearchCriteria,
+	OrderUpdateProps,
+} from '../../dto/orders.dto';
+
+import 'reflect-metadata';
+import { HTTPError } from '../../errors/http-error.class';
+import { TYPES } from '../../types';
+import { AbstractOrderService, ORDER_INCLUDE } from './abstract-order.service';
+
+@injectable()
+export class OrdersService extends AbstractOrderService {
+	protected serviceName = 'OrdersService';
+
+	constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient) {
+		super(prisma);
+		this.prisma = prisma;
+	}
+
+	/**
+	 * Finds orders based on the provided search criteria.
+	 *
+	 * @param {OrderSearchCriteria} criteria - The criteria to search for orders.
+	 * @param {number} [criteria.id] - The ID of the order.
+	 * @param {number} [criteria.server] - The ID of the server.
+	 * @param {string} [criteria.status] - The status of the order.
+	 * @param {number} [criteria.tableNumber] - The table number associated with the order.
+	 * @param {number} [criteria.guestNumber] - The number of guests for the order.
+	 * @param {string[]} [criteria.allergies] - The list of allergies associated with the order.
+	 * @param {number} [criteria.page] - The page number for pagination.
+	 * @param {number} [criteria.pageSize] - The number of orders per page.
+	 * @param {string} [criteria.sortBy] - The field to sort the orders by.
+	 * @param {string} [criteria.sortOrder] - The order direction (asc/desc) for sorting.
+	 * @returns {Promise<any>} A promise that resolves to an object containing the orders, total count, current page, page size, and total pages.
+	 * @throws Will throw an error if the operation fails.
+	 */
+	async findOrders(criteria: OrderSearchCriteria): Promise<any> {
+		try {
+			const {
+				id,
+				server,
+				status,
+				tableNumber,
+				guestNumber,
+				allergies,
+				page,
+				pageSize,
+				sortBy,
+				sortOrder,
+			} = criteria;
+
+			// Creating WHERE clause based on provided criteria
+			const where: Prisma.OrderWhereInput = {
+				...(id !== undefined && { id: Number(id) }),
+				...(server !== undefined && { serverId: Number(server) }),
+				...(status && {
+					status: { equals: status.toUpperCase() as OrderStatus },
+				}),
+				...(tableNumber !== undefined && { tableNumber }),
+				...(guestNumber !== undefined && { guestsCount: Number(guestNumber) }),
+				...(allergies.length > 0 && { allergies: { hasSome: allergies } }),
+			};
+
+			// Obtaining orders and total count
+			const [orders, total] = await Promise.all([
+				this.prisma.order.findMany({
+					where,
+					select: {
+						id: true,
+						status: true,
+						server: {
+							select: { name: true, id: true },
+						},
+						tableNumber: true,
+						guestsCount: true,
+						orderTime: true,
+						completionTime: true,
+						updatedAt: true,
+						allergies: true,
+						comments: true,
+						totalAmount: true,
+						paymentStatus: true,
+						discount: true,
+						tip: true,
+					},
+					skip: (page - 1) * pageSize,
+					take: pageSize,
+					orderBy: {
+						[sortBy]: sortOrder,
+					},
+				}),
+				this.prisma.order.count({ where }),
+			]);
+
+			return {
+				orders: orders.map((order) => ({
+					...order,
+					status: order.status as OrderStatus,
+				})),
+				totalCount: total,
+				page,
+				pageSize,
+				totalPages: Math.ceil(total / pageSize),
+			};
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Finds an order by its ID and returns the full order details.
+	 *
+	 * @param {number} orderId - The ID of the order to find.
+	 * @returns {Promise<OrderFullSingleDTO>} A promise that resolves to the full order details.
+	 * @throws Will throw an error if the order is not found or if there is an issue with the database query.
+	 */
+	async findOrderById(orderId: number): Promise<OrderFullSingleDTO> {
+		try {
+			const order = await this.prisma.order.findUnique({
+				where: { id: orderId },
+				include: ORDER_INCLUDE,
+			});
+
+			// If no order found, throw an error
+			if (!order) {
+				throw this.handleError('Order not found');
+			}
+
+			return {
+				...order,
+				foodItems: this.groupItems(order.foodItems),
+				drinkItems: this.groupItems(order.drinkItems),
+			};
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Creates a new order in the system.
+	 *
+	 * This function performs the following steps:
+	 * 1. Validates and corrects the prices of food and drink items.
+	 * 2. Calculates the total amount of the order.
+	 * 3. Flattens the food and drink items for database operations.
+	 * 4. Creates the order in the database.
+	 *
+	 * @param {OrderCreateDTO} order - The order data transfer object containing all necessary information to create an order.
+	 *                                 This includes food items, drink items, and other order details.
+	 *
+	 * @returns {Promise<OrderFullSingleDTO>} A promise that resolves to the newly created order,
+	 *                                        including all details and the assigned order ID.
+	 *
+	 * @throws {Error} If there's any issue during the order creation process, an error is thrown and handled.
+	 */
+	async createOrder(order: OrderCreateDTO): Promise<OrderFullSingleDTO> {
+		try {
+			const { mergedItems, totalAmount } = await this.prepareOrderItems(order);
+
+			return await this.createOrderInDatabase({
+				...order,
+				flattenedFoodItems: mergedItems.foodItems,
+				flattenedDrinkItems: mergedItems.drinkItems,
+				totalAmount,
+			});
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Deletes an order and all its associated food and drink items from the database.
+	 *
+	 * @param {number} order - The ID of the order to be deleted.
+	 * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion was successful.
+	 * @throws Will throw an error if the deletion fails.
+	 */
+	async delete(order: number): Promise<boolean> {
+		try {
+			await this.prisma.$transaction(async (prisma) => {
+				// Delete all related food items associated with the order.
+				await prisma.orderFoodItem.deleteMany({
+					where: { orderId: order },
+				});
+
+				// Delete all related drink items associated with the order.
+				await prisma.orderDrinkItem.deleteMany({
+					where: { orderId: order },
+				});
+
+				// Delete the order itself.
+				await prisma.order.delete({
+					where: { id: order },
+				});
+			});
+
+			return true;
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Prints the order items with the given IDs.
+	 *
+	 * This method checks if any of the specified order items have already been printed.
+	 * If any items have been printed, it throws an HTTPError with a message indicating
+	 * which items have already been printed. If no items have been printed, it updates
+	 * the `printed` status of the specified order items to `true`.
+	 *
+	 * @param {number[]} ids - An array of order item IDs to be printed.
+	 * @returns {Promise<string>} A promise that resolves to a string indicating the IDs of the printed items.
+	 * @throws {HTTPError} If any of the specified items have already been printed.
+	 */
+	async printOrderItems(ids: number[]): Promise<string> {
+		return await this.prisma.$transaction(async (prisma) => {
+			try {
+				const drinkItems = await prisma.orderDrinkItem.findMany({
+					where: {
+						id: { in: ids },
+					},
+					select: { id: true, printed: true },
+				});
+
+				const foodItems = await prisma.orderFoodItem.findMany({
+					where: {
+						id: { in: ids },
+					},
+					select: { id: true, printed: true, fired: true },
+				});
+
+				const allItems = [...drinkItems, ...foodItems];
+
+				const printedItems = allItems.filter((item) => item.printed);
+
+				if (printedItems.length !== 0) {
+					throw new HTTPError(
+						500,
+						'Printed items already exist',
+						`Items ${printedItems.map((item) => item.id).join(', ')} already printed.`
+					);
+				}
+
+				await prisma.orderFoodItem.updateMany({
+					where: {
+						id: { in: ids },
+					},
+					data: {
+						printed: true,
+					},
+				});
+
+				await prisma.orderDrinkItem.updateMany({
+					where: {
+						id: { in: ids },
+					},
+					data: {
+						printed: true,
+					},
+				});
+				return `items ${[...ids]} have been printed.`;
+			} catch (error) {
+				throw this.handleError(error);
+			}
+		});
+	}
+
+	/**
+	 * Calls the order items by marking them as fired.
+	 *
+	 * @param {number[]} ids - The IDs of the order items to be called.
+	 * @returns {Promise<string>} A promise that resolves to a message indicating the items have been called.
+	 * @throws {HTTPError} If any of the items have not been printed or have already been fired.
+	 */
+	async callOrderItems(ids: number[]): Promise<string> {
+		return this.prisma.$transaction(async (prisma) => {
+			try {
+				const foodItems = await prisma.orderFoodItem.findMany({
+					where: {
+						id: { in: ids },
+					},
+					select: { id: true, printed: true, fired: true },
+				});
+
+				const drinkItems = await prisma.orderDrinkItem.findMany({
+					where: {
+						id: { in: ids },
+					},
+					select: { id: true, printed: true, fired: true },
+				});
+
+				const allItems = [...foodItems, ...drinkItems];
+				const notPrintedItems = allItems.filter((item) => !item.printed);
+				const firedItems = allItems.filter((item) => item.fired);
+
+				if (notPrintedItems.length > 0) {
+					throw new HTTPError(
+						500,
+						'Print Items',
+						`Items ${notPrintedItems.map((item) => item.id).join(', ')} have not been printed.`
+					);
+				}
+
+				if (firedItems.length > 0) {
+					throw new HTTPError(
+						500,
+						'Print Items',
+						`Items ${firedItems.map((item) => item.id).join(', ')} have been fired.`
+					);
+				}
+
+				await prisma.orderFoodItem.updateMany({
+					where: {
+						id: { in: ids },
+					},
+					data: {
+						fired: true,
+					},
+				});
+
+				await prisma.orderDrinkItem.updateMany({
+					where: {
+						id: { in: ids },
+					},
+					data: {
+						fired: true,
+					},
+				});
+
+				return `items ${[...ids]} have been called.`;
+			} catch (error) {
+				throw this.handleError(error);
+			}
+		});
+	}
+
+	/**
+	 * Updates the order items in the database for a given order ID.
+	 *
+	 * @param {number} orderId - The ID of the order to update.
+	 * @param {Object} updatedData - The updated data for the order.
+	 * @param {Prisma.OrderFoodItemCreateManyOrderInput[]} updatedData.foodItems - The updated food items for the order.
+	 * @param {Prisma.OrderDrinkItemCreateManyOrderInput[]} updatedData.drinkItems - The updated drink items for the order.
+	 * @param {number} updatedData.totalAmount - The updated total amount for the order.
+	 * @returns {Promise<Prisma.Order>} The updated order with included server, food items, and drink items.
+	 */
+	async updateOrderItemsInDatabase(
+		orderId: number,
+		updatedData: {
+			foodItems: Prisma.OrderFoodItemCreateManyOrderInput[];
+			drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
+			totalAmount: number;
+		}
+	) {
+		const { foodItems, drinkItems, totalAmount } = updatedData;
+
+		return this.prisma.order.update({
+			where: { id: orderId },
+			data: {
+				totalAmount,
+				foodItems: {
+					deleteMany: {},
+					createMany: {
+						data: foodItems,
+					},
+				},
+				drinkItems: {
+					deleteMany: {},
+					createMany: {
+						data: drinkItems,
+					},
+				},
+			},
+			include: ORDER_INCLUDE,
+		});
+	}
+	/**
+	 * Updates the food and drink items in an existing order.
+	 *
+	 * This method performs the following steps:
+	 * 1. Finds the existing order by its ID.
+	 * 2. Prepares the new order items by merging them with the existing items.
+	 * 3. Updates the order items in the database within a transaction.
+	 * 4. Returns the formatted updated order.
+	 *
+	 * @param orderId - The ID of the order to update.
+	 * @param updatedData - An object containing the updated food and drink items.
+	 * @returns A promise that resolves to the updated order.
+	 * @throws {HTTPError} If the order is not found in the database.
+	 * @throws {Error} If there is an issue during the update process.
+	 */
+	async updateItemsInOrder(
+		orderId: number,
+		updatedData: Pick<OrderCreateDTO, 'foodItems' | 'drinkItems'>
+	) {
+		try {
+			return await this.prisma.$transaction(async () => {
+				const { id, ...existingOrder } = await this.findOrderById(orderId);
+
+				if (!existingOrder) {
+					throw new HTTPError(
+						'Order not found',
+						'updateOrderInDatabase',
+						'Order not found in the database',
+						`/orders/${orderId}`
+					);
+				}
+
+				const { mergedItems, totalAmount } = await this.prepareOrderItems(
+					existingOrder,
+					updatedData
+				);
+
+				const formattedNewOrder: {
+					foodItems: Prisma.OrderFoodItemCreateManyOrderInput[];
+					drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
+					totalAmount: number;
+				} = {
+					...existingOrder,
+					foodItems: mergedItems.foodItems,
+					drinkItems: mergedItems.drinkItems,
+					totalAmount,
+				};
+
+				const updatedOrder = await this.updateOrderItemsInDatabase(orderId, formattedNewOrder);
+
+				return this.formatOrder(updatedOrder);
+			});
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Updates the properties of an existing order.
+	 *
+	 * @param orderId - The ID of the order to update.
+	 * @param updatedProperties - An object containing the properties to update.
+	 * @returns A promise that resolves to the updated order details.
+	 * @throws {HTTPError} If the order is not found in the database.
+	 * @throws {Error} If there is an error during the update process.
+	 */
+	async updateOrderProperties(
+		orderId: number,
+		updatedProperties: OrderUpdateProps
+	): Promise<OrderFullSingleDTO> {
+		try {
+			const existingOrder = await this.findOrderById(orderId);
+
+			if (!existingOrder) {
+				throw new HTTPError(
+					404,
+					this.serviceName,
+					'Order not found in the database',
+					`/orders/${orderId}`
+				);
+			}
+
+			const isCompleted =
+				updatedProperties?.status === 'COMPLETED' || updatedProperties?.status === 'DISPUTED'
+					? new Date()
+					: null;
+
+			const updatedOrder = await this.prisma.order.update({
+				where: { id: orderId },
+				data: {
+					...updatedProperties,
+					completionTime: isCompleted,
+				},
+				include: ORDER_INCLUDE,
+			});
+
+			return this.formatOrder(updatedOrder);
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	/////extra
+}

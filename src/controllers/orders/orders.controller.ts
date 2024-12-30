@@ -1,0 +1,296 @@
+import { NextFunction, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TypedRequest } from '../../common/route.interface';
+import {
+	OrderCreateDTO,
+	OrderCreateSchema,
+	OrderIds,
+	OrderSchema,
+	OrderSearchCriteria,
+	OrderSearchSchema,
+	OrderUpdateItems,
+	OrderUpdateItemsSchema,
+	OrderUpdateProps,
+} from '../../dto/orders.dto';
+import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
+import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
+import { ILogger } from '../../services/logger/logger.service.interface';
+import { OrdersService } from '../../services/orders/order.service';
+import { TYPES } from '../../types';
+import { IOrdersController } from './orders.controller.interface';
+
+@injectable()
+export class OrdersController extends IOrdersController {
+	private cacheMiddleware: CacheMiddleware;
+	constructor(
+		@inject(TYPES.ILogger) private loggerService: ILogger,
+		@inject(TYPES.OrdersService) private ordersService: OrdersService
+	) {
+		super(loggerService);
+		this.cacheMiddleware = new CacheMiddleware(this.cache, 'orders');
+
+		this.bindRoutes([
+			{
+				method: 'get',
+				path: '/',
+				func: this.getOrders,
+				middlewares: [new ValidateMiddleware(OrderSearchSchema, 'query'), this.cacheMiddleware],
+			},
+			{
+				method: 'get',
+				path: '/:id',
+				func: this.getOrderById,
+				middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
+			},
+			{
+				method: 'post',
+				path: '/',
+				func: this.createOrder,
+				middlewares: [new ValidateMiddleware(OrderCreateSchema, 'body')],
+			},
+			{
+				method: 'patch',
+				path: '/:id/items',
+				func: this.updateOrderItems,
+				middlewares: [
+					new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params'),
+					new ValidateMiddleware(OrderUpdateItemsSchema, 'body'),
+					this.cacheMiddleware,
+				],
+			},
+			{
+				method: 'patch',
+				path: '/:id',
+				func: this.updateOrderProperties,
+				middlewares: [new ValidateMiddleware(OrderUpdateProps, 'body')],
+			},
+			{
+				method: 'post',
+				path: '/:id/print',
+				func: this.orderItemsPrint,
+				middlewares: [new ValidateMiddleware(OrderIds, 'body')],
+			},
+			{
+				method: 'post',
+				path: '/:id/call',
+				func: this.orderItemsCall,
+				middlewares: [new ValidateMiddleware(OrderIds, 'body')],
+			},
+			{
+				method: 'delete',
+				path: '/:id',
+				func: this.deleteOrder,
+				middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
+			},
+		]);
+	}
+
+	/**
+	 * Retrieves a list of orders based on the provided search criteria.
+	 *
+	 * @param req - The request object containing the search criteria in the query parameters.
+	 * @param res - The response object used to send back the list of orders.
+	 * @param next - The next middleware function in the stack.
+	 * @returns A promise that resolves to void.
+	 *
+	 * @remarks
+	 * This method uses the `ordersService` to find orders that match the search criteria
+	 * provided in the request query parameters. If the orders are found, they are sent
+	 * back in the response. If an error occurs, the error is passed to the next middleware
+	 * function.
+	 *
+	 * @example
+	 * // Example request to get orders
+	 * GET /orders?status=shipped&customerId=123
+	 */
+
+	async getOrders(
+		req: TypedRequest<{}, OrderSearchCriteria, {}>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			const orders = await this.ordersService.findOrders(req.query);
+
+			this.ok(res, orders);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Retrieves an order by its ID.
+	 *
+	 * @param req - The request object containing the order ID in the parameters.
+	 * @param res - The response object used to send the order data.
+	 * @param next - The next middleware function in the stack.
+	 * @returns A promise that resolves to void.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 */
+	async getOrderById(
+		req: TypedRequest<{ id: number }, {}, {}>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			const order = await this.ordersService.findOrderById(Number(req.params.id));
+			this.ok(res, order);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Creates a new order.
+	 *
+	 * @param req - The request object containing the order details in the body.
+	 * @param res - The response object used to send the response.
+	 * @param next - The next middleware function in the stack.
+	 * @returns A promise that resolves to void.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 */
+	async createOrder(
+		req: TypedRequest<{}, {}, OrderCreateDTO>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			const newOrder = await this.ordersService.createOrder(req.body);
+
+			const message = `Order for table ${req.body.tableNumber} created successfully`;
+			this.loggerService.log(message);
+			this.ok(res, newOrder);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Updates the food and drink items of an existing order.
+	 *
+	 * @param req - The request object containing the order ID in the params and the updated items in the body.
+	 * @param res - The response object used to send back the updated order.
+	 * @param next - The next middleware function in the stack.
+	 *
+	 * @returns A promise that resolves to the updated order.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 */
+	async updateOrderItems(
+		req: TypedRequest<{ id: number }, {}, OrderUpdateItems>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			const updatedOrder = await this.ordersService.updateItemsInOrder(
+				Number(req.params.id),
+				req.body
+			);
+			this.ok(res, updatedOrder);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Updates the properties of an existing order.
+	 *
+	 * @param req - The request object containing the order ID in the params and the properties to update in the body.
+	 * @param res - The response object used to send the updated order back to the client.
+	 * @param next - The next middleware function in the stack.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 *
+	 * @see {@link OrderUpdateProps}
+	 */
+	async updateOrderProperties(
+		req: TypedRequest<{ id: number }, {}, OrderUpdateProps>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const updatedOrder = await this.ordersService.updateOrderProperties(
+				Number(req.params.id),
+				req.body
+			);
+			this.ok(res, updatedOrder);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Handles the printing of order items.
+	 *
+	 * @param req - The request object containing the IDs of the order items to be printed.
+	 * @param res - The response object used to send the result back to the client.
+	 * @param next - The next middleware function in the stack.
+	 * @returns A promise that resolves to void.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 */
+	async orderItemsPrint(
+		req: TypedRequest<{}, {}, { ids: number[] }>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			console.log(req.body.ids);
+			const printedItems = await this.ordersService.printOrderItems(req.body.ids);
+
+			this.ok(res, printedItems);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Handles the request to call order items based on provided IDs.
+	 *
+	 * @param req - The request object containing an array of order item IDs in the body.
+	 * @param res - The response object used to send back the called items.
+	 * @param next - The next middleware function in the stack.
+	 * @returns A promise that resolves to void.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 */
+	async orderItemsCall(
+		req: TypedRequest<{}, {}, { ids: number[] }>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			console.log(req.body.ids);
+			const calledItems = await this.ordersService.callOrderItems(req.body.ids);
+
+			this.ok(res, calledItems);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Deletes an order by its ID.
+	 *
+	 * @param req - The request object containing the order ID in the parameters.
+	 * @param res - The response object used to send the response.
+	 * @param next - The next middleware function in the stack.
+	 * @returns A promise that resolves to void.
+	 *
+	 * @throws Will pass any errors to the next middleware function.
+	 */
+	async deleteOrder(
+		req: TypedRequest<{ id: number }, {}, {}>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			await this.ordersService.delete(Number(req.params.id));
+			this.ok(res, `Order with id ${req.params.id} deleted successfully`);
+		} catch (error) {
+			next(error);
+		}
+	}
+}
