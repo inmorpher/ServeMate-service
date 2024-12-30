@@ -3,8 +3,13 @@ import { injectable } from 'inversify';
 import { HTTPError } from '../errors/http-error.class';
 
 @injectable()
-export abstract class BaseService {
-	protected abstract serviceName: string;
+export class BaseService {
+	protected defaultPage = 1;
+	protected defaultPageSize = 10;
+	protected defaultSortOrder: 'asc' | 'desc' = 'asc';
+	protected defaultSortBy: string = 'id';
+	protected serviceName: string = 'Service class';
+
 	constructor() {}
 	/**
 	 * Handles various types of errors and converts them into HTTPError instances.
