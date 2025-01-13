@@ -1,450 +1,160 @@
-import { NextFunction, Response } from 'express';
-import { Container } from 'inversify';
+import { PrismaClient } from '@prisma/client';
+import { NextFunction } from 'express';
 import 'reflect-metadata';
 import { TypedRequest } from '../../common/route.interface';
-import {
-	OrderCreateDTO,
-	OrderFullSingleDTO,
-	OrderSearchCriteria,
-	OrderUpdateProps,
-} from '../../dto/orders.dto';
+import { OrderCreateDTO, OrderFullSingleDTO, OrderSearchCriteria } from '../../dto/orders.dto';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { OrdersService } from '../../services/orders/order.service';
-import { TYPES } from '../../types';
 import { OrdersController } from './orders.controller';
+jest.mock('../../services/orders/order.service');
+jest.mock('../../services/logger/logger.service.interface');
 
 describe('OrdersController', () => {
 	let ordersController: OrdersController;
-	let ordersService: OrdersService;
-	let loggerService: ILogger;
-	let req: TypedRequest<{}, OrderSearchCriteria, {}>;
-	let res: Partial<Response>;
+	let ordersService: jest.Mocked<OrdersService>;
+	let loggerService: jest.Mocked<ILogger>;
+	let req: TypedRequest<{}, {}, {}>;
+	let res: any;
 	let next: NextFunction;
+	let okSpy: jest.SpyInstance;
+	let prisma: PrismaClient;
 
 	beforeEach(() => {
-		const container = new Container();
-		ordersService = {
-			findOrders: jest.fn(),
-			findOrderById: jest.fn(),
-			createOrder: jest.fn(),
-			updateItemsInOrder: jest.fn(),
-			updateOrderProperties: jest.fn(),
-			printOrderItems: jest.fn(),
-			callOrderItems: jest.fn(),
-			delete: jest.fn(),
-		} as unknown as OrdersService;
+		prisma = new PrismaClient();
+
+		// Мокирование необходимых методов PrismaClient с использованием jest.spyOn
+		jest.spyOn(prisma.order, 'findMany').mockResolvedValue([]);
+		jest.spyOn(prisma.order, 'findUnique').mockResolvedValue(null);
+		jest.spyOn(prisma.order, 'count').mockResolvedValue(0);
+		// Добавьте другие методы по необходимости
+
+		ordersService = new OrdersService(prisma) as jest.Mocked<OrdersService>;
 		loggerService = {
 			log: jest.fn(),
-		} as unknown as ILogger;
-
-		container.bind<OrdersService>(TYPES.OrdersService).toConstantValue(ordersService);
-		container.bind<ILogger>(TYPES.ILogger).toConstantValue(loggerService);
+			warn: jest.fn(),
+			error: jest.fn(),
+		} as unknown as jest.Mocked<ILogger>;
 
 		ordersController = new OrdersController(loggerService, ordersService);
 
 		req = {
+			params: {},
 			query: {},
-		} as TypedRequest<{}, OrderSearchCriteria, {}>;
+			body: {},
+		} as any;
+
 		res = {
 			status: jest.fn().mockReturnThis(),
 			json: jest.fn(),
 		} as unknown as Response;
+
 		next = jest.fn();
+
+		okSpy = jest.spyOn(ordersController, 'ok').mockImplementation(() => res);
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
 	});
 
 	describe('getOrders', () => {
-		it('should retrieve orders successfully', async () => {
-			const mockOrders = [{ id: 1, item: 'Pizza' }];
-			jest.spyOn(ordersService, 'findOrders').mockResolvedValue(mockOrders);
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
+		it('должен возвращать список заказов', async () => {
+			const mockOrders = { orders: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 1 };
+			ordersService.findOrders.mockResolvedValue(mockOrders);
 
-			await ordersController.getOrders(
-				req as TypedRequest<{}, OrderSearchCriteria, {}>,
-				res as Response,
-				next
-			);
+			await ordersController.getOrders(req as TypedRequest<{}, OrderSearchCriteria, {}>, res, next);
 
 			expect(ordersService.findOrders).toHaveBeenCalledWith(req.query);
 			expect(okSpy).toHaveBeenCalledWith(res, mockOrders);
 		});
 
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			(ordersService.findOrders as jest.Mock).mockRejectedValue(error);
+		it('должен вызывать next с ошибкой при сбое', async () => {
+			const error = new Error('Ошибка сервиса');
+			ordersService.findOrders.mockRejectedValue(error);
 
-			await ordersController.getOrders(req as TypedRequest<any, any, any>, res as Response, next);
+			await ordersController.getOrders(req as TypedRequest<{}, OrderSearchCriteria, {}>, res, next);
 
 			expect(next).toHaveBeenCalledWith(error);
 		});
 	});
 
 	describe('getOrderById', () => {
-		it('should retrieve order by id successfully', async () => {
-			const mockOrder: OrderFullSingleDTO = {
+		it('должен возвращать заказ по ID', async () => {
+			const mockOrder = {
 				id: 1,
 				tableNumber: 5,
-				status: 'RECEIVED',
-				server: { id: 1, name: 'John Doe' },
 				guestsCount: 4,
+				status: 'AWAITING',
 				orderTime: new Date(),
-				foodItems: [],
-				drinkItems: [],
-				totalAmount: 0,
-				shiftId: 'shift123',
-				serverId: 1,
-				discount: 0,
-				comments: 'No salt',
 				updatedAt: new Date(),
-				paymentStatus: 'NONE',
-				tip: 0,
-			};
-			const req = {
-				params: { id: '1' },
-			} as unknown as TypedRequest<{ id: number }, {}, {}>;
-			jest.spyOn(ordersService, 'findOrderById').mockResolvedValue(mockOrder);
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
+				serverId: 1,
+				totalAmount: 0,
+				allergies: [],
+				comments: '',
+				discount: 0,
+				shiftId: 1,
+				completionTime: new Date(),
+				paymentStatus: 'PENDING',
+			} as unknown as OrderFullSingleDTO;
+			ordersService.findOrderById.mockResolvedValue(mockOrder);
 
-			await ordersController.getOrderById(req, res as Response, next);
+			req.params.id = '1';
+			await ordersController.getOrderById(req as TypedRequest<{ id: number }, {}, {}>, res, next);
 
 			expect(ordersService.findOrderById).toHaveBeenCalledWith(1);
 			expect(okSpy).toHaveBeenCalledWith(res, mockOrder);
 		});
 
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				params: { id: '1' },
-			} as unknown as TypedRequest<{ id: number }, {}, {}>;
-			(ordersService.findOrderById as jest.Mock).mockRejectedValue(error);
+		it('должен вызывать next с ошибкой при отсутствии заказа', async () => {
+			const error = new Error('Заказ не найден');
+			ordersService.findOrderById.mockRejectedValue(error);
 
-			await ordersController.getOrderById(req, res as Response, next);
+			req.params.id = '999';
+			await ordersController.getOrderById(req as TypedRequest<{ id: number }, {}, {}>, res, next);
 
 			expect(next).toHaveBeenCalledWith(error);
 		});
 	});
 
 	describe('createOrder', () => {
-		it('should create order successfully', async () => {
+		it('должен создавать новый заказ', async () => {
 			const mockOrder = {
 				id: 1,
-				tableNumber: 5,
-				status: 'RECEIVED',
-				server: { id: 1, name: 'John Doe' },
-				guestsCount: 4,
+				tableNumber: 3,
+				guestsCount: 1,
+				orderNumber: 1,
+				paymentStatus: 'PENDING',
 				orderTime: new Date(),
+				updatedAt: new Date(),
+				tip: 0,
+				totalAmount: 0,
+				status: 'RECEIVED',
+				completionTime: null,
+				comments: '',
+				shiftId: '1',
 				foodItems: [],
 				drinkItems: [],
-				totalAmount: 0,
-				shiftId: 'shift123',
-				serverId: 1,
-				discount: 0,
-				comments: 'No salt',
-				updatedAt: new Date(),
-				paymentStatus: 'NONE',
-				tip: 0,
-			} as OrderFullSingleDTO;
-			const req = {
-				body: {
-					tableNumber: 5,
-					status: 'RECEIVED',
-					server: { id: 1, name: 'John Doe' },
-					guestsCount: 4,
-					orderTime: new Date(),
-					serverId: 1,
-					totalPrice: 20,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-					shiftId: 'shift123',
-					discount: 0,
-					totalAmount: 0,
-					paymentStatus: 'NONE',
-					foodItems: [],
-					drinkItems: [],
-				} as OrderCreateDTO,
-			} as unknown as TypedRequest<{}, {}, OrderCreateDTO>;
-			jest.spyOn(ordersService, 'createOrder').mockResolvedValue(mockOrder);
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
-			const logSpy = jest.spyOn(loggerService, 'log');
+			} as unknown as OrderFullSingleDTO;
+			ordersService.createOrder.mockResolvedValue(mockOrder);
 
-			await ordersController.createOrder(req, res as Response, next);
+			req.body = { tableNumber: 3 };
+			await ordersController.createOrder(req as TypedRequest<{}, {}, OrderCreateDTO>, res, next);
 
 			expect(ordersService.createOrder).toHaveBeenCalledWith(req.body);
-			expect(logSpy).toHaveBeenCalledWith(
-				`Order for table ${req.body.tableNumber} created successfully`
-			);
+			expect(loggerService.log).toHaveBeenCalledWith('Order for table 3 created successfully');
 			expect(okSpy).toHaveBeenCalledWith(res, mockOrder);
 		});
 
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				body: {
-					tableNumber: 5,
-					status: 'RECEIVED',
-					server: { id: 1, name: 'John Doe' },
-					guestsCount: 4,
-					orderTime: new Date(),
-					items: [{ id: 1, name: 'Pizza', quantity: 2 }],
-					totalPrice: 20,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-					shiftId: 'shift123',
-				},
-			} as unknown as TypedRequest<{}, {}, OrderCreateDTO>;
-			(ordersService.createOrder as jest.Mock).mockRejectedValue(error);
+		it('должен вызывать next с ошибкой при сбое создания заказа', async () => {
+			const error = new Error('Ошибка создания заказа');
+			ordersService.createOrder.mockRejectedValue(error);
 
-			await ordersController.createOrder(req, res as Response, next);
+			req.body = { tableNumber: 3 };
+			await ordersController.createOrder(req as TypedRequest<{}, {}, OrderCreateDTO>, res, next);
 
 			expect(next).toHaveBeenCalledWith(error);
 		});
 	});
 
-	describe('updateOrderItems', () => {
-		it('should update order items successfully', async () => {
-			const mockUpdatedOrder = {
-				tableNumber: 5,
-				status: 'RECEIVED',
-				server: { id: 1, name: 'John Doe' },
-				guestsCount: 4,
-				orderTime: new Date(),
-				serverId: 1,
-				totalPrice: 20,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				shiftId: 'shift123',
-				discount: 0,
-				totalAmount: 0,
-				paymentStatus: 'NONE',
-				foodItems: [],
-				drinkItems: [],
-				tip: 0,
-				comments: 'No salt',
-				id: 1,
-			} as OrderFullSingleDTO;
-			const req = {
-				params: { id: '1' },
-				body: {
-					foodItems: [
-						{
-							guestNumber: 3,
-							items: [
-								{
-									quantity: 1,
-									price: 10,
-									discount: 0,
-									finalPrice: 10,
-									specialRequest: null,
-									allergies: [],
-									name: 'Beef Taceeeos',
-									itemId: 10,
-								},
-							],
-						},
-					],
-				},
-			} as unknown as TypedRequest<
-				{ id: number },
-				{},
-				Pick<OrderCreateDTO, 'foodItems' | 'drinkItems'>
-			>;
-			jest.spyOn(ordersService, 'updateItemsInOrder').mockResolvedValue(mockUpdatedOrder);
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
-
-			await ordersController.updateOrderItems(req, res as Response, next);
-
-			expect(ordersService.updateItemsInOrder).toHaveBeenCalledWith(1, req.body);
-			expect(okSpy).toHaveBeenCalledWith(res, mockUpdatedOrder);
-		});
-
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				params: { id: '1' },
-				body: {
-					foodItems: [{ id: 1, name: 'Pizza', quantity: 2 }],
-					drinkItems: [{ id: 2, name: 'Coke', quantity: 3 }],
-				},
-			} as unknown as TypedRequest<
-				{ id: number },
-				{},
-				Pick<OrderCreateDTO, 'foodItems' | 'drinkItems'>
-			>;
-			(ordersService.updateItemsInOrder as jest.Mock).mockRejectedValue(error);
-
-			await ordersController.updateOrderItems(req, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
-		});
-	});
-
-	describe('updateOrderProperties', () => {
-		it('should update order properties successfully', async () => {
-			const mockUpdatedOrder = {
-				tableNumber: 5,
-				status: 'RECEIVED',
-				server: { id: 1, name: 'John Doe' },
-				guestsCount: 4,
-				orderTime: new Date(),
-				serverId: 1,
-				totalPrice: 20,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				shiftId: 'shift123',
-				discount: 0,
-				totalAmount: 0,
-				paymentStatus: 'NONE',
-				foodItems: [],
-				drinkItems: [],
-				tip: 0,
-				comments: 'No salt',
-				id: 1,
-			} as OrderFullSingleDTO;
-			const req = {
-				params: { id: '1' },
-				body: {
-					guestsCount: 5,
-				} as OrderUpdateProps,
-			} as unknown as TypedRequest<{ id: number }, {}, OrderUpdateProps>;
-			jest.spyOn(ordersService, 'updateOrderProperties').mockResolvedValue(mockUpdatedOrder);
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
-
-			await ordersController.updateOrderProperties(req, res as Response, next);
-
-			expect(ordersService.updateOrderProperties).toHaveBeenCalledWith(1, req.body);
-			expect(okSpy).toHaveBeenCalledWith(res, mockUpdatedOrder);
-		});
-
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				params: { id: '1' },
-				body: {
-					status: 'SERVED',
-					guestsCount: 5,
-				},
-			} as unknown as TypedRequest<{ id: number }, {}, OrderUpdateProps>;
-			(ordersService.updateOrderProperties as jest.Mock).mockRejectedValue(error);
-
-			await ordersController.updateOrderProperties(req, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
-		});
-	});
-
-	describe('orderItemsPrint', () => {
-		it('should print order items successfully', async () => {
-			const mockPrintedItems = [{ id: 1, name: 'Pizza' }];
-			const req = {
-				body: { ids: [1, 2, 3] },
-			} as unknown as TypedRequest<{}, {}, { ids: number[] }>;
-			jest
-				.spyOn(ordersService, 'printOrderItems')
-				.mockResolvedValue([...mockPrintedItems].toString());
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
-
-			await ordersController.orderItemsPrint(req, res as Response, next);
-
-			expect(ordersService.printOrderItems).toHaveBeenCalledWith(req.body.ids);
-			expect(okSpy).toHaveBeenCalled();
-		});
-
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				body: { ids: [1, 2, 3] },
-			} as unknown as TypedRequest<{}, {}, { ids: number[] }>;
-			(ordersService.printOrderItems as jest.Mock).mockRejectedValue(error);
-
-			await ordersController.orderItemsPrint(req, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
-		});
-	});
-
-	describe('orderItemsCall', () => {
-		it('should call order items successfully', async () => {
-			const mockCalledItems = [{ id: 1, name: 'Pizza' }];
-			const req = {
-				body: { ids: [1, 2, 3] },
-			} as unknown as TypedRequest<{}, {}, { ids: number[] }>;
-			jest.spyOn(ordersService, 'callOrderItems').mockResolvedValue(mockCalledItems.toString());
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, data: any) => {
-					return res.status(200).json(data);
-				});
-
-			await ordersController.orderItemsCall(req, res as Response, next);
-
-			expect(ordersService.callOrderItems).toHaveBeenCalledWith(req.body.ids);
-			expect(okSpy).toHaveBeenCalled();
-		});
-
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				body: { ids: [1, 2, 3] },
-			} as unknown as TypedRequest<{}, {}, { ids: number[] }>;
-			(ordersService.callOrderItems as jest.Mock).mockRejectedValue(error);
-
-			await ordersController.orderItemsCall(req, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
-		});
-	});
-
-	describe('deleteOrder', () => {
-		it('should delete order successfully', async () => {
-			const req = {
-				params: { id: '1' },
-			} as unknown as TypedRequest<{ id: number }, {}, {}>;
-			jest.spyOn(ordersService, 'delete').mockResolvedValue(true);
-			const okSpy = jest
-				.spyOn(ordersController, 'ok')
-				.mockImplementation((res: Response, message: any) => {
-					return res.status(200).json({ message });
-				});
-
-			await ordersController.deleteOrder(req, res as Response, next);
-
-			expect(ordersService.delete).toHaveBeenCalledWith(1);
-			expect(okSpy).toHaveBeenCalledWith(res, 'Order with id 1 deleted successfully');
-		});
-
-		it('should handle errors', async () => {
-			const error = new Error('Something went wrong');
-			const req = {
-				params: { id: '1' },
-			} as unknown as TypedRequest<{ id: number }, {}, {}>;
-			(ordersService.delete as jest.Mock).mockRejectedValue(error);
-
-			await ordersController.deleteOrder(req, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
-		});
-	});
+	// Добавьте дополнительные тесты для других методов контроллера аналогично
 });

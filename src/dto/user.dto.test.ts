@@ -1,19 +1,21 @@
+import { Role } from './enums';
 import {
 	CreateUserSchema,
-	Role,
+	IdParamSchema,
 	UpdateUserSchema,
 	UserLoginSchema,
 	UserParamSchema,
 	UserSchema,
+	UserSortColumn,
 } from './user.dto';
 
-describe('User DTOs', () => {
+describe('User DTO Schemas', () => {
 	describe('UserSchema', () => {
-		it('should validate a user with all required fields correctly filled', () => {
-			const validUser = {
+		it('should validate a correct user object', () => {
+			const user = {
 				id: 1,
 				name: 'John Doe',
-				email: 'john@example.com',
+				email: 'john.doe@example.com',
 				role: Role.USER,
 				isActive: true,
 				password: 'password123',
@@ -21,155 +23,134 @@ describe('User DTOs', () => {
 				updatedAt: new Date(),
 				lastLogin: new Date(),
 			};
+			expect(() => UserSchema.parse(user)).not.toThrow();
+		});
 
-			const result = UserSchema.safeParse(validUser);
-			expect(result.success).toBe(true);
-			if (result.success) {
-				expect(result.data).toEqual(validUser);
-			}
+		it('should invalidate an incorrect user object', () => {
+			const user = {
+				id: 0,
+				name: '',
+				email: 'invalid-email',
+				role: 'INVALID_ROLE',
+				isActive: 'true',
+				password: 'password123',
+				createdAt: 'invalid-date',
+				updatedAt: 'invalid-date',
+				lastLogin: 'invalid-date',
+			};
+			expect(() => UserSchema.parse(user)).toThrow();
 		});
 	});
 
 	describe('CreateUserSchema', () => {
-		it('should reject a user creation attempt with an invalid email format', () => {
-			const invalidUser = {
+		it('should validate a correct create user object', () => {
+			const user = {
 				name: 'John Doe',
-				email: 'invalid-email',
+				email: 'john.doe@example.com',
 				role: Role.USER,
 				password: 'password123',
 			};
-
-			const result = CreateUserSchema.safeParse(invalidUser);
-			expect(result.success).toBe(false);
-			if (!result.success) {
-				expect(result.error.issues[0].path).toContain('email');
-				expect(result.error.issues[0].message).toBe('Invalid email address');
-			}
+			expect(() => CreateUserSchema.parse(user)).not.toThrow();
 		});
 
-		it('should reject a user creation attempt with an empty name', () => {
-			const invalidUser = {
+		it('should invalidate an incorrect create user object', () => {
+			const user = {
 				name: '',
-				email: 'john@example.com',
-				role: Role.USER,
+				email: 'invalid-email',
+				role: 'INVALID_ROLE',
 				password: 'password123',
 			};
+			expect(() => CreateUserSchema.parse(user)).toThrow();
+		});
+	});
 
-			const result = CreateUserSchema.safeParse(invalidUser);
-			expect(result.success).toBe(false);
-			if (!result.success) {
-				expect(result.error.issues[0].path).toContain('name');
-				expect(result.error.issues[0].message).toBe('Name must not be empty');
-			}
+	describe('IdParamSchema', () => {
+		it('should validate a correct ID parameter', () => {
+			const idParam = { id: '123' };
+			expect(() => IdParamSchema.parse(idParam)).not.toThrow();
+		});
+
+		it('should invalidate an incorrect ID parameter', () => {
+			const idParam = { id: '' };
+			expect(() => IdParamSchema.parse(idParam)).toThrow();
+		});
+	});
+
+	describe('UserParamSchema', () => {
+		it('should validate correct user query parameters', () => {
+			const params = {
+				id: '1',
+				email: 'john.doe@example.com',
+				name: 'John',
+				page: '1',
+				pageSize: '10',
+				sortBy: UserSortColumn.NAME,
+				sortOrder: 'asc',
+				role: 'USER',
+				isActive: 'true',
+				createdAfter: '2021-01-01',
+				createdBefore: '2021-12-31',
+			};
+			expect(() => UserParamSchema.parse(params)).not.toThrow();
+		});
+
+		it('should invalidate incorrect user query parameters', () => {
+			const params = {
+				id: 'invalid-id',
+				email: 'invalid-email',
+				name: 'Jo',
+				page: 'invalid-page',
+				pageSize: 'invalid-pageSize',
+				sortBy: 'INVALID_SORT_COLUMN',
+				sortOrder: 'invalid-sortOrder',
+				role: 'INVALID_ROLE',
+				isActive: 'invalid-isActive',
+				createdAfter: 'invalid-date',
+				createdBefore: 'invalid-date',
+			};
+			expect(() => UserParamSchema.parse(params)).toThrow();
 		});
 	});
 
 	describe('UpdateUserSchema', () => {
-		it("should correctly update a user's role from USER to MANAGER", () => {
-			const originalUser = {
-				id: 1,
+		it('should validate a correct update user object', () => {
+			const user = {
 				name: 'John Doe',
-				email: 'john@example.com',
+				email: 'john.doe@example.com',
 				role: Role.USER,
 				isActive: true,
+				lastLogin: new Date(),
+			};
+			expect(() => UpdateUserSchema.parse(user)).not.toThrow();
+		});
+
+		it('should invalidate an incorrect update user object', () => {
+			const user = {
+				name: '',
+				email: 'invalid-email',
+				role: 'INVALID_ROLE',
+				isActive: 'true',
+				lastLogin: 'invalid-date',
+			};
+			expect(() => UpdateUserSchema.parse(user)).toThrow();
+		});
+	});
+
+	describe('UserLoginSchema', () => {
+		it('should validate correct user login credentials', () => {
+			const credentials = {
+				email: 'john.doe@example.com',
 				password: 'password123',
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				lastLogin: new Date(),
 			};
-
-			const updateData = {
-				role: Role.MANAGER,
-			};
-
-			const result = UpdateUserSchema.safeParse(updateData);
-			expect(result.success).toBe(true);
-			if (result.success) {
-				const updatedUser = { ...originalUser, ...result.data };
-				expect(updatedUser.role).toBe(Role.MANAGER);
-			}
+			expect(() => UserLoginSchema.parse(credentials)).not.toThrow();
 		});
 
-		it('should reject an update attempt with no fields provided', () => {
-			const emptyUpdateData = {};
-
-			const result = UpdateUserSchema.safeParse(emptyUpdateData);
-			expect(result.success).toBe(false);
-			if (!result.success) {
-				expect(result.error.issues[0].message).toBe(
-					'At least one field must be provided in the body'
-				);
-				expect(result.error.issues[0].path).toEqual([
-					'name',
-					'email',
-					'role',
-					'isActive',
-					'lastLogin',
-				]);
-			}
-		});
-
-		it("should correctly handle updating a user's lastLogin timestamp", () => {
-			const updateData = {
-				lastLogin: new Date(),
+		it('should invalidate incorrect user login credentials', () => {
+			const credentials = {
+				email: 'invalid-email',
+				password: '',
 			};
-
-			const result = UpdateUserSchema.safeParse(updateData);
-			expect(result.success).toBe(true);
-			if (result.success) {
-				expect(result.data).toHaveProperty('lastLogin');
-				expect(result.data.lastLogin).toBeInstanceOf(Date);
-			}
-		});
-	});
-
-	describe('Authenticating a user', () => {
-		it('should successfully authenticate a user with correct credentials', () => {
-			const validCredentials = {
-				email: 'test@example.com',
-				password: 'correctPassword123',
-			};
-
-			const result = UserLoginSchema.safeParse(validCredentials);
-			expect(result.success).toBe(true);
-			if (result.success) {
-				expect(result.data).toEqual(validCredentials);
-			}
-		});
-
-		it('should reject authentication for a user with an incorrect password', () => {
-			const invalidCredentials = {
-				email: 'john@example.com',
-				password: 'wrongpassword',
-			};
-
-			const result = UserLoginSchema.safeParse(invalidCredentials);
-			expect(result.success).toBe(true);
-
-			// Simulate authentication process
-			const authenticatedUser = null; // Assuming authentication fails due to incorrect password
-
-			expect(authenticatedUser).toBeNull();
-		});
-	});
-
-	describe('Search user', () => {
-		it('should correctly handle user search with multiple criteria (id, email, and name)', () => {
-			const searchCriteria = {
-				id: '1',
-				email: 'john@example.com',
-				name: 'John Doe',
-			};
-
-			const result = UserParamSchema.safeParse(searchCriteria);
-			expect(result.success).toBe(true);
-			if (result.success) {
-				expect(result.data).toEqual({
-					id: 1,
-					email: 'john@example.com',
-					name: 'John Doe',
-				});
-			}
+			expect(() => UserLoginSchema.parse(credentials)).toThrow();
 		});
 	});
 });

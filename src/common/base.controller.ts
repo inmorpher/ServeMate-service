@@ -1,13 +1,14 @@
 import { CookieOptions, Response, Router } from 'express';
 import { inject, injectable } from 'inversify';
 import NodeCache from 'node-cache';
+import 'reflect-metadata';
+import { RouteDefinition } from '../deсorators/httpDecorators';
 import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
-import { IControllerRoute } from './route.interface';
-
 @injectable()
 export abstract class BaseController {
-	private readonly _router: Router;
+	// private readonly _router: Router;
+	public router: Router;
 	private readonly _cache: NodeCache;
 	private context: string;
 	/**
@@ -15,18 +16,19 @@ export abstract class BaseController {
 	 * @param logger - The logger service to be used for logging.
 	 */
 	constructor(@inject(TYPES.ILogger) private logger: ILogger) {
+		this.router = Router();
 		this.context = this.constructor.name;
 		this._cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
-		this._router = Router();
 	}
 
 	/**
 	 * Gets the router instance.
 	 * @returns The Express Router instance.
 	 */
-	get router(): Router {
-		return this._router;
-	}
+
+	// get router(): Router {
+	// 	return this.router;
+	// }
 
 	get cache(): NodeCache {
 		return this._cache;
@@ -139,18 +141,24 @@ export abstract class BaseController {
 	 * Binds the provided routes to the router.
 	 * @param routes - An array of route configurations.
 	 */
+	protected bindRoutes() {
+		const prefix = Reflect.getMetadata('prefix', this.constructor);
+		const routes: RouteDefinition[] = Reflect.getMetadata('routes', this.constructor) || [];
 
-	protected bindRoutes<TParams = any, TQuery = any, TBody = any>(
-		routes: IControllerRoute<TParams, TQuery, TBody>[]
-	) {
-		for (const route of routes) {
-			this.logger.log(
-				`[${this.context}] \t Binding route: ${route.method.toUpperCase()} ${route.path}`
-			);
-			let middleware = route.middlewares?.map((m) => m.execute.bind(m)) ?? [];
-			const handler = route.func.bind(this);
-			const pipeline = middleware ? [...middleware, handler] : handler;
-			this.router[route.method](route.path, pipeline);
-		}
+		routes.forEach((route: RouteDefinition) => {
+			if (!route || !route.handlerName) {
+				this.logger.warn(`Invalid route definition: ${route}`);
+				return;
+			}
+			const handler = (this as any)[route.handlerName].bind(this);
+
+			if (route.middlewares && route.middlewares.length > 0) {
+				const middlewares = route.middlewares.map((m: any) => m.execute.bind(m));
+				this.router[route.method](prefix + route.path, ...middlewares, handler);
+				this.logger.log('Middleware:', middlewares);
+			} else {
+				this.router[route.method](prefix + route.path, handler);
+			}
+		});
 	}
 }

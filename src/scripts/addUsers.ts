@@ -1,7 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { CreateUser, Role } from '../dto/user.dto';
+import { Role } from '../dto/enums';
+import { CreateUser } from '../dto/user.dto';
 
 const prisma = new PrismaClient();
 

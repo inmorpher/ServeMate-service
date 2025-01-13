@@ -1,306 +1,290 @@
-datasource db {
-	provider = "postgresql"
-	url = env("DATABASE_URL")
-}
-
 generator client {
-	provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
-//USER
 
+generator enums {
+  provider = "ts-node /Users/inmo/Documents/Projects/ServeMate-service/src/scripts/generateDto.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//Models
 
 model User {
-	id        Int      @id @unique @default(dbgenerated("nextval('user_id_seq')::int"))
-	name String @default("")
-    email String @unique
-	password String
-	role Role @default(USER)
-	orders Order[]
-	// tables Table[]
-	userActions orderServerAction[]
-	tableAssigments TableAssigment[]
-	payments Payment[]
-	createdAt DateTime @default(now())
-	updatedAt DateTime @updatedAt
-	//authentication 
-	isActive Boolean @default(true)
-	lastLogin DateTime?
+  id             Int                 @id @unique @default(dbgenerated("(nextval('user_id_seq'::regclass))::integer"))
+  name           String              @default("")
+  email          String              @unique
+  password       String
+  role           UserRole            @default(USER)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  isActive       Boolean             @default(true)
+  lastLogin      DateTime?
+  orders         Order[]
+  payments       Payment[]
+  TableAssignment TableAssignment[]
+  userActions    orderServerAction[]
 }
-
-enum Role {
-    ADMIN
-    USER
-	HOST
-	MANAGER
-}
-
-//ORDERS
 
 model Order {
-    id    Int @id @default(autoincrement())
-   	table Table @relation(fields: [tableNumber], references: [tableNumber]) 
-	tableNumber Int 
-	orderNumber Int 
-	guestsCount Int 
-	payments Payment[]
-	paymentStatus PaymentStatus @default(NONE)
-	orderTime DateTime @default(now())
-	updatedAt DateTime @updatedAt()
-	foodItems OrderFoodItem[]
-	drinkItems OrderDrinkItem[]
-	allergies Allergies[] @default([])
-	server User @relation(fields: [serverId], references: [id])
-	serverId Int
-	serverActions orderServerAction[]
-	//
-
-	totalAmount Float @default(0)
-	status OrderStatus @default(RECEIVED)
-	comments String?
-	completionTime DateTime?
-	discount Float @default(0)
-	tip Float @default(0)
-	shiftId String?
-	
+  tableNumber    Int
+  guestsCount    Int
+  paymentStatus  PaymentState        @default(NONE)
+  orderTime      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  allergies      Allergy[]           @default([])
+  serverId       Int
+  totalAmount    Float               @default(0)
+  status         OrderState          @default(RECEIVED)
+  comments       String?
+  completionTime DateTime?
+  discount       Float               @default(0)
+  tip            Float               @default(0)
+  shiftId        String?
+  id             Int                 @id @default(autoincrement())
+  server         User                @relation(fields: [serverId], references: [id])
+  table          Table               @relation(fields: [tableNumber], references: [tableNumber])
+  drinkItems     OrderDrinkItem[]
+  foodItems      OrderFoodItem[]
+  payments       Payment[]
+  serverActions  orderServerAction[]
 }
 
 model OrderFoodItem {
-	order Order @relation(fields: [orderId], references: [id])
-    orderId Int
-    foodItem FoodItem @relation(fields: [foodItemId], references: [id])
-    foodItemId Int
-    quantity Int
-	guestNumber Int
-	price Float @default(0)
-	specialRequest String?
-	allergies Allergies[] @default([])
-    @@id([orderId, foodItemId, guestNumber])
+  id            Int         @id @unique @default(autoincrement())
+  guestNumber   Int
+  price         Float
+  specialRequest String?
+  allergies     Allergy[]   @default([])
+  orderId       Int
+  itemId        Int
+  discount      Float       @default(0)
+  finalPrice    Float
+  fired         Boolean     @default(false)
+  printed       Boolean     @default(false)
+  foodItem      FoodItem    @relation(fields: [itemId], references: [id])
+  order         Order       @relation(fields: [orderId], references: [id])
 }
-
 
 model OrderDrinkItem {
-	order Order @relation(fields: [orderId], references: [id])
-	orderId Int
-	drinkItem DrinkItem @relation(fields: [drinkItemId], references: [id])
-	drinkItemId Int
-    quantity Int
-	guestNumber Int
-	price Float @default(0)
-    specialRequest String?
-    allergies Allergies[] @default([]) 
-	@@id([orderId, drinkItemId, guestNumber])
-}
-
-enum OrderStatus {
-    RECEIVED
-    PREPARING
-    SERVED
-    PAID
-    CANCELLED
+  id            Int         @id @unique @default(autoincrement())
+  guestNumber   Int
+  price         Float
+  specialRequest String?
+  allergies     Allergy[]   @default([])
+  orderId       Int
+  itemId        Int
+  discount      Float       @default(0)
+  finalPrice    Float
+  fired         Boolean     @default(false)
+  printed       Boolean     @default(false)
+  drinkItem     DrinkItem   @relation(fields: [itemId], references: [id])
+  order         Order       @relation(fields: [orderId], references: [id])
 }
 
 model FoodItem {
-	id Int @id @default(autoincrement())
-	code String @unique
-    name String
-    price Float
-    type FoodType @default(OTHER)
-	category FoodCategory @default(OTHER)
-	allergies Allergies[] @default([])
-    orderFoodItem OrderFoodItem[]
-	ingridients String[] @default([])
-	description String @default("")
-	isAvailable Boolean @default(true)
-	preparationTime Int @default(0)
-	calories Int?
-	image String?
-	spicyLevel SpicyLevel @default(NOT_SPICY)
-	popularityScore Float @default(0)
-	isVegeterian Boolean @default(false)
-	isVegan Boolean @default(false)
-	isGlutenFree Boolean @default(false )
-	createdAt DateTime @default(now())
-	updatedAt DateTime @updatedAt
-} 
-
-enum SpicyLevel {
-    NOT_SPICY
-    MILD
-    MEDIUM
-    HOT
-    EXTRA_HOT
+  id              Int             @id @unique @default(autoincrement())
+  name            String
+  price           Float
+  type            FoodType        @default(OTHER)
+  category        FoodCategory    @default(OTHER)
+  allergies       Allergy[]       @default([])
+  ingredients     String[]        @default([])
+  description     String          @default("")
+  isAvailable     Boolean         @default(true)
+  preparationTime Int             @default(0)
+  calories        Int?
+  image           String?
+  spicyLevel      SpiceLevel      @default(NOT_SPICY)
+  popularityScore Float           @default(0)
+  isVegetarian    Boolean         @default(false)
+  isVegan         Boolean         @default(false)
+  isGlutenFree    Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  OrderFoodItem   OrderFoodItem[]
 }
-
 
 model DrinkItem {
-    id Int @id @default(autoincrement())
-	code String @unique
-    name String
-    price Float
-	category DrinkCategory @default(OTHER)
-	orderDrinkItem OrderDrinkItem[]
-	description String @default("")
-    ingridients String[] @default([])
-	isAvailable Boolean @default(true)
-	volume Int
-	alchoholPercentage Float?
-	image String?
-	isCarbonated Boolean @default(false)
-	tempreture DrinkTemperature @default(ROOM)
-	popularityScore Float @default(0)
-	createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id                Int             @id @default(autoincrement())
+  name              String
+  price             Float
+  category          DrinkCategory   @default(OTHER)
+  description       String          @default("")
+  ingredients       String[]        @default([])
+  isAvailable       Boolean         @default(true)
+  volume            Int
+  alcoholPercentage Float?
+  image             String?
+  isCarbonated      Boolean         @default(false)
+  tempriture        DrinkTemp       @default(ROOM)
+  popularityScore   Float           @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  OrderDrinkItem    OrderDrinkItem[]
 }
-	
-
-	
-
-enum PaymentStatus {
-	NONE
-    PAID
-    REFUNDED
-	CANCELLED
-	PENDING
-}
-
-enum DrinkTemperature {
-    COLD
-    ROOM
-    HOT
-}
-
-//TABLES
 
 model Table {
-    id Int @id @default(autoincrement())
-    tableNumber Int @unique
-    capacity Int 
-    additionalCapacity Int @default(0)
-    originalCapacity Int
-    orders Order[]
-    isOccupied Boolean @default(false)
-    status TableStatus @default(AVAILABLE)
-    assignment TableAssigment[]
-}
-
-enum TableStatus {
-	AVAILABLE
-	OCCUPIED
-	RESERVED
-	ORDERING
-	SERVING
-	PAYMENT
-}
-
-model TableAssigment {
-	id Int @id @default(autoincrement())
-    table Table @relation(fields: [tableId], references: [id])
-	tableId Int
-	server User @relation(fields: [serverId], references: [id])
-	serverId Int
-	isPrimary Boolean @default(false)
-	assignedAt DateTime @default(now())
-	isActive Boolean @default(true)
-
-	@@unique([tableId, serverId])
+  id                 Int              @id @default(autoincrement())
+  tableNumber        Int              @unique
+  capacity           Int
+  status             TableCondition   @default(AVAILABLE)
+  additionalCapacity Int              @default(0)
+  isOccupied         Boolean          @default(false)
+  originalCapacity   Int
+  guests             Int              @default(0)
+  orders             Order[]
+  assignment         TableAssignment[]
 }
 
 model orderServerAction {
-    id Int @id @default(autoincrement())
-    order Order @relation(fields: [orderId], references: [id])
-    orderId Int
-    server User @relation(fields: [serverId], references: [id])
-    serverId Int
-    actionType OrderActionType
-    actionTime DateTime @default(now())
-    details String?
+  id         Int             @id @default(autoincrement())
+  orderId    Int
+  serverId   Int
+  actionType OrderAction
+  actionTime DateTime        @default(now())
+  details    String?
+  order      Order           @relation(fields: [orderId], references: [id])
+  server     User            @relation(fields: [serverId], references: [id])
 }
-
-enum OrderActionType {
-	CREATE
-	UPDATE
-	ADD_ITEM
-	REMOVE_ITEM
-	CHANGE_STATUS
-}
-
-//PAYMENT
 
 model Payment {
-	id Int @id @default(autoincrement())
-    amount Float
-    paymentType PaymentType @default(CASH)
-    paymentTime DateTime @default(now())
-    order Order @relation(fields: [orderId], references: [id])
-	tableNumber Int
-	server User @relation(fields: [serverId], references: [id])
-	tableId Int
-	orderId Int
-	serverId Int
+  amount        Float
+  paymentType   PaymentMethod  @default(CASH)
+  paymentTime   DateTime       @default(now())
+  serverId      Int
+  id            Int            @id @default(autoincrement())
+  tableId       Int
+  orderId       Int
+  tableNumber   Int
+  order         Order          @relation(fields: [orderId], references: [id])
+  server        User           @relation(fields: [serverId], references: [id])
 }
 
-enum PaymentType {
-    CASH
-    CREDIT_CARD
-    DEBIT_CARD
+model TableAssignment {
+  id         Int      @id @default(autoincrement())
+  tableId    Int
+  serverId   Int
+  isPrimary  Boolean  @default(false)
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+  server     User     @relation(fields: [serverId], references: [id])
+  table      Table    @relation(fields: [tableId], references: [id])
+
+  @@unique([tableId, serverId])
 }
 
-//FOOD ITEMS
-enum Allergies {                 
-	NONE
-    GLUTEN
-    DAIRY
-    EGG
-    PEANUT
-    TREENUT
-    FISH
-    SHELLFISH
-    SOY
-    SESAME
-    CELERY
-    MUSTARD
-    LUPIN
-    SULPHITES
-    MOLLUSCS
+//Enums
+
+enum UserRole {
+  ADMIN
+  USER
+  HOST
+  MANAGER
 }
 
+enum OrderState {
+  AWAITING
+  RECEIVED
+  SERVED
+  CANCELED
+  DISPUTED
+  COMPLETED
+}
 
+enum SpiceLevel {
+  NOT_SPICY
+  MILD
+  MEDIUM
+  HOT
+  EXTRA_HOT
+}
 
+enum PaymentState {
+  NONE
+  PAID
+  REFUNDED
+  CANCELLED
+  PENDING
+}
 
+enum DrinkTemp {
+  COLD
+  ROOM
+  HOT
+}
+
+enum TableCondition {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  ORDERING
+  SERVING
+  PAYMENT
+}
+
+enum OrderAction {
+  CREATE
+  UPDATE
+  ADD_ITEM
+  REMOVE_ITEM
+  CHANGE_STATUS
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+}
+
+enum Allergy {
+  NONE
+  GLUTEN
+  DAIRY
+  EGG
+  PEANUT
+  TREENUT
+  FISH
+  SHELLFISH
+  SOY
+  SESAME
+  CELERY
+  MUSTARD
+  LUPIN
+  SULPHITES
+  MOLLUSCS
+}
 
 enum FoodType {
-	APPETIZER
-	MAIN_COURSE
-	DESERT
-    SIDES
-	SOUSE
-	OTHER
+  APPETIZER
+  MAIN_COURSE
+  DESSERT
+  SIDES
+  SAUCE
+  OTHER
 }
 
 enum FoodCategory {
-	SALAD
-	MEAT
-	SOUP
-	FISH
-	VEGGIES
-	OTHER
-	SEAFOOD
+  SALAD
+  MEAT
+  SOUP
+  FISH
+  VEGGIES
+  OTHER
+  SEAFOOD
 }
-
-
-//DRINK ITEMS
-
 
 enum DrinkCategory {
-	BEER
-    WINE
-    SPIRITS
-    COFFEE
-    TEA
-    OTHER
-    SODA
-    ALCOHOLIC
-    NON_ALCOHOLIC
+  BEER
+  WINE
+  SPIRITS
+  COFFEE
+  TEA
+  OTHER
+  SODA
+  ALCOHOLIC
+  NON_ALCOHOLIC
 }
-
-

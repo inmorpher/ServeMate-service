@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import 'reflect-metadata';
-import { Role } from '../../dto/user.dto';
+
+import { Role } from '../../dto/enums';
 import { RoleMiddleware } from './role.middleware';
 
 jest.mock('../../../env', () => ({ ENV: { PRODUCTION: true } }));

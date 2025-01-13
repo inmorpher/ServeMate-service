@@ -9,6 +9,7 @@ import {
 	CreateUser,
 	UpdateUserDto,
 	UserCredentials,
+	UserDto,
 	UserListItem,
 	UserListResult,
 	UserSearchCriteria,
@@ -230,5 +231,16 @@ export class UserService extends BaseService implements IUserService {
 		} catch (error) {
 			throw this.handleError(error);
 		}
+	}
+
+	/**
+	 * Finds a user by their unique identifier.
+	 * @param {number} id - The unique identifier of the user to find.
+	 * @returns {Promise<User | null>} A promise that resolves to the user data if found, or null if not found.
+	 */
+	async findUserById(id: number): Promise<UserDto | null> {
+		return this.prisma.user.findUnique({
+			where: { id },
+		});
 	}
 }

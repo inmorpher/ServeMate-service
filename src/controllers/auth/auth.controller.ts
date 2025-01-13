@@ -3,8 +3,10 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
+import { Controller, Post } from '../../deсorators/httpDecorators';
 import { UserCredentials, UserLoginSchema } from '../../dto/user.dto';
-import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
+import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { ITokenService } from '../../services/tokens/token.service.interface';
 import { UserService } from '../../services/users/user.service';
@@ -30,6 +32,7 @@ const ERROR_MESSAGES = {
 };
 
 @injectable()
+@Controller('/auth')
 export class AuthenticationController extends BaseController {
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
@@ -39,26 +42,7 @@ export class AuthenticationController extends BaseController {
 		super(loggerService);
 		// this.loggerService.setContext('AuthenticationController');
 		// this.loggerService.log('AuthenticationController');
-		this.bindRoutes([
-			{
-				method: 'post',
-				path: '/login',
-				func: this.login,
-				middlewares: [new ValidateMiddleware(UserLoginSchema)],
-			},
-			{
-				method: 'post',
-				path: '/refresh-token',
-				func: this.refreshToken,
-				middlewares: [],
-			},
-			{
-				method: 'post',
-				path: '/logout',
-				func: this.logout,
-				middlewares: [],
-			},
-		]);
+		// this.bindRoutes([
 	}
 
 	/**
@@ -73,7 +57,15 @@ export class AuthenticationController extends BaseController {
 	 * @returns A Promise that resolves when the login process is complete.
 	 * @throws Will throw an error if authentication fails or if there's an issue during the process.
 	 */
-	async login(req: Request<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
+	// 	{
+	// 		method: 'post',
+	// 		path: '/login',
+	// 		func: this.login,
+	// 		middlewares: [new ValidateMiddleware(UserLoginSchema)],
+	// 	},
+	@Validate(UserLoginSchema, 'body')
+	@Post('/login')
+	async login(req: TypedRequest<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
 		try {
 			const { email, password } = req.body;
 
@@ -104,7 +96,16 @@ export class AuthenticationController extends BaseController {
 	 * @param next - The Express next function for error handling.
 	 * @returns A Promise that resolves when the logout process is complete.
 	 */
-	async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+	// 	{
+	// 		method: 'post',
+	// 		path: '/logout',
+	// 		func: this.logout,
+	// 		middlewares: [],
+	// 	},
+	// ]);
+	@Post('/logout')
+	async logout(req: TypedRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
 			res.clearCookie('refreshToken');
 			this.loggerService.log('User logged out');
@@ -126,6 +127,14 @@ export class AuthenticationController extends BaseController {
 	 * @returns A Promise that resolves when the token refresh process is complete.
 	 * @throws Will pass any caught errors to the next middleware for handling.
 	 */
+	// 	{
+	// 		method: 'post',
+	// 		path: '/refresh-token',
+	// 		func: this.refreshToken,
+	// 		middlewares: [],
+	// 	},
+
+	@Post('/refresh-token')
 	async refreshToken(req: Request, res: Response, next: NextFunction) {
 		try {
 			const refreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');

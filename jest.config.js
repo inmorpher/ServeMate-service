@@ -18,5 +18,5 @@ module.exports = {
 	moduleNameMapper: {
 		'^@/(.*)$': '<rootDir>/src/$1',
 	},
-	coveragePathIgnorePatterns: ['/node_modules/', '/src/app.ts'],
+	coveragePathIgnorePatterns: ['/node_modules/', '/src/app.ts', '/src/scripts/'],
 };

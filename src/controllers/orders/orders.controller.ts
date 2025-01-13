@@ -1,11 +1,13 @@
 import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
+import { Controller, Delete, Get, Patch, Post } from '../../deсorators/httpDecorators';
 import {
 	OrderCreateDTO,
 	OrderCreateSchema,
 	OrderIds,
-	OrderSchema,
 	OrderSearchCriteria,
 	OrderSearchSchema,
 	OrderUpdateItems,
@@ -13,14 +15,14 @@ import {
 	OrderUpdateProps,
 } from '../../dto/orders.dto';
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
-import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
+import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { OrdersService } from '../../services/orders/order.service';
 import { TYPES } from '../../types';
-import { IOrdersController } from './orders.controller.interface';
 
 @injectable()
-export class OrdersController extends IOrdersController {
+@Controller('/orders')
+export class OrdersController extends BaseController {
 	private cacheMiddleware: CacheMiddleware;
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
@@ -28,61 +30,64 @@ export class OrdersController extends IOrdersController {
 	) {
 		super(loggerService);
 		this.cacheMiddleware = new CacheMiddleware(this.cache, 'orders');
-
-		this.bindRoutes([
-			{
-				method: 'get',
-				path: '/',
-				func: this.getOrders,
-				middlewares: [new ValidateMiddleware(OrderSearchSchema, 'query'), this.cacheMiddleware],
-			},
-			{
-				method: 'get',
-				path: '/:id',
-				func: this.getOrderById,
-				middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
-			},
-			{
-				method: 'post',
-				path: '/',
-				func: this.createOrder,
-				middlewares: [new ValidateMiddleware(OrderCreateSchema, 'body')],
-			},
-			{
-				method: 'patch',
-				path: '/:id/items',
-				func: this.updateOrderItems,
-				middlewares: [
-					new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params'),
-					new ValidateMiddleware(OrderUpdateItemsSchema, 'body'),
-					this.cacheMiddleware,
-				],
-			},
-			{
-				method: 'patch',
-				path: '/:id',
-				func: this.updateOrderProperties,
-				middlewares: [new ValidateMiddleware(OrderUpdateProps, 'body')],
-			},
-			{
-				method: 'post',
-				path: '/:id/print',
-				func: this.orderItemsPrint,
-				middlewares: [new ValidateMiddleware(OrderIds, 'body')],
-			},
-			{
-				method: 'post',
-				path: '/:id/call',
-				func: this.orderItemsCall,
-				middlewares: [new ValidateMiddleware(OrderIds, 'body')],
-			},
-			{
-				method: 'delete',
-				path: '/:id',
-				func: this.deleteOrder,
-				middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
-			},
-		]);
+		// console.log('Controller metadata after init:', {
+		// 	routes: Reflect.getMetadata(METADATA_KEYS.ROUTES, this.constructor),
+		// 	prefix: Reflect.getMetadata(METADATA_KEYS.PREFIX, this.constructor),
+		// });
+		// this.bindRoutes([
+		// 	{
+		// 		method: 'get',
+		// 		path: '/',
+		// 		func: this.getOrders,
+		// 		middlewares: [new ValidateMiddleware(OrderSearchSchema, 'query'), this.cacheMiddleware],
+		// 	},
+		// 	{
+		// 		method: 'get',
+		// 		path: '/:id',
+		// 		func: this.getOrderById,
+		// 		middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
+		// 	},
+		// 	{
+		// 		method: 'post',
+		// 		path: '/',
+		// 		func: this.createOrder,
+		// 		middlewares: [new ValidateMiddleware(OrderCreateSchema, 'body')],
+		// 	},
+		// 	{
+		// 		method: 'patch',
+		// 		path: '/:id/items',
+		// 		func: this.updateOrderItems,
+		// 		middlewares: [
+		// 			new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params'),
+		// 			new ValidateMiddleware(OrderUpdateItemsSchema, 'body'),
+		// 			this.cacheMiddleware,
+		// 		],
+		// 	},
+		// 	{
+		// 		method: 'patch',
+		// 		path: '/:id',
+		// 		func: this.updateOrderProperties,
+		// 		middlewares: [new ValidateMiddleware(OrderUpdateProps, 'body')],
+		// 	},
+		// 	{
+		// 		method: 'post',
+		// 		path: '/:id/print',
+		// 		func: this.orderItemsPrint,
+		// 		middlewares: [new ValidateMiddleware(OrderIds, 'body')],
+		// 	},
+		// 	{
+		// 		method: 'post',
+		// 		path: '/:id/call',
+		// 		func: this.orderItemsCall,
+		// 		middlewares: [new ValidateMiddleware(OrderIds, 'body')],
+		// 	},
+		// 	{
+		// 		method: 'delete',
+		// 		path: '/:id',
+		// 		func: this.deleteOrder,
+		// 		middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
+		// 	},
+		// ]);
 	}
 
 	/**
@@ -103,7 +108,8 @@ export class OrdersController extends IOrdersController {
 	 * // Example request to get orders
 	 * GET /orders?status=shipped&customerId=123
 	 */
-
+	@Validate(OrderSearchSchema, 'query')
+	@Get('/')
 	async getOrders(
 		req: TypedRequest<{}, OrderSearchCriteria, {}>,
 		res: Response,
@@ -128,6 +134,8 @@ export class OrdersController extends IOrdersController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
+	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
+	@Get('/:id')
 	async getOrderById(
 		req: TypedRequest<{ id: number }, {}, {}>,
 		res: Response,
@@ -141,16 +149,8 @@ export class OrdersController extends IOrdersController {
 		}
 	}
 
-	/**
-	 * Creates a new order.
-	 *
-	 * @param req - The request object containing the order details in the body.
-	 * @param res - The response object used to send the response.
-	 * @param next - The next middleware function in the stack.
-	 * @returns A promise that resolves to void.
-	 *
-	 * @throws Will pass any errors to the next middleware function.
-	 */
+	@Validate(OrderCreateSchema, 'body')
+	@Post('/')
 	async createOrder(
 		req: TypedRequest<{}, {}, OrderCreateDTO>,
 		res: Response,
@@ -178,6 +178,9 @@ export class OrdersController extends IOrdersController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
+	@Validate(OrderUpdateItemsSchema, 'body')
+	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
+	@Patch('/:id/items')
 	async updateOrderItems(
 		req: TypedRequest<{ id: number }, {}, OrderUpdateItems>,
 		res: Response,
@@ -205,6 +208,9 @@ export class OrdersController extends IOrdersController {
 	 *
 	 * @see {@link OrderUpdateProps}
 	 */
+	@Validate(OrderUpdateProps, 'body')
+	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
+	@Patch('/:id')
 	async updateOrderProperties(
 		req: TypedRequest<{ id: number }, {}, OrderUpdateProps>,
 		res: Response,
@@ -231,14 +237,17 @@ export class OrdersController extends IOrdersController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
+	@Validate(OrderIds, 'body')
+	@Post('/:id/print')
 	async orderItemsPrint(
 		req: TypedRequest<{}, {}, { ids: number[] }>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
-			console.log(req.body.ids);
-			const printedItems = await this.ordersService.printOrderItems(req.body.ids);
+			const orderId = Number(req.params.id);
+			const orderItemsIds = req.body.ids;
+			const printedItems = await this.ordersService.printOrderItems(orderId, orderItemsIds);
 
 			this.ok(res, printedItems);
 		} catch (error) {
@@ -256,14 +265,17 @@ export class OrdersController extends IOrdersController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
+	@Validate(OrderIds, 'body')
+	@Post('/:id/call')
 	async orderItemsCall(
-		req: TypedRequest<{}, {}, { ids: number[] }>,
+		req: TypedRequest<{}, {}, { orderItemsIds: number[] }>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
-			console.log(req.body.ids);
-			const calledItems = await this.ordersService.callOrderItems(req.body.ids);
+			const orderId = Number(req.params.id);
+			const orderItemsIds = req.body.orderItemsIds;
+			const calledItems = await this.ordersService.callOrderItems(orderId, orderItemsIds);
 
 			this.ok(res, calledItems);
 		} catch (error) {
@@ -281,6 +293,8 @@ export class OrdersController extends IOrdersController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
+	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
+	@Delete('/:id')
 	async deleteOrder(
 		req: TypedRequest<{ id: number }, {}, {}>,
 		res: Response,

@@ -1,12 +1,15 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { OrderStatus } from '../../dto/enums';
+import { OrderState } from '../../dto/enums';
 import {
 	OrderCreateDTO,
 	OrderFullSingleDTO,
 	OrderSearchCriteria,
+	OrderSearchListResult,
 	OrderUpdateProps,
 } from '../../dto/orders.dto';
+
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../deсorators/Cache';
 
 import 'reflect-metadata';
 import { HTTPError } from '../../errors/http-error.class';
@@ -39,7 +42,9 @@ export class OrdersService extends AbstractOrderService {
 	 * @returns {Promise<any>} A promise that resolves to an object containing the orders, total count, current page, page size, and total pages.
 	 * @throws Will throw an error if the operation fails.
 	 */
-	async findOrders(criteria: OrderSearchCriteria): Promise<any> {
+
+	@Cache(60)
+	async findOrders(criteria: OrderSearchCriteria): Promise<OrderSearchListResult> {
 		try {
 			const {
 				id,
@@ -59,7 +64,7 @@ export class OrdersService extends AbstractOrderService {
 				...(id !== undefined && { id: Number(id) }),
 				...(server !== undefined && { serverId: Number(server) }),
 				...(status && {
-					status: { equals: status.toUpperCase() as OrderStatus },
+					status: { equals: status.toUpperCase() as OrderState },
 				}),
 				...(tableNumber !== undefined && { tableNumber }),
 				...(guestNumber !== undefined && { guestsCount: Number(guestNumber) }),
@@ -100,7 +105,7 @@ export class OrdersService extends AbstractOrderService {
 			return {
 				orders: orders.map((order) => ({
 					...order,
-					status: order.status as OrderStatus,
+					status: order.status as OrderState,
 				})),
 				totalCount: total,
 				page,
@@ -119,6 +124,7 @@ export class OrdersService extends AbstractOrderService {
 	 * @returns {Promise<OrderFullSingleDTO>} A promise that resolves to the full order details.
 	 * @throws Will throw an error if the order is not found or if there is an issue with the database query.
 	 */
+	@Cache(60)
 	async findOrderById(orderId: number): Promise<OrderFullSingleDTO> {
 		try {
 			const order = await this.prisma.order.findUnique({
@@ -158,6 +164,7 @@ export class OrdersService extends AbstractOrderService {
 	 *
 	 * @throws {Error} If there's any issue during the order creation process, an error is thrown and handled.
 	 */
+	@InvalidateCacheByPrefix(`findOrders_`)
 	async createOrder(order: OrderCreateDTO): Promise<OrderFullSingleDTO> {
 		try {
 			const { mergedItems, totalAmount } = await this.prepareOrderItems(order);
@@ -180,6 +187,8 @@ export class OrdersService extends AbstractOrderService {
 	 * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion was successful.
 	 * @throws Will throw an error if the deletion fails.
 	 */
+	@InvalidateCacheByPrefix(`findOrders_`)
+	@InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
 	async delete(order: number): Promise<boolean> {
 		try {
 			await this.prisma.$transaction(async (prisma) => {
@@ -192,7 +201,6 @@ export class OrdersService extends AbstractOrderService {
 				await prisma.orderDrinkItem.deleteMany({
 					where: { orderId: order },
 				});
-
 				// Delete the order itself.
 				await prisma.order.delete({
 					where: { id: order },
@@ -217,7 +225,8 @@ export class OrdersService extends AbstractOrderService {
 	 * @returns {Promise<string>} A promise that resolves to a string indicating the IDs of the printed items.
 	 * @throws {HTTPError} If any of the specified items have already been printed.
 	 */
-	async printOrderItems(ids: number[]): Promise<string> {
+	@InvalidateCacheByKeys((orderId: number) => [`findOrderById_[${orderId}]`])
+	async printOrderItems(orderId: number, ids: number[]): Promise<string> {
 		return await this.prisma.$transaction(async (prisma) => {
 			try {
 				const drinkItems = await prisma.orderDrinkItem.findMany({
@@ -277,9 +286,23 @@ export class OrdersService extends AbstractOrderService {
 	 * @returns {Promise<string>} A promise that resolves to a message indicating the items have been called.
 	 * @throws {HTTPError} If any of the items have not been printed or have already been fired.
 	 */
-	async callOrderItems(ids: number[]): Promise<string> {
+	@InvalidateCacheByKeys((orderId: number) => [`findOrderById_[${orderId}]`])
+	async callOrderItems(orderId: number, ids: number[]): Promise<string> {
 		return this.prisma.$transaction(async (prisma) => {
 			try {
+				const existingOrder = await prisma.order.findUnique({
+					where: { id: orderId },
+					select: { id: true },
+				});
+
+				if (!existingOrder) {
+					throw new HTTPError(
+						404,
+						'Order not found',
+						`Order with ID ${orderId} not found in the database`
+					);
+				}
+
 				const foodItems = await prisma.orderFoodItem.findMany({
 					where: {
 						id: { in: ids },
@@ -349,6 +372,7 @@ export class OrdersService extends AbstractOrderService {
 	 * @param {number} updatedData.totalAmount - The updated total amount for the order.
 	 * @returns {Promise<Prisma.Order>} The updated order with included server, food items, and drink items.
 	 */
+	@InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
 	async updateOrderItemsInDatabase(
 		orderId: number,
 		updatedData: {
@@ -394,6 +418,7 @@ export class OrdersService extends AbstractOrderService {
 	 * @throws {HTTPError} If the order is not found in the database.
 	 * @throws {Error} If there is an issue during the update process.
 	 */
+	@InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
 	async updateItemsInOrder(
 		orderId: number,
 		updatedData: Pick<OrderCreateDTO, 'foodItems' | 'drinkItems'>
@@ -445,6 +470,7 @@ export class OrdersService extends AbstractOrderService {
 	 * @throws {HTTPError} If the order is not found in the database.
 	 * @throws {Error} If there is an error during the update process.
 	 */
+	@InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
 	async updateOrderProperties(
 		orderId: number,
 		updatedProperties: OrderUpdateProps
@@ -480,6 +506,4 @@ export class OrdersService extends AbstractOrderService {
 			throw this.handleError(error);
 		}
 	}
-
-	/////extra
 }

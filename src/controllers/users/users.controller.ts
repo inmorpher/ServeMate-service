@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
+import { Controller, Delete, Get, Post, Put } from '../../deсorators/httpDecorators';
 import { Role } from '../../dto/enums';
 import {
 	CreateUser,
 	CreateUserSchema,
-	IdParamSchema,
 	UpdateUserDto,
 	UpdateUserSchema,
 	UserListResult,
@@ -15,14 +16,14 @@ import {
 	UserSortColumn,
 } from '../../dto/user.dto';
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
-import { RoleMiddleware } from '../../middleware/role/role.middleware';
-import { ValidateMiddleware } from '../../middleware/validate/validate.middleware';
+import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
 import { TYPES } from '../../types';
 import { IUserController } from './user.controller.interface';
 
 @injectable()
+@Controller('/users')
 export class UserController extends BaseController implements IUserController {
 	private cacheMiddleware: CacheMiddleware;
 	constructor(
@@ -31,45 +32,6 @@ export class UserController extends BaseController implements IUserController {
 	) {
 		super(loggerService);
 		this.cacheMiddleware = new CacheMiddleware(this.cache, 'users');
-		this.bindRoutes([
-			{
-				method: 'get',
-				path: '/',
-				func: this.getUsers,
-				middlewares: [new ValidateMiddleware(UserParamSchema, 'query'), this.cacheMiddleware],
-			},
-			{
-				method: 'post',
-				path: '/',
-				func: this.createUser,
-				middlewares: [
-					new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
-					new ValidateMiddleware(CreateUserSchema, 'body'),
-					this.cacheMiddleware,
-				],
-			},
-			{
-				method: 'delete',
-				path: '/:id',
-				func: this.deleteUser,
-				middlewares: [
-					new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
-					new ValidateMiddleware(IdParamSchema, 'params'),
-					this.cacheMiddleware,
-				],
-			},
-			{
-				method: 'put',
-				path: '/:id',
-				func: this.updateUser,
-				middlewares: [
-					new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
-					new ValidateMiddleware(IdParamSchema, 'params'),
-					new ValidateMiddleware(UpdateUserSchema, 'body'),
-					this.cacheMiddleware,
-				],
-			},
-		]);
 	}
 
 	/**
@@ -94,6 +56,8 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with the retrieved users if successful.
 	 *                          If an error occurs, it's passed to the next middleware for handling.
 	 */
+	@Validate(UserParamSchema, 'query')
+	@Get('/')
 	async getUsers(
 		req: TypedRequest<{}, UserSearchCriteria, {}>,
 		res: Response,
@@ -161,6 +125,9 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is created successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
+	@Validate(CreateUserSchema, 'body')
+	@Post('/')
+	//TODO Role admin or manager
 	async createUser(req: TypedRequest<{}, {}, CreateUser>, res: Response, next: NextFunction) {
 		try {
 			const newUser = await this.userService.createUser({
@@ -191,6 +158,19 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is deleted successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
+	// 	{
+	// 		method: 'delete',
+	// 		path: '/:id',
+	// 		func: this.deleteUser,
+	// 		middlewares: [
+	// 			new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
+	// 			new ValidateMiddleware(IdParamSchema, 'params'),
+	// 			this.cacheMiddleware,
+	// 		],
+	// 	},
+	@Validate(UserParamSchema, 'params')
+	@Delete('/:id')
+	//TODO Role admin or manager
 	async deleteUser(req: TypedRequest<{ id: string | number }>, res: Response, next: NextFunction) {
 		const userId = typeof req.params.id === 'string' ? parseInt(req.params.id, 10) : req.params.id;
 
@@ -215,6 +195,22 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is updated successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
+	// 	{
+	// 		method: 'put',
+	// 		path: '/:id',
+	// 		func: this.updateUser,
+	// 		middlewares: [
+	// 			new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
+	// 			new ValidateMiddleware(IdParamSchema, 'params'),
+	// 			new ValidateMiddleware(UpdateUserSchema, 'body'),
+	// 			this.cacheMiddleware,
+	// 		],
+	// 	},
+	// ]);
+	//TODO Role admin or manager
+	@Validate(UpdateUserSchema, 'body')
+	@Validate(UserParamSchema.pick({ id: true }), 'params')
+	@Put('/:id')
 	async updateUser(
 		req: TypedRequest<{ id: number | string }, {}, UpdateUserDto>,
 		res: Response,

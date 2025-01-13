@@ -15,6 +15,15 @@ export const TYPES = {
 	// Auth
 	AuthenticationController: Symbol.for('AuthenticationController'),
 	ITokenService: Symbol.for('ITokenService'),
+	// Tables
+	//TODO : Add types for TableController and TableService
+	TableService: Symbol.for('ITableService'),
+	TableController: Symbol.for('ITableController'),
+	// Orders
+	OrdersService: Symbol.for('OrdersService'),
+	OrdersController: Symbol.for('OrdersController'),
+	// Base
+	BaseService: Symbol.for('BaseService'),
 };
 
 declare global {

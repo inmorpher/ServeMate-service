@@ -1,47 +1,22 @@
 import { z } from 'zod';
+import { Role } from './enums';
 
 /**
- * User-related enums
+ * User-related constants
  */
 
-/**
- * Enum representing the possible roles a user can have in the system.
- * These roles determine the user's permissions and access levels.
- * @enum {string}
- */
-export enum Role {
-	/** Administrator with full system access */
-	ADMIN = 'ADMIN',
-	/** Standard user with basic privileges */
-	USER = 'USER',
-	/** User with hosting capabilities, typically for managing events or locations */
-	HOST = 'HOST',
-	/** User with management responsibilities, having elevated permissions compared to standard users */
-	MANAGER = 'MANAGER',
-}
+export const UserSortColumn = {
+	ID: 'id',
+	NAME: 'name',
+	EMAIL: 'email',
+	ROLE: 'role',
+	CREATED_AT: 'createdAt',
+	UPDATED_AT: 'updatedAt',
+} as const;
 
+export type UserSortColumn = (typeof UserSortColumn)[keyof typeof UserSortColumn];
 /**
- * Enumeration of possible columns for sorting user data.
- * This enum defines the valid columns that can be used for sorting in user-related queries or operations.
  *
- * @enum {string}
- */
-export enum UserSortColumn {
-	/** Sort by user ID */
-	ID = 'id',
-	/** Sort by user name */
-	NAME = 'name',
-	/** Sort by user email */
-	EMAIL = 'email',
-	/** Sort by user role */
-	ROLE = 'role',
-	/** Sort by user creation date */
-	CREATED_AT = 'createdAt',
-	/** Sort by user last update date */
-	UPDATED_AT = 'updatedAt',
-}
-
-/**
  * User schemas
  */
 
@@ -113,10 +88,7 @@ export const IdParamSchema = z.object({
  */
 export const UserParamSchema = z
 	.object({
-		id: z
-			.string()
-			.optional()
-			.transform((value) => (value ? parseInt(value) : undefined)),
+		id: z.coerce.number(),
 		email: z.string().email().optional(),
 		name: z.string().min(3).optional(),
 		page: z

@@ -32,7 +32,6 @@ describe('ExceptionFilter', () => {
 	});
 
 	describe('catch', () => {
-		// TODO catch error
 		it('should log and respond with correct status code and message for HTTPError', () => {
 			const httpError = new HTTPError(400, 'Bad Request', 'test');
 			exceptionFilter.catch(httpError, mockRequest as Request, mockResponse as Response, mockNext);

@@ -3,6 +3,7 @@ import {
 	CreateUser,
 	UpdateUserDto,
 	UserCredentials,
+	UserDto,
 	UserListResult,
 	UserSearchCriteria,
 	ValidatedUserData,
@@ -44,4 +45,11 @@ export interface IUserService {
 	 * @returns A promise that resolves when the user is successfully updated.
 	 */
 	updateUser(id: number, user: UpdateUserDto): Promise<void>;
+
+	/**
+	 * Finds a user by their ID.
+	 * @param id - The ID of the user to find.
+	 * @returns A promise that resolves to the user data or null if not found.
+	 */
+	findUserById(id: number): Promise<UserDto | null>;
 }

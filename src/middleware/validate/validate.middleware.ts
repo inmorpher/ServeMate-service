@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { z } from 'zod';
 import { IMiddleware } from '../../common/middleware.interface';
+import { RouteDefinition } from '../../deсorators/httpDecorators';
 
 export type ValidationType = 'body' | 'query' | 'params';
 /**
@@ -28,7 +29,6 @@ export class ValidateMiddleware implements IMiddleware {
 	 */
 	execute(req: Request, res: Response, next: NextFunction): void {
 		const dataToValidate = this.getDataToValidate(req);
-
 		try {
 			const validatedData = this.schema.parse(dataToValidate);
 
@@ -60,4 +60,47 @@ export class ValidateMiddleware implements IMiddleware {
 				throw new Error(`Invalid validation type: ${this.type}`);
 		}
 	}
+}
+
+/**
+ * Middleware function to validate request data using a Zod schema.
+ *
+ * @param schema - The Zod schema to validate the request data against.
+ * @param type - The type of request data to validate (default is 'body').
+ *
+ * @returns A decorator function that validates the request data and calls the original method if validation passes.
+ *
+ * @example
+ * ```typescript
+ * import { z } from 'zod';
+ * import { Validate } from './validate.middleware';
+ *
+ * const schema = z.object({
+ *   name: z.string(),
+ *   age: z.number().int(),
+ * });
+ *
+ * class MyController {
+ *   @Validate(schema)
+ *   myMethod(req: Request, res: Response, next: NextFunction) {
+ *     // Your method implementation
+ *   }
+ * }
+ * ```
+ */
+
+export function Validate(schema: z.ZodType<any>, property: 'body' | 'params' | 'query') {
+	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+		Reflect.defineMetadata('validate', { schema, property }, target, propertyKey);
+		const routes: RouteDefinition[] = Reflect.getMetadata('routes', target.constructor) || [];
+		const route = routes.find((r) => r.handlerName === propertyKey);
+
+		if (route) {
+			if (!route.middlewares) {
+				route.middlewares = [];
+			}
+
+			route.middlewares.push(new ValidateMiddleware(schema, property));
+		}
+	};
 }

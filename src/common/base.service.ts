@@ -1,5 +1,6 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { injectable } from 'inversify';
+import NodeCache from 'node-cache';
 import { HTTPError } from '../errors/http-error.class';
 
 @injectable()
@@ -9,8 +10,11 @@ export class BaseService {
 	protected defaultSortOrder: 'asc' | 'desc' = 'asc';
 	protected defaultSortBy: string = 'id';
 	protected serviceName: string = 'Service class';
+	protected _cache: NodeCache;
 
-	constructor() {}
+	constructor() {
+		this._cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
+	}
 	/**
 	 * Handles various types of errors and converts them into HTTPError instances.
 	 * This method specifically deals with Prisma database errors, existing HTTPErrors,
@@ -20,6 +24,15 @@ export class BaseService {
 	 * @param serviceName - The name of the service where the error occurred.
 	 * @returns An HTTPError instance with appropriate status code, service name, and error message.
 	 */
+
+	protected get cache(): NodeCache {
+		return this._cache;
+	}
+
+	protected set cache(cache: NodeCache) {
+		this._cache = cache;
+	}
+
 	protected handleError(error: unknown): HTTPError {
 		if (error instanceof PrismaClientKnownRequestError) {
 			const baseMessage = 'Database operation failed';
@@ -62,5 +75,9 @@ export class BaseService {
 			'An unexpected error occurred',
 			error instanceof Error ? error.message : String(error)
 		);
+	}
+
+	clearCache() {
+		this.cache.flushAll();
 	}
 }

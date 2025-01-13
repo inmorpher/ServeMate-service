@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { ENV } from '../../../env';
 import { IMiddleware } from '../../common/middleware.interface';
-import { Role } from '../../dto/user.dto';
+import { Role } from '../../dto/enums';
 
 /**
  * Middleware for role-based access control.

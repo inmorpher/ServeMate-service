@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import 'reflect-metadata';
 import { ENV } from '../../../env';
-import { Role } from '../../dto/user.dto';
+
+import { Role } from '../../dto/enums';
 import { TokenService } from './token.service';
 import { AccessTokenPayload, DecodedUser, RefreshTokenPayload } from './token.service.interface';
 describe('TokenService', () => {

@@ -2,7 +2,11 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
 import { IMiddleware } from './middleware.interface';
-
+export type TypedRoute<TParams = any, TQuery = any, TBody = any> = IControllerRoute<
+	TParams,
+	TQuery,
+	TBody
+>;
 /**
  * Extends the Express Request interface to provide typed parameters, query, and body.
  * This interface allows for better type checking and autocompletion when working with Express requests.
@@ -13,7 +17,8 @@ import { IMiddleware } from './middleware.interface';
  *
  * @extends {Request} - Extends the Express Request interface
  */
-export interface TypedRequest<TParams = {}, TQuery = {}, TBody = {}> extends Request {
+export interface TypedRequest<TParams = unknown, TQuery = unknown, TBody = unknown>
+	extends Request {
 	/** The typed request body */
 	body: TBody;
 	/** The typed query parameters, merged with ParsedQs for compatibility with Express */
