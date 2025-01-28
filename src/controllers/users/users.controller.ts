@@ -3,8 +3,8 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
-import { Controller, Delete, Get, Post, Put } from '../../deсorators/httpDecorators';
-import { Role } from '../../dto/enums';
+import { Controller, Delete, Get, Post, Put } from '../../decorators/httpDecorators';
+import { UserRole } from '../../dto/enums';
 import {
 	CreateUser,
 	CreateUserSchema,
@@ -15,7 +15,6 @@ import {
 	UserSearchCriteria,
 	UserSortColumn,
 } from '../../dto/user.dto';
-import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
@@ -25,13 +24,11 @@ import { IUserController } from './user.controller.interface';
 @injectable()
 @Controller('/users')
 export class UserController extends BaseController implements IUserController {
-	private cacheMiddleware: CacheMiddleware;
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
 		@inject(TYPES.UserService) private userService: UserService
 	) {
 		super(loggerService);
-		this.cacheMiddleware = new CacheMiddleware(this.cache, 'users');
 	}
 
 	/**
@@ -82,7 +79,7 @@ export class UserController extends BaseController implements IUserController {
 				...(id && { id: Number(id) }),
 				...(email && { email: email as string }),
 				...(name && { name: name as string }),
-				...(role && { role: role as Role }),
+				...(role && { role: role as UserRole }),
 				...(isActive !== undefined && { isActive: isActive === true }),
 				...(createdAfter && { createdAfter: createdAfter as string }),
 				...(createdBefore && { createdBefore: createdBefore as string }),

@@ -4,7 +4,7 @@ import 'reflect-metadata';
 import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
-import { Controller, Post } from '../../deсorators/httpDecorators';
+import { Controller, Post } from '../../decorators/httpDecorators';
 import { UserCredentials, UserLoginSchema } from '../../dto/user.dto';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';

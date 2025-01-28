@@ -6,13 +6,13 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { ENV } from '../env';
 import { BaseController } from './common/base.controller';
-import { BaseService } from './common/base.service';
 import { IMiddleware } from './common/middleware.interface';
 import { AuthenticationController } from './controllers/auth/auth.controller';
 import { OrdersController } from './controllers/orders/orders.controller';
+import { PaymentController } from './controllers/payments/payment.controller';
 import { ITableController } from './controllers/tables/table.controller.interface';
 import { IUserController } from './controllers/users/user.controller.interface';
-import { METADATA_KEYS, RouteDefinition } from './deсorators/httpDecorators';
+import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
 import { IExceptionFilter } from './errors/exception.filter.interface';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
 import { ILogger } from './services/logger/logger.service.interface';
@@ -34,8 +34,7 @@ export class App {
 		@inject(TYPES.TableController) private tableController: ITableController,
 		//Orders
 		@inject(TYPES.OrdersController) private ordersController: OrdersController,
-		// Other
-		@inject(TYPES.BaseService) private baseService: BaseService
+		@inject(TYPES.PaymentController) private paymentController: PaymentController
 	) {
 		this.app = express();
 		this.port = ENV.PORT || 3000;
@@ -44,6 +43,7 @@ export class App {
 			this.userController,
 			this.tableController,
 			this.ordersController,
+			this.paymentController,
 		];
 	}
 
@@ -95,15 +95,14 @@ export class App {
 					if (route.middlewares && route.middlewares.length > 0) {
 						const middlewares = route.middlewares.map((m: IMiddleware) => m.execute.bind(m));
 						apiRouter[route.method](prefix + route.path, ...middlewares, handler);
-
-						this.logger.log(
-							`\t\x1b[32m + \x1b[0m Route: [${route.method.toUpperCase()}] ${prefix}${
-								route.path
-							} bounded successfully`
-						);
 					} else {
 						apiRouter[route.method](prefix + route.path, handler);
 					}
+					this.logger.log(
+						`\t\x1b[32m + \x1b[0m Route: [${route.method.toUpperCase()}] ${prefix}${
+							route.path
+						} bounded successfully`
+					);
 				});
 			} else {
 				this.logger.warn(`No routes found for ${controller.constructor.name}`);

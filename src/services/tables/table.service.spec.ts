@@ -319,7 +319,14 @@ describe('TableService', () => {
 
 			expect(prismaClient.table.findUnique).toHaveBeenCalledWith({
 				where: { id: tableId },
-				include: { assignment: true, orders: true },
+				include: {
+					assignment: true,
+					orders: {
+						include: {
+							payments: true,
+						},
+					},
+				},
 			});
 			expect(prismaClient.tableAssignment.deleteMany).toHaveBeenCalledWith({
 				where: { tableId: tableId, isPrimary: false },
@@ -337,7 +344,14 @@ describe('TableService', () => {
 
 			expect(prismaClient.table.findUnique).toHaveBeenCalledWith({
 				where: { id: tableId },
-				include: { assignment: true, orders: true },
+				include: {
+					assignment: true,
+					orders: {
+						include: {
+							payments: true,
+						},
+					},
+				},
 			});
 		});
 	});

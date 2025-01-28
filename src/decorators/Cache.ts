@@ -29,7 +29,7 @@ export function Cache(ttl: number = 60, getCacheKey?: (...args: any[]) => string
 			}
 
 			const key = getCacheKey ? getCacheKey(...args) : `${propertyKey}_${JSON.stringify(args)}`;
-			console.log('key:', key);
+
 			const cachedResult = this.cache.get(key);
 			let count = 0;
 
@@ -79,7 +79,6 @@ export function InvalidateCacheByKeys(getCacheKeys: (...args: any[]) => string[]
 				throw new Error('Cache decorator can only be used on Services extending BaseService');
 			}
 			const keys = getCacheKeys(...args);
-			console.log('keys to invalidate:', keys);
 			keys.forEach((key) => {
 				this.cache.del(key);
 			});
@@ -119,9 +118,9 @@ export function InvalidateCacheByPrefix(prefix: string) {
 				throw new Error('Cache decorator can only be used on Services extending BaseService');
 			}
 			const keys = this.cache.keys();
-			console.log('keys:', keys);
+
 			const keysToDelete = keys.filter((key) => key.startsWith(prefix));
-			console.log('keysToDelete:', keysToDelete);
+
 			keysToDelete.forEach((key) => {
 				this.cache.del(key);
 			});

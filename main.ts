@@ -4,6 +4,8 @@ import { App } from './src/app';
 import { BaseService } from './src/common/base.service';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
 import { OrdersController } from './src/controllers/orders/orders.controller';
+import { PaymentController } from './src/controllers/payments/payment.controller';
+import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
 import { TableController } from './src/controllers/tables/table.controller';
 import { ITableController } from './src/controllers/tables/table.controller.interface';
 import { IUserController } from './src/controllers/users/user.controller.interface';
@@ -15,6 +17,8 @@ import { RoleMiddleware } from './src/middleware/role/role.middleware';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
 import { OrdersService } from './src/services/orders/order.service';
+import { AbstractPaymentService } from './src/services/payment/abstract-payment.service';
+import { PaymentService } from './src/services/payment/payment.service';
 import { TableService } from './src/services/tables/table.service';
 import { ITableService } from './src/services/tables/table.service.interface';
 import { TokenService } from './src/services/tokens/token.service';
@@ -129,6 +133,11 @@ export const ordersModule = new ContainerModule((bind: interfaces.Bind) => {
 	bind<OrdersController>(TYPES.OrdersController).to(OrdersController).inSingletonScope();
 });
 
+export const paymentModule = new ContainerModule((bind: interfaces.Bind) => {
+	bind<AbstractPaymentService>(TYPES.PaymentService).to(PaymentService).inSingletonScope();
+	bind<AbstractPaymentController>(TYPES.PaymentController).to(PaymentController).inSingletonScope();
+});
+
 /**
  * An array of application modules to be bound to the application.
  *
@@ -147,6 +156,7 @@ export const appBindings = [
 	userModule,
 	tablesModule,
 	ordersModule,
+	paymentModule,
 	appModule,
 	baseModules,
 ];

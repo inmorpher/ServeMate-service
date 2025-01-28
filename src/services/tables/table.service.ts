@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../deсorators/Cache';
-import { TableStatus } from '../../dto/enums';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
+import { PaymentState, TableCondition } from '../../dto/enums';
 import { TableCreate, TablesDTO, TableSearchCriteria, TableUpdate } from '../../dto/tables.dto';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
@@ -41,7 +41,7 @@ export class TableService extends ITableService {
 				...(minCapacity !== undefined && { capacity: { gte: minCapacity } }),
 				...(maxCapacity !== undefined && { capacity: { lte: maxCapacity } }),
 				...(isOccupied !== undefined && { isOccupied: isOccupied as boolean }),
-				...(status && { status: { equals: status.toUpperCase() as TableStatus } }),
+				...(status && { status: { equals: status.toUpperCase() as TableCondition } }),
 				...(serverId !== undefined && { assignment: { some: { serverId } } }),
 			};
 
@@ -88,7 +88,7 @@ export class TableService extends ITableService {
 			return {
 				tables: tables.map((table) => ({
 					...table,
-					status: table.status as TableStatus,
+					status: table.status as TableCondition,
 				})),
 				totalCount: total,
 				page,
@@ -123,7 +123,7 @@ export class TableService extends ITableService {
 
 			return {
 				...table,
-				status: table.status as TableStatus,
+				status: table.status as TableCondition,
 			};
 		} catch (error) {
 			throw this.handleError(error);
@@ -180,8 +180,6 @@ export class TableService extends ITableService {
 					where: { id },
 				});
 
-				console.log(existingTable);
-
 				if (!existingTable) {
 					throw new HTTPError(404, 'TableService', 'Table not found');
 				}
@@ -209,7 +207,11 @@ export class TableService extends ITableService {
 					where: { id },
 					include: {
 						assignment: true,
-						orders: true,
+						orders: {
+							include: {
+								payments: true,
+							},
+						},
 					},
 				});
 
@@ -227,11 +229,13 @@ export class TableService extends ITableService {
 
 				const hasUnpaidOrders =
 					table.orders &&
-					table.orders.some(
-						(order) =>
-							order.paymentStatus !== 'PAID' &&
-							order.paymentStatus !== 'REFUNDED' &&
-							order.paymentStatus !== 'CANCELLED'
+					table.orders.some((order) =>
+						order.payments.every(
+							(payment) =>
+								payment.status !== PaymentState.PAID &&
+								payment.status !== PaymentState.REFUNDED &&
+								payment.status !== PaymentState.CANCELLED
+						)
 					);
 
 				if (hasUnpaidOrders) {

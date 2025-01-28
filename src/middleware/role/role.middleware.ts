@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { ENV } from '../../../env';
 import { IMiddleware } from '../../common/middleware.interface';
-import { Role } from '../../dto/enums';
+import { UserRole } from '../../dto/enums';
 
 /**
  * Middleware for role-based access control.
@@ -15,7 +15,7 @@ export class RoleMiddleware implements IMiddleware {
 	 * Creates an instance of RoleMiddleware.
 	 * @param role - An array of roles that are allowed to access the resource.
 	 */
-	constructor(private role: Role[]) {}
+	constructor(private role: UserRole[]) {}
 
 	/**
 	 * Executes the middleware.

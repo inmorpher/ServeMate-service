@@ -15,7 +15,7 @@ import {
 	TableUpdatesSchema,
 } from '../../dto/tables.dto';
 
-import { Controller, Delete, Get, Patch, Post, Put } from '../../deсorators/httpDecorators';
+import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { TableService } from '../../services/tables/table.service';
@@ -50,7 +50,6 @@ export class TableController extends ITableController {
 	): Promise<void> {
 		try {
 			const queryParams: TableSearchCriteria = req.query;
-			console.log('queryParams:', queryParams);
 			const result = await this.tableService.findTables(queryParams);
 			this.ok(res, result);
 		} catch (error) {
@@ -192,7 +191,6 @@ export class TableController extends ITableController {
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
-		console.log('hello');
 		try {
 			const { serverId, assignedTables } = req.body;
 			await this.tableService.assignTables(assignedTables, serverId);

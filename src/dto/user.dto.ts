@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Role } from './enums';
+import { UserRole } from './enums';
 
 /**
  * User-related constants
@@ -29,7 +29,7 @@ export const UserSchema = z.object({
 	id: z.number().min(1, { message: 'ID must not be empty' }),
 	name: z.string().min(1, { message: 'Name must not be empty' }),
 	email: z.string().email({ message: 'Invalid email address' }),
-	role: z.nativeEnum(Role, { message: 'Invalid role' }),
+	role: z.nativeEnum(UserRole, { message: 'Invalid role' }),
 	isActive: z.boolean().default(true),
 	password: z.string(),
 	createdAt: z.date().default(() => new Date()),
@@ -105,7 +105,7 @@ export const UserParamSchema = z
 			.string()
 			.optional()
 			.transform((value) => value?.toUpperCase())
-			.pipe(z.nativeEnum(Role))
+			.pipe(z.nativeEnum(UserRole))
 			.optional(),
 		isActive: z
 			.enum(['true', 'false'])
@@ -310,7 +310,7 @@ export type UserListResult = {
  * @see {@link Role} for the available user roles.
  */
 export type IUserFilters = {
-	role?: Role;
+	role?: UserRole;
 	isActive?: boolean;
 	createdAfter?: Date;
 	createdBefore?: Date;

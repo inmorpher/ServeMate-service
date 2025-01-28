@@ -2,7 +2,7 @@ import { CookieOptions, Response, Router } from 'express';
 import { inject, injectable } from 'inversify';
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
-import { RouteDefinition } from '../deсorators/httpDecorators';
+import { RouteDefinition } from '../decorators/httpDecorators';
 import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
 @injectable()

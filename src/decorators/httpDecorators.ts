@@ -48,15 +48,26 @@ export const Controller = (prefix: string): ClassDecorator => {
 const createMethodDecorator = <T>(method: 'get' | 'post' | 'delete' | 'patch' | 'put') => {
 	return (path: string): MethodDecorator => {
 		return (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+			if (!Reflect.hasMetadata(METADATA_KEYS.ROUTES, target.constructor)) {
+				Reflect.defineMetadata(METADATA_KEYS.ROUTES, [], target.constructor);
+			}
 			const routes: RouteDefinition[] =
 				Reflect.getMetadata(METADATA_KEYS.ROUTES, target.constructor) || [];
 
-			routes.push({
+			const newRoute: RouteDefinition = {
 				path,
 				method,
 				handlerName: propertyKey as string,
 				middlewares: [],
-			});
+			};
+
+			routes.push(newRoute);
+
+			const middlewares = Reflect.getMetadata('middlewares', target, propertyKey) || [];
+
+			if (middlewares) {
+				newRoute.middlewares = middlewares;
+			}
 			Reflect.defineMetadata(METADATA_KEYS.ROUTES, routes, target.constructor);
 			return descriptor;
 		};

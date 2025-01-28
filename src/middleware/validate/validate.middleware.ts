@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { z } from 'zod';
 import { IMiddleware } from '../../common/middleware.interface';
-import { RouteDefinition } from '../../deсorators/httpDecorators';
+import { RouteDefinition } from '../../decorators/httpDecorators';
 
 export type ValidationType = 'body' | 'query' | 'params';
 /**

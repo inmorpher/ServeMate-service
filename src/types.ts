@@ -22,6 +22,9 @@ export const TYPES = {
 	// Orders
 	OrdersService: Symbol.for('OrdersService'),
 	OrdersController: Symbol.for('OrdersController'),
+	// Payments
+	PaymentService: Symbol.for('AbstractPaymentService'),
+	PaymentController: Symbol.for('AbstractPaymentController'),
 	// Base
 	BaseService: Symbol.for('BaseService'),
 };

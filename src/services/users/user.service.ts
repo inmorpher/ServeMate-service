@@ -3,7 +3,7 @@ import { compare } from 'bcrypt';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseService } from '../../common/base.service';
-import { Role } from '../../dto/enums';
+import { UserRole } from '../../dto/enums';
 import {
 	CreatedUserData,
 	CreateUser,
@@ -59,7 +59,7 @@ export class UserService extends BaseService implements IUserService {
 			throw new HTTPError(401, 'UserService', 'Invalid password');
 		}
 
-		const userRole: Role = Role[existingUser.role as keyof typeof Role];
+		const userRole: UserRole = UserRole[existingUser.role as keyof typeof UserRole];
 
 		return {
 			id: existingUser.id,
@@ -103,7 +103,7 @@ export class UserService extends BaseService implements IUserService {
 				...(id !== undefined && { id: Number(id) }),
 				...(email && { email: { contains: email, mode: 'insensitive' as const } }),
 				...(name && { name: { contains: name, mode: 'insensitive' as const } }),
-				...(role && { role: { equals: role.toUpperCase() as Role } }),
+				...(role && { role: { equals: role.toUpperCase() as UserRole } }),
 				...(isActive !== undefined && { isActive }),
 				...(createdAfter && { createdAt: { gte: createdAfter } }),
 				...(createdBefore && { createdAt: { lte: createdBefore } }),
@@ -133,7 +133,7 @@ export class UserService extends BaseService implements IUserService {
 			]);
 
 			return {
-				users: users.map((user) => ({ ...user, role: user.role as Role })),
+				users: users.map((user) => ({ ...user, role: user.role as UserRole })),
 				totalCount: total,
 				page,
 				pageSize,

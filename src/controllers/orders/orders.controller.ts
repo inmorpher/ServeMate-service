@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
-import { Controller, Delete, Get, Patch, Post } from '../../deсorators/httpDecorators';
+import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
 import {
 	OrderCreateDTO,
 	OrderCreateSchema,

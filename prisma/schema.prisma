@@ -24,7 +24,7 @@ model User {
   isActive       Boolean             @default(true)
   lastLogin      DateTime?
   orders         Order[]
-  payments       Payment[]
+
   TableAssignment TableAssignment[]
   userActions    orderServerAction[]
 }
@@ -32,7 +32,6 @@ model User {
 model Order {
   tableNumber    Int
   guestsCount    Int
-  paymentStatus  PaymentState        @default(NONE)
   orderTime      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   allergies      Allergy[]           @default([])
@@ -65,6 +64,9 @@ model OrderFoodItem {
   finalPrice    Float
   fired         Boolean     @default(false)
   printed       Boolean     @default(false)
+  paymentStatus PaymentState @default(NONE)
+  refunds  RefundPayment[]
+  payments Payment[]
   foodItem      FoodItem    @relation(fields: [itemId], references: [id])
   order         Order       @relation(fields: [orderId], references: [id])
 }
@@ -81,6 +83,9 @@ model OrderDrinkItem {
   finalPrice    Float
   fired         Boolean     @default(false)
   printed       Boolean     @default(false)
+  paymentStatus PaymentState @default(NONE)
+  refunds  RefundPayment[]
+  payments Payment[]
   drinkItem     DrinkItem   @relation(fields: [itemId], references: [id])
   order         Order       @relation(fields: [orderId], references: [id])
 }
@@ -152,16 +157,33 @@ model orderServerAction {
 }
 
 model Payment {
-  amount        Float
-  paymentType   PaymentMethod  @default(CASH)
-  paymentTime   DateTime       @default(now())
-  serverId      Int
   id            Int            @id @default(autoincrement())
-  tableId       Int
+  amount        Float
+  tax          Float @default(0)
+  tip          Float @default(0)
+  serviceCharge Float @default(0)
+  totalAmount   Float @default(0)
+  paymentType   PaymentMethod  @default(CASH)
+  status       PaymentState   @default(PENDING)
+  createdAt   DateTime       @default(now())
+  completedAt DateTime?
   orderId       Int
-  tableNumber   Int
   order         Order          @relation(fields: [orderId], references: [id])
-  server        User           @relation(fields: [serverId], references: [id])
+  refunds       RefundPayment[]
+  orderDrinkItems OrderDrinkItem[]
+  orderFoodItems OrderFoodItem[]
+}
+
+model RefundPayment {
+  id    Int @id @default(autoincrement())
+  amount Float
+  reason String
+  status RefundState @default(COMPLETED)
+  createdAt DateTime @default(now())
+  paymentId Int
+  payment Payment @relation(fields: [paymentId], references: [id])
+  orderDrinkItems OrderDrinkItem[]
+  orderFoodItems OrderFoodItem[]
 }
 
 model TableAssignment {
@@ -192,6 +214,7 @@ enum OrderState {
   SERVED
   CANCELED
   DISPUTED
+  READY_TO_PAY
   COMPLETED
 }
 
@@ -210,6 +233,7 @@ enum PaymentState {
   CANCELLED
   PENDING
 }
+
 
 enum DrinkTemp {
   COLD
@@ -238,6 +262,12 @@ enum PaymentMethod {
   CASH
   CREDIT_CARD
   DEBIT_CARD
+}
+
+enum RefundState {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
 
 enum Allergy {
