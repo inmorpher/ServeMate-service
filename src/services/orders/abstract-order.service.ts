@@ -128,51 +128,55 @@ export abstract class AbstractOrderService extends BaseService {
 			flattenedDrinkItems: FlattenedDrinkItem[];
 		}
 	): Promise<OrderFullSingleDTO> {
-		const {
-			status,
-			serverId,
-			allergies,
-			guestsCount,
-			tableNumber,
-			flattenedFoodItems,
-			flattenedDrinkItems,
-			discount,
-			totalAmount,
-			comments,
-		} = order;
-
-		const createdOrder = await this.prisma.order.create({
-			data: {
+		try {
+			const {
 				status,
-				server: { connect: { id: serverId } },
-				allergies: allergies,
+				serverId,
+				allergies,
 				guestsCount,
-				table: { connect: { tableNumber } },
-				foodItems: {
-					createMany: {
-						data: flattenedFoodItems,
-					},
-				},
-				drinkItems: {
-					createMany: {
-						data: flattenedDrinkItems,
-					},
-				},
-				discount: discount || 0,
+				tableNumber,
+				flattenedFoodItems,
+				flattenedDrinkItems,
+				discount,
 				totalAmount,
 				comments,
-			},
-			include: ORDER_INCLUDE,
-		});
+			} = order;
 
-		const groupedFoodItem = this.groupItems(createdOrder.foodItems);
-		const groupedDrinkItem = this.groupItems(createdOrder.drinkItems);
+			const createdOrder = await this.prisma.order.create({
+				data: {
+					status,
+					server: { connect: { id: serverId } },
+					allergies: allergies,
+					guestsCount,
+					table: { connect: { tableNumber } },
+					foodItems: {
+						createMany: {
+							data: flattenedFoodItems,
+						},
+					},
+					drinkItems: {
+						createMany: {
+							data: flattenedDrinkItems,
+						},
+					},
+					discount: discount || 0,
+					totalAmount,
+					comments,
+				},
+				include: ORDER_INCLUDE,
+			});
 
-		return {
-			...createdOrder,
-			foodItems: groupedFoodItem,
-			drinkItems: groupedDrinkItem,
-		};
+			const groupedFoodItem = this.groupItems(createdOrder.foodItems);
+			const groupedDrinkItem = this.groupItems(createdOrder.drinkItems);
+
+			return {
+				...createdOrder,
+				foodItems: groupedFoodItem,
+				drinkItems: groupedDrinkItem,
+			};
+		} catch (error) {
+			throw this.handleError(error);
+		}
 	}
 
 	/**

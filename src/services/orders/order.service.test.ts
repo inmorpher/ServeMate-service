@@ -23,10 +23,10 @@ describe('OrdersService', () => {
 		it('should find orders based on criteria', async () => {
 			const criteria: OrderSearchCriteria = {
 				id: 1,
-				server: 1,
+				serverId: 1,
 				status: OrderStatus.AWAITING,
 				tableNumber: 1,
-				guestNumber: 1,
+				guestsCount: 1,
 				allergies: [],
 				page: 1,
 				pageSize: 10,
@@ -51,10 +51,10 @@ describe('OrdersService', () => {
 		it('should throw an error if the operation fails', async () => {
 			const criteria: OrderSearchCriteria = {
 				id: 1,
-				server: 1,
+				serverId: 1,
 				status: OrderStatus.AWAITING,
 				tableNumber: 1,
-				guestNumber: 1,
+				guestsCount: 1,
 				allergies: [],
 				page: 1,
 				pageSize: 10,
@@ -183,8 +183,6 @@ describe('OrdersService', () => {
 			});
 
 			const result = await ordersService.printOrderItems(1, ids);
-
-			console.log('Result:', result);
 
 			expect(result).toBe(`items ${ids} have been printed.`);
 		});

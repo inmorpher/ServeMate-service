@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OrderStatus } from './enums';
+import { OrderState } from './enums';
 
 /**
  * Order-related enums
@@ -49,7 +49,7 @@ export const OrderSortOptions = {
  */
 
 const baseItemSchema = z.object({
-	id: z.number().int().positive().optional(),
+	id: z.number().int().positive(),
 	price: z.number().nonnegative(),
 	discount: z.number().default(0),
 	itemId: z.number().int().positive(),
@@ -59,6 +59,7 @@ const baseItemSchema = z.object({
 	printed: z.boolean().default(false),
 	fired: z.boolean().default(false),
 	guestNumber: z.number().int().positive(),
+	paymentStatus: z.nativeEnum(PaymentStatus).default(PaymentStatus.NONE),
 });
 
 const foodItemSchema = baseItemSchema.extend({
@@ -107,13 +108,12 @@ export const OrderSchema = z.object({
 	tableNumber: z.coerce.number().int().positive(),
 	orderNumber: z.coerce.number().int().positive(),
 	guestsCount: z.coerce.number().int().positive(),
-	paymentStatus: z.nativeEnum(PaymentStatus),
 	orderTime: z.date(),
 	updatedAt: z.date(),
 	allergies: z.array(z.nativeEnum(Allergies)).optional(),
 	serverId: z.coerce.number().int().positive(),
 	totalAmount: z.coerce.number().int().positive().default(0),
-	status: z.nativeEnum(OrderStatus).default(OrderStatus.RECEIVED),
+	status: z.nativeEnum(OrderState).default(OrderState.RECEIVED),
 	comments: z.string().optional().nullable(),
 	completionTime: z.date().optional().nullable(),
 	discount: z.number().default(0),
@@ -131,7 +131,7 @@ export const OrderSchema = z.object({
  * @property {number} [guestNumber] - The number of guests for the order. Must be a positive integer.
  * @property {Allergies[]} allergies - An array of allergies associated with the order. Defaults to an empty array.
  * @property {string} [server] - The server's identifier. If provided, it will be coerced to an integer.
- * @property {OrderStatus} [status] - The status of the order. If provided, it will be transformed to uppercase and validated against the OrderStatus enum.
+ * @property {OrderState} [status] - The status of the order. If provided, it will be transformed to uppercase and validated against the OrderState enum.
  * @property {number} [page=1] - The page number for pagination. Must be a positive integer. Defaults to 1.
  * @property {number} [pageSize=10] - The number of items per page for pagination. Must be a positive integer and cannot exceed 100. Defaults to 10.
  * @property {OrderSortOptions} [sortBy=OrderSortOptions.ID] - The field by which to sort the results. Defaults to OrderSortOptions.ID.
@@ -140,16 +140,18 @@ export const OrderSchema = z.object({
 export const OrderSearchSchema = z.object({
 	id: z.coerce.number().int().positive().optional(),
 	tableNumber: z.coerce.number().int().positive().optional(),
-	guestNumber: z.coerce.number().int().positive().optional(),
-	allergies: z.array(z.nativeEnum(Allergies)).default([]),
-	server: z
+	test: z.string().optional(),
+	guestsCount: z.coerce.number().int().positive().optional(),
+	allergies: z.array(z.nativeEnum(Allergies)).optional(),
+	serverId: z
 		.string()
 		.optional()
 		.transform((server) => (server ? parseInt(server) : undefined)),
+	serverName: z.string().optional(),
 	status: z
 		.string()
 		.transform((status) => status?.toUpperCase())
-		.pipe(z.nativeEnum(OrderStatus))
+		.pipe(z.nativeEnum(OrderState))
 		.optional(),
 	page: z.coerce.number().int().positive().optional().default(1),
 	pageSize: z.coerce.number().int().positive().max(100).optional().default(10),
@@ -169,7 +171,6 @@ export const foodAndDrinkSchema = z.object({
 export const OrderCreateSchema = OrderSchema.omit({
 	id: true,
 	orderNumber: true,
-	paymentStatus: true,
 	orderTime: true,
 	updatedAt: true,
 	tip: true,
@@ -202,7 +203,6 @@ export const OrderFullSingleSchema = OrderSchema.omit({
 
 export const OrderUpdateProps = OrderSchema.omit({
 	orderNumber: true,
-	paymentStatus: true,
 	orderTime: true,
 	updatedAt: true,
 	shiftId: true,
@@ -294,7 +294,6 @@ export type OrderSearchListResult = {
 		| 'totalAmount'
 		| 'discount'
 		| 'tip'
-		| 'paymentStatus'
 	>[];
 	totalCount: number;
 	page: number;

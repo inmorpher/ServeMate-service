@@ -9,7 +9,7 @@ import {
 	OrderUpdateProps,
 } from '../../dto/orders.dto';
 
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../deсorators/Cache';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 
 import 'reflect-metadata';
 import { HTTPError } from '../../errors/http-error.class';
@@ -46,35 +46,24 @@ export class OrdersService extends AbstractOrderService {
 	@Cache(60)
 	async findOrders(criteria: OrderSearchCriteria): Promise<OrderSearchListResult> {
 		try {
-			const {
-				id,
-				server,
-				status,
-				tableNumber,
-				guestNumber,
-				allergies,
-				page,
-				pageSize,
-				sortBy,
-				sortOrder,
-			} = criteria;
+			const { page, pageSize, sortBy, sortOrder, serverName } = criteria;
 
-			// Creating WHERE clause based on provided criteria
-			const where: Prisma.OrderWhereInput = {
-				...(id !== undefined && { id: Number(id) }),
-				...(server !== undefined && { serverId: Number(server) }),
-				...(status && {
-					status: { equals: status.toUpperCase() as OrderState },
-				}),
-				...(tableNumber !== undefined && { tableNumber }),
-				...(guestNumber !== undefined && { guestsCount: Number(guestNumber) }),
-				...(allergies.length > 0 && { allergies: { hasSome: allergies } }),
-			};
+			const where = this.buildWhere<Partial<OrderSearchCriteria>, Prisma.OrderWhereInput>(criteria);
 
-			// Obtaining orders and total count
 			const [orders, total] = await Promise.all([
 				this.prisma.order.findMany({
-					where,
+					where: {
+						...where,
+						server: serverName
+							? {
+									name: {
+										contains: criteria.serverName,
+										mode: 'insensitive',
+									},
+							  }
+							: undefined,
+					},
+
 					select: {
 						id: true,
 						status: true,
@@ -89,7 +78,7 @@ export class OrdersService extends AbstractOrderService {
 						allergies: true,
 						comments: true,
 						totalAmount: true,
-						paymentStatus: true,
+
 						discount: true,
 						tip: true,
 					},
@@ -113,6 +102,7 @@ export class OrdersService extends AbstractOrderService {
 				totalPages: Math.ceil(total / pageSize),
 			};
 		} catch (error) {
+			console.log(error);
 			throw this.handleError(error);
 		}
 	}
