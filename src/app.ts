@@ -8,6 +8,7 @@ import { ENV } from '../env';
 import { BaseController } from './common/base.controller';
 import { IMiddleware } from './common/middleware.interface';
 import { AuthenticationController } from './controllers/auth/auth.controller';
+import { FoodItemsController } from './controllers/foodItems/food-items.controlller';
 import { OrdersController } from './controllers/orders/orders.controller';
 import { PaymentController } from './controllers/payments/payment.controller';
 import { ITableController } from './controllers/tables/table.controller.interface';
@@ -34,7 +35,10 @@ export class App {
 		@inject(TYPES.TableController) private tableController: ITableController,
 		//Orders
 		@inject(TYPES.OrdersController) private ordersController: OrdersController,
-		@inject(TYPES.PaymentController) private paymentController: PaymentController
+		//Payments
+		@inject(TYPES.PaymentController) private paymentController: PaymentController,
+		//Food items
+		@inject(TYPES.FoodItemsController) private foodItemsController: FoodItemsController
 	) {
 		this.app = express();
 		this.port = ENV.PORT || 3000;
@@ -44,6 +48,7 @@ export class App {
 			this.tableController,
 			this.ordersController,
 			this.paymentController,
+			this.foodItemsController,
 		];
 	}
 

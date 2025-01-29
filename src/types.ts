@@ -25,8 +25,12 @@ export const TYPES = {
 	// Payments
 	PaymentService: Symbol.for('AbstractPaymentService'),
 	PaymentController: Symbol.for('AbstractPaymentController'),
+	//Food items
+	FoodItemsService: Symbol.for('FoodItemsService'),
+	FoodItemsController: Symbol.for('FoodItemsController'),
 	// Base
 	BaseService: Symbol.for('BaseService'),
+	OrderItemsService: Symbol.for('OrderItemsService'),
 };
 
 declare global {

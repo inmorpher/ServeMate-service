@@ -3,6 +3,7 @@ import { Container, ContainerModule, interfaces } from 'inversify';
 import { App } from './src/app';
 import { BaseService } from './src/common/base.service';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
+import { FoodItemsController } from './src/controllers/foodItems/food-items.controlller';
 import { OrdersController } from './src/controllers/orders/orders.controller';
 import { PaymentController } from './src/controllers/payments/payment.controller';
 import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
@@ -16,6 +17,7 @@ import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
 import { RoleMiddleware } from './src/middleware/role/role.middleware';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
+import { FoodItemsService } from './src/services/menu/order-items.service';
 import { OrdersService } from './src/services/orders/order.service';
 import { AbstractPaymentService } from './src/services/payment/abstract-payment.service';
 import { PaymentService } from './src/services/payment/payment.service';
@@ -133,9 +135,46 @@ export const ordersModule = new ContainerModule((bind: interfaces.Bind) => {
 	bind<OrdersController>(TYPES.OrdersController).to(OrdersController).inSingletonScope();
 });
 
+/**
+ * Container module for the payment service and controller.
+ *
+ * This module binds the `PaymentService` and `PaymentController` to their respective
+ * abstract types in a singleton scope.
+ *
+ * @module paymentModule
+ *
+ * @param bind - The bind function used to bind interfaces to their implementations.
+ *
+ * @example
+ * ```typescript
+ * import { paymentModule } from './main';
+ * import { Container } from 'inversify';
+ *
+ * const container = new Container();
+ * container.load(paymentModule);
+ *
+ * const paymentService = container.get<AbstractPaymentService>(TYPES.PaymentService);
+ * const paymentController = container.get<AbstractPaymentController>(TYPES.PaymentController);
+ * ```
+ */
 export const paymentModule = new ContainerModule((bind: interfaces.Bind) => {
 	bind<AbstractPaymentService>(TYPES.PaymentService).to(PaymentService).inSingletonScope();
 	bind<AbstractPaymentController>(TYPES.PaymentController).to(PaymentController).inSingletonScope();
+});
+
+/**
+ * Module that sets up the bindings for the FoodItems feature.
+ *
+ * This module binds the `FoodItemsController` and `FoodItemsService` to their respective
+ * types in the InversifyJS container. Both bindings are set to singleton scope, meaning
+ * that only one instance of each will be created and shared throughout the application.
+ *
+ * @module foodItemsModule
+ * @param bind - The InversifyJS bind function used to bind types to implementations.
+ */
+export const foodItemsModule = new ContainerModule((bind: interfaces.Bind) => {
+	bind<FoodItemsController>(TYPES.FoodItemsController).to(FoodItemsController).inSingletonScope();
+	bind<FoodItemsService>(TYPES.FoodItemsService).to(FoodItemsService).inSingletonScope();
 });
 
 /**
@@ -157,6 +196,7 @@ export const appBindings = [
 	tablesModule,
 	ordersModule,
 	paymentModule,
+	foodItemsModule,
 	appModule,
 	baseModules,
 ];
