@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import 'reflect-metadata';
 import { ENV } from '../../../env';
 
-import { Role } from '../../dto/enums';
+import { UserRole } from '../../dto/enums';
 import { TokenService } from './token.service';
 import { AccessTokenPayload, DecodedUser, RefreshTokenPayload } from './token.service.interface';
 describe('TokenService', () => {
@@ -14,7 +14,7 @@ describe('TokenService', () => {
 		mockUser = {
 			id: 1,
 			email: 'test@example.com',
-			role: Role.USER,
+			role: UserRole.USER,
 		};
 		jest.clearAllMocks();
 	});
@@ -24,7 +24,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			const token = await tokenService.generateToken(mockUser);
@@ -64,7 +64,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			const refreshToken = await tokenService.generateToken(mockUser, true);
@@ -100,7 +100,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			jest.spyOn(jwt, 'sign');
@@ -136,7 +136,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			jest.spyOn(jwt, 'sign');
@@ -172,7 +172,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			jest.spyOn(jwt, 'sign');
@@ -232,7 +232,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			const token = await tokenService.generateToken(mockUser);
@@ -248,7 +248,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			const refreshToken = await tokenService.generateToken(mockUser, true);
@@ -271,7 +271,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			// Generate a token
@@ -297,7 +297,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			// Generate a valid token
@@ -316,7 +316,7 @@ describe('TokenService', () => {
 			const mockUser: DecodedUser = {
 				id: 1,
 				email: 'test@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			const token1 = await tokenService.generateToken(mockUser);
