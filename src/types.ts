@@ -28,6 +28,9 @@ export const TYPES = {
 	//Food items
 	FoodItemsService: Symbol.for('FoodItemsService'),
 	FoodItemsController: Symbol.for('FoodItemsController'),
+	//Drink items
+	DrinkItemsService: Symbol.for('DrinkItemsService'),
+	DrinkItemsController: Symbol.for('DrinkItemsController'),
 	// Base
 	BaseService: Symbol.for('BaseService'),
 	OrderItemsService: Symbol.for('OrderItemsService'),
