@@ -257,36 +257,40 @@ export abstract class AbstractOrderService extends BaseService {
 		};
 		totalAmount: number;
 	}> {
-		let foodItems = order.foodItems;
-		let drinkItems = order.drinkItems;
+		try {
+			let foodItems = order.foodItems;
+			let drinkItems = order.drinkItems;
 
-		if (updatedData) {
-			drinkItems = this.mergeItems(order.drinkItems, updatedData?.drinkItems || []);
-			foodItems = this.mergeItems(order.foodItems, updatedData?.foodItems || []);
+			if (updatedData) {
+				drinkItems = this.mergeItems(order.drinkItems, updatedData?.drinkItems || []);
+				foodItems = this.mergeItems(order.foodItems, updatedData?.foodItems || []);
+			}
+
+			const [correctedFoodItems, correctedDrinkItems] = await this.correctItemPrices(
+				foodItems,
+				drinkItems
+			);
+
+			const totalAmount = this.calculateTotalAmount({
+				...order,
+				...updatedData,
+				foodItems: correctedFoodItems,
+				drinkItems: correctedDrinkItems,
+			});
+
+			const flattenDrinkItems = this.flattenItems(correctedDrinkItems);
+			const flattenFoodItems = this.flattenItems(correctedFoodItems);
+
+			return {
+				mergedItems: {
+					foodItems: flattenFoodItems,
+					drinkItems: flattenDrinkItems,
+				},
+				totalAmount,
+			};
+		} catch (error) {
+			throw this.handleError(error);
 		}
-
-		const [correctedFoodItems, correctedDrinkItems] = await this.correctItemPrices(
-			foodItems,
-			drinkItems
-		);
-
-		const totalAmount = this.calculateTotalAmount({
-			...order,
-			...updatedData,
-			foodItems: correctedFoodItems,
-			drinkItems: correctedDrinkItems,
-		});
-
-		const flattenDrinkItems = this.flattenItems(correctedDrinkItems);
-		const flattenFoodItems = this.flattenItems(correctedFoodItems);
-
-		return {
-			mergedItems: {
-				foodItems: flattenFoodItems,
-				drinkItems: flattenDrinkItems,
-			},
-			totalAmount,
-		};
 	}
 
 	/**

@@ -30,64 +30,8 @@ export class OrdersController extends BaseController {
 	) {
 		super(loggerService);
 		this.cacheMiddleware = new CacheMiddleware(this.cache, 'orders');
-		// console.log('Controller metadata after init:', {
-		// 	routes: Reflect.getMetadata(METADATA_KEYS.ROUTES, this.constructor),
-		// 	prefix: Reflect.getMetadata(METADATA_KEYS.PREFIX, this.constructor),
-		// });
-		// this.bindRoutes([
-		// 	{
-		// 		method: 'get',
-		// 		path: '/',
-		// 		func: this.getOrders,
-		// 		middlewares: [new ValidateMiddleware(OrderSearchSchema, 'query'), this.cacheMiddleware],
-		// 	},
-		// 	{
-		// 		method: 'get',
-		// 		path: '/:id',
-		// 		func: this.getOrderById,
-		// 		middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
-		// 	},
-		// 	{
-		// 		method: 'post',
-		// 		path: '/',
-		// 		func: this.createOrder,
-		// 		middlewares: [new ValidateMiddleware(OrderCreateSchema, 'body')],
-		// 	},
-		// 	{
-		// 		method: 'patch',
-		// 		path: '/:id/items',
-		// 		func: this.updateOrderItems,
-		// 		middlewares: [
-		// 			new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params'),
-		// 			new ValidateMiddleware(OrderUpdateItemsSchema, 'body'),
-		// 			this.cacheMiddleware,
-		// 		],
-		// 	},
-		// 	{
-		// 		method: 'patch',
-		// 		path: '/:id',
-		// 		func: this.updateOrderProperties,
-		// 		middlewares: [new ValidateMiddleware(OrderUpdateProps, 'body')],
-		// 	},
-		// 	{
-		// 		method: 'post',
-		// 		path: '/:id/print',
-		// 		func: this.orderItemsPrint,
-		// 		middlewares: [new ValidateMiddleware(OrderIds, 'body')],
-		// 	},
-		// 	{
-		// 		method: 'post',
-		// 		path: '/:id/call',
-		// 		func: this.orderItemsCall,
-		// 		middlewares: [new ValidateMiddleware(OrderIds, 'body')],
-		// 	},
-		// 	{
-		// 		method: 'delete',
-		// 		path: '/:id',
-		// 		func: this.deleteOrder,
-		// 		middlewares: [new ValidateMiddleware(OrderSchema.pick({ id: true }), 'params')],
-		// 	},
-		// ]);
+		
+	
 	}
 
 	/**

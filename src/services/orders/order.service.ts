@@ -124,7 +124,12 @@ export class OrdersService extends AbstractOrderService {
 
 			// If no order found, throw an error
 			if (!order) {
-				throw this.handleError('Order not found');
+				throw new HTTPError(
+					404,
+					this.serviceName,
+					'Order not found in the database',
+					`/orders/${orderId}`
+				);
 			}
 
 			return {
@@ -240,8 +245,7 @@ export class OrdersService extends AbstractOrderService {
 				if (printedItems.length !== 0) {
 					throw new HTTPError(
 						500,
-						'Printed items already exist',
-						`Items ${printedItems.map((item) => item.id).join(', ')} already printed.`
+						'Print', 'Items have already been printed',
 					);
 				}
 
@@ -262,7 +266,7 @@ export class OrdersService extends AbstractOrderService {
 						printed: true,
 					},
 				});
-				return `items ${[...ids]} have been printed.`;
+				return `Items have been ptinted`;
 			} catch (error) {
 				throw this.handleError(error);
 			}
@@ -415,16 +419,7 @@ export class OrdersService extends AbstractOrderService {
 	) {
 		try {
 			return await this.prisma.$transaction(async () => {
-				const { id, ...existingOrder } = await this.findOrderById(orderId);
-
-				if (!existingOrder) {
-					throw new HTTPError(
-						'Order not found',
-						'updateOrderInDatabase',
-						'Order not found in the database',
-						`/orders/${orderId}`
-					);
-				}
+				const existingOrder = await this.findOrderById(orderId);
 
 				const { mergedItems, totalAmount } = await this.prepareOrderItems(
 					existingOrder,
@@ -436,7 +431,6 @@ export class OrdersService extends AbstractOrderService {
 					drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
 					totalAmount: number;
 				} = {
-					...existingOrder,
 					foodItems: mergedItems.foodItems,
 					drinkItems: mergedItems.drinkItems,
 					totalAmount,
@@ -447,7 +441,8 @@ export class OrdersService extends AbstractOrderService {
 				return this.formatOrder(updatedOrder);
 			});
 		} catch (error) {
-			throw this.handleError(error);
+			// If the error is from findOrderById, it will already be properly formatted
+			throw error;
 		}
 	}
 
@@ -466,17 +461,6 @@ export class OrdersService extends AbstractOrderService {
 		updatedProperties: OrderUpdateProps
 	): Promise<OrderFullSingleDTO> {
 		try {
-			const existingOrder = await this.findOrderById(orderId);
-
-			if (!existingOrder) {
-				throw new HTTPError(
-					404,
-					this.serviceName,
-					'Order not found in the database',
-					`/orders/${orderId}`
-				);
-			}
-
 			const isCompleted =
 				updatedProperties?.status === 'COMPLETED' || updatedProperties?.status === 'DISPUTED'
 					? new Date()
@@ -493,6 +477,7 @@ export class OrdersService extends AbstractOrderService {
 
 			return this.formatOrder(updatedOrder);
 		} catch (error) {
+			
 			throw this.handleError(error);
 		}
 	}
