@@ -1,4 +1,4 @@
-import { Role } from './enums';
+import { UserRole } from '@prisma/client';
 import {
 	CreateUserSchema,
 	IdParamSchema,
@@ -7,7 +7,7 @@ import {
 	UserParamSchema,
 	UserSchema,
 	UserSortColumn,
-} from './user.dto';
+} from '../../../dto/user.dto';
 
 describe('User DTO Schemas', () => {
 	describe('UserSchema', () => {
@@ -16,7 +16,7 @@ describe('User DTO Schemas', () => {
 				id: 1,
 				name: 'John Doe',
 				email: 'john.doe@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 				isActive: true,
 				password: 'password123',
 				createdAt: new Date(),
@@ -47,7 +47,7 @@ describe('User DTO Schemas', () => {
 			const user = {
 				name: 'John Doe',
 				email: 'john.doe@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 				password: 'password123',
 			};
 			expect(() => CreateUserSchema.parse(user)).not.toThrow();
@@ -117,7 +117,7 @@ describe('User DTO Schemas', () => {
 			const user = {
 				name: 'John Doe',
 				email: 'john.doe@example.com',
-				role: Role.USER,
+				role: UserRole.USER,
 				isActive: true,
 				lastLogin: new Date(),
 			};

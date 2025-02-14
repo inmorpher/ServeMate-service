@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import { Logger } from 'tslog';
-import { LoggerService } from './logger.service';
-
-jest.mock('../../../env', () => ({
+import { LoggerService } from '../../../services/logger/logger.service';
+jest.mock('../../../../env', () => ({
 	ENV: {
 		LOG_TO_FILE: true,
 	},
@@ -31,7 +30,7 @@ describe('LoggerService', () => {
 		// Reset modules to ensure new mocks are used
 		jest.resetModules();
 
-		const LoggerServiceModule = await import('./logger.service');
+		const LoggerServiceModule = await import('../../../services/logger/logger.service');
 		loggerService = new LoggerServiceModule.LoggerService();
 
 		// Wait for the directory creation to complete
@@ -54,7 +53,7 @@ describe('LoggerService', () => {
 
 	it('should not create a log file when log_to_file is set to false', async () => {
 		// Mock ENV.LOG_TO_FILE to be false
-		jest.mock('../../../env', () => ({
+		jest.mock('../../../../env', () => ({
 			ENV: {
 				LOG_TO_FILE: false,
 			},
@@ -63,7 +62,7 @@ describe('LoggerService', () => {
 		// Reset modules to ensure new mocks are used
 		jest.resetModules();
 
-		const LoggerServiceModule = await import('./logger.service');
+		const LoggerServiceModule = await import('../../../services/logger/logger.service');
 		const loggerService = new LoggerServiceModule.LoggerService();
 
 		// Wait for the constructor to complete
@@ -91,7 +90,7 @@ describe('LoggerService', () => {
 		// Reset modules to ensure new mocks are used
 		jest.resetModules();
 
-		const LoggerServiceModule = await import('./logger.service');
+		const LoggerServiceModule = await import('../../../services/logger/logger.service');
 		const loggerService = new LoggerServiceModule.LoggerService();
 
 		// Wait for the constructor to complete
@@ -136,7 +135,7 @@ describe('LoggerService', () => {
 		}));
 
 		// Mock ENV to ensure LOG_TO_FILE is true
-		jest.mock('../../../env', () => ({
+		jest.mock('../../../../env', () => ({
 			ENV: {
 				LOG_TO_FILE: true,
 			},
@@ -145,7 +144,7 @@ describe('LoggerService', () => {
 		// Reset modules to ensure new mocks are used
 		jest.resetModules();
 
-		const LoggerServiceModule = await import('./logger.service');
+		const LoggerServiceModule = await import('../../../services/logger/logger.service');
 		const loggerService = new LoggerServiceModule.LoggerService();
 
 		// Wait for the constructor to complete
@@ -184,7 +183,7 @@ describe('LoggerService', () => {
 		// Reset modules to ensure new mocks are used
 		jest.resetModules();
 
-		const LoggerServiceModule = await import('./logger.service');
+		const LoggerServiceModule = await import('../../../services/logger/logger.service');
 		const loggerService = new LoggerServiceModule.LoggerService();
 
 		// Wait for the constructor to complete

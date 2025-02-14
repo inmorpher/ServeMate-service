@@ -155,7 +155,6 @@ export class PaymentService extends AbstractPaymentService {
 				);
 
 				const subtotal = this.calculatePaymentAmount([...selectedDrinks, ...selectedFoods]);
-
 				const { tax, serviceCharge, total } = this.calculateTaxAndCharges(subtotal);
 
 				const payment = await prisma.payment.create({
@@ -188,31 +187,41 @@ export class PaymentService extends AbstractPaymentService {
 					throw new HTTPError(400, 'Payment ', 'Payment creation failed');
 				}
 
-				const [updatedFoods, updatedDrinks] = await Promise.all([
-					prisma.orderFoodItem.updateMany({
-						where: {
-							id: {
-								in: selectedFoods.map((item) => item.id),
-							},
-						},
-						data: {
-							paymentStatus: PaymentState.PENDING,
-						},
-					}),
-					prisma.orderDrinkItem.updateMany({
-						where: {
-							id: {
-								in: selectedDrinks.map((item) => item.id),
-							},
-						},
-						data: {
-							paymentStatus: PaymentState.PENDING,
-						},
-					}),
-				]);
+				// Only update items if there are any selected
+				if (selectedFoods.length > 0 || selectedDrinks.length > 0) {
+					const [updatedFoods, updatedDrinks] = await Promise.all([
+						selectedFoods.length > 0
+							? prisma.orderFoodItem.updateMany({
+								where: {
+									id: {
+										in: selectedFoods.map((item) => item.id),
+									},
+								},
+								data: {
+									paymentStatus: PaymentState.PENDING,
+								},
+							})
+							: { count: 0 },
+						selectedDrinks.length > 0
+							? prisma.orderDrinkItem.updateMany({
+								where: {
+									id: {
+										in: selectedDrinks.map((item) => item.id),
+									},
+								},
+								data: {
+									paymentStatus: PaymentState.PENDING,
+								},
+							})
+							: { count: 0 },
+					]);
 
-				if (updatedFoods.count === 0 && updatedDrinks.count === 0) {
-					throw new HTTPError(400, 'Payment ', 'Failed to update order items status');
+					if (
+						(selectedFoods.length > 0 && updatedFoods.count === 0) ||
+						(selectedDrinks.length > 0 && updatedDrinks.count === 0)
+					) {
+						throw new HTTPError(400, 'Payment ', 'Failed to update order items status');
+					}
 				}
 
 				return `Payment for order ${order.id} created successfully`;
@@ -307,7 +316,7 @@ export class PaymentService extends AbstractPaymentService {
 					throw new HTTPError(400, 'Payment ', 'Payment completion failed');
 				}
 
-				const isOrderFullyPaid = await this.checkOrderPaymentCompetition(existingPayment.orderId);
+				const isOrderFullyPaid = await this.checkOrderPaymentCompletion(existingPayment.orderId);
 
 				if (isOrderFullyPaid) {
 					await prisma.order.update({
@@ -349,6 +358,10 @@ export class PaymentService extends AbstractPaymentService {
 	async refundPayment(paymentId: number, reason: string): Promise<string> {
 		try {
 			return await this.prisma.$transaction(async (prisma) => {
+				if (!reason || reason.trim().length === 0) {
+					throw new HTTPError(400, 'Payment ', 'Refund reason cannot be empty');
+				}
+
 				const payment = await prisma.payment.findUnique({
 					where: {
 						id: paymentId,
@@ -369,12 +382,12 @@ export class PaymentService extends AbstractPaymentService {
 				}
 
 				// Check if payment is already refunded
-				if (payment.status === 'REFUNDED') {
+				if (payment.status === PaymentState.REFUNDED) {
 					throw new HTTPError(400, 'Payment ', 'Payment already refunded');
 				}
 
 				// Check if payment is already cancelled
-				if (payment.status === 'CANCELLED') {
+				if (payment.status === PaymentState.CANCELLED) {
 					throw new HTTPError(
 						400,
 						'Payment ',
@@ -567,7 +580,7 @@ export class PaymentService extends AbstractPaymentService {
 	 * @returns {Object} An object containing the selected food and drink items.
 	 * @throws {HTTPError} Throws an error if the provided drink or food items do not match the order items.
 	 */
-	private async checkOrderPaymentCompetition(orderId: number): Promise<boolean> {
+	private async checkOrderPaymentCompletion(orderId: number): Promise<boolean> {
 		try {
 			const orderItems = await this.prisma.order.findUnique({
 				where: {
@@ -591,7 +604,9 @@ export class PaymentService extends AbstractPaymentService {
 				throw new HTTPError(404, 'Payment', 'Order not found');
 			}
 
-			const allFoodItemsPaid = orderItems.foodItems.every((item) => item.paymentStatus === 'PAID');
+			const allFoodItemsPaid = orderItems.foodItems.every(
+				(item) => item.paymentStatus === PaymentState.PAID
+			);
 			const allDrinkItemsPaid = orderItems.drinkItems.every(
 				(item) => item.paymentStatus === PaymentState.PAID
 			);

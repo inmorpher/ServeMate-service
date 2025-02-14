@@ -3,7 +3,8 @@ import { Container, ContainerModule, interfaces } from 'inversify';
 import { App } from './src/app';
 import { BaseService } from './src/common/base.service';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
-import { FoodItemsController } from './src/controllers/foodItems/food-items.controlller';
+import { DrinkItemsController } from './src/controllers/drinkItems/drink-items.controller';
+import { FoodItemsController } from './src/controllers/foodItems/food-items.controller';
 import { OrdersController } from './src/controllers/orders/orders.controller';
 import { PaymentController } from './src/controllers/payments/payment.controller';
 import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
@@ -15,6 +16,7 @@ import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
 import { RoleMiddleware } from './src/middleware/role/role.middleware';
+import { DrinkItemsService } from './src/services/drinks/drink-items.service';
 import { FoodItemsService } from './src/services/food/food-items.service';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
@@ -177,6 +179,13 @@ export const foodItemsModule = new ContainerModule((bind: interfaces.Bind) => {
 	bind<FoodItemsService>(TYPES.FoodItemsService).to(FoodItemsService).inSingletonScope();
 });
 
+export const drinkItemsModule = new ContainerModule((bind: interfaces.Bind) => {
+	bind<DrinkItemsController>(TYPES.DrinkItemsController)
+		.to(DrinkItemsController)
+		.inSingletonScope();
+	bind<DrinkItemsService>(TYPES.DrinkItemsService).to(DrinkItemsService).inSingletonScope();
+});
+
 /**
  * An array of application modules to be bound to the application.
  *
@@ -197,6 +206,7 @@ export const appBindings = [
 	ordersModule,
 	paymentModule,
 	foodItemsModule,
+	drinkItemsModule,
 	appModule,
 	baseModules,
 ];

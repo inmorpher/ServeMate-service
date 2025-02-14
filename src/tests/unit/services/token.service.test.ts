@@ -1,10 +1,14 @@
 import jwt from 'jsonwebtoken';
 import 'reflect-metadata';
-import { ENV } from '../../../env';
+import { ENV } from '../../../../env';
+import { UserRole } from '../../../dto/enums';
+import { TokenService } from '../../../services/tokens/token.service';
+import {
+	AccessTokenPayload,
+	DecodedUser,
+	RefreshTokenPayload,
+} from '../../../services/tokens/token.service.interface';
 
-import { UserRole } from '../../dto/enums';
-import { TokenService } from './token.service';
-import { AccessTokenPayload, DecodedUser, RefreshTokenPayload } from './token.service.interface';
 describe('TokenService', () => {
 	let tokenService: TokenService;
 	let mockUser: DecodedUser;

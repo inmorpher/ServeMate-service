@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { ENV } from '../../../env';
-import { HTTPError } from '../../errors/http-error.class';
-import { AuthMiddleware, DecodedUser } from './auth.middleware';
+import { ENV } from '../../../../env';
+import { HTTPError } from '../../../errors/http-error.class';
+import { AuthMiddleware, DecodedUser } from '../../../middleware/auth/auth.middleware';
 
 describe('AuthMiddleware', () => {
 	let authMiddleware: AuthMiddleware;

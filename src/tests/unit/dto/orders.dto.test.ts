@@ -10,7 +10,7 @@ import {
 	OrderUpdateProps,
 	PaymentStatus,
 	PrepareItems,
-} from './orders.dto';
+} from '../../../dto/orders.dto';
 
 describe('Order DTO Schemas', () => {
 	describe('OrderSchema', () => {

@@ -1,14 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
-import { TypedRequest } from '../../common/route.interface';
-import { CreateUser, UpdateUserDto, UserListResult, UserSearchCriteria } from '../../dto/user.dto';
-import { ILogger } from '../../services/logger/logger.service.interface';
-import { UserService } from '../../services/users/user.service';
-import { TYPES } from '../../types';
-import { UserController } from './users.controller';
+import { TypedRequest } from '../../../common/route.interface';
+import { UserController } from '../../../controllers/users/users.controller';
+import {
+	CreateUser,
+	UpdateUserDto,
+	UserListResult,
+	UserSearchCriteria,
+} from '../../../dto/user.dto';
+import { ILogger } from '../../../services/logger/logger.service.interface';
+import { UserService } from '../../../services/users/user.service';
+import { TYPES } from '../../../types';
 
-jest.mock('../../services/users/user.service');
-jest.mock('../../services/logger/logger.service.interface');
+jest.mock('../../../services/users/user.service');
+jest.mock('../../../services/logger/logger.service.interface');
 
 describe('UserController', () => {
 	let userController: UserController;

@@ -1,11 +1,11 @@
-import { TableStatus } from './enums';
+import { TableCondition } from '../../../dto/enums';
 import {
 	TableCreateSchema,
 	TableIdSchema,
 	TableSchema,
 	TableSearchCriteriaSchema,
 	TableUpdatesSchema,
-} from './tables.dto';
+} from '../../../dto/tables.dto';
 
 describe('Table DTO Schemas', () => {
 	describe('TableSchema', () => {
@@ -18,7 +18,7 @@ describe('Table DTO Schemas', () => {
 				originalCapacity: 4,
 				additionalCapacity: 0,
 				isOccupied: false,
-				status: TableStatus.AVAILABLE,
+				status: TableCondition.AVAILABLE,
 
 				assignment: [
 					{

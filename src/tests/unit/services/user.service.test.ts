@@ -1,13 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { Container } from 'inversify';
 import 'reflect-metadata';
-import { Role } from '../../dto/enums';
-import { CreateUser, UpdateUserDto, UserCredentials, UserSearchCriteria } from '../../dto/user.dto';
-import { HTTPError } from '../../errors/http-error.class';
-import { TYPES } from '../../types';
-import { UserService } from './user.service';
-import { IUserService } from './user.service.interface';
+import {
+	CreateUser,
+	UpdateUserDto,
+	UserCredentials,
+	UserSearchCriteria,
+} from '../../../dto/user.dto';
+import { HTTPError } from '../../../errors/http-error.class';
+import { UserService } from '../../../services/users/user.service';
+import { IUserService } from '../../../services/users/user.service.interface';
+import { TYPES } from '../../../types';
 
 describe('UserService', () => {
 	let container: Container;
@@ -65,7 +69,7 @@ describe('UserService', () => {
 				id: mockUser.id,
 				name: mockUser.name,
 				email: mockUser.email,
-				role: Role.USER,
+				role: UserRole.USER,
 			});
 		});
 
@@ -122,7 +126,7 @@ describe('UserService', () => {
 		it('should find users based on multiple search criteria and return paginated results', async () => {
 			const searchCriteria: UserSearchCriteria = {
 				name: 'John',
-				role: Role.USER,
+				role: UserRole.USER,
 				isActive: true,
 			};
 
@@ -194,7 +198,7 @@ describe('UserService', () => {
 			});
 
 			expect(result).toEqual({
-				users: mockUsers.map((user) => ({ ...user, role: Role.USER })),
+				users: mockUsers.map((user) => ({ ...user, role: UserRole.USER })),
 				totalCount: 2,
 				page: 1,
 				pageSize: 10,
@@ -256,7 +260,7 @@ describe('UserService', () => {
 				name: 'Test User',
 				email: 'test@example.com',
 				password: 'password123',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			const hashedPassword = 'hashedPassword123' as never;
@@ -302,7 +306,7 @@ describe('UserService', () => {
 				name: 'New User',
 				email: 'existing@example.com',
 				password: 'password123',
-				role: Role.USER,
+				role: UserRole.USER,
 			};
 
 			(mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(existingUser);
@@ -346,7 +350,7 @@ describe('UserService', () => {
 			const updateData: UpdateUserDto = {
 				name: 'Updated Name',
 				email: 'updated@example.com',
-				role: Role.MANAGER,
+				role: UserRole.MANAGER,
 				isActive: false,
 			};
 

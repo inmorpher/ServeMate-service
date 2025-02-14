@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import 'reflect-metadata';
 import { z } from 'zod';
-import { ValidateMiddleware, ValidationType } from './validate.middleware';
+import {
+	ValidateMiddleware,
+	ValidationType,
+} from '../../../middleware/validate/validate.middleware';
 
 describe('ValidateMiddleware', () => {
 	let validateMiddleware: ValidateMiddleware;

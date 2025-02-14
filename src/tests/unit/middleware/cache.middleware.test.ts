@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
-import { CacheMiddleware } from './cache.middleware';
+import { CacheMiddleware } from '../../../middleware/cache/cache.middleware';
 
 describe('CacheMiddleware', () => {
 	let cacheMiddleware: CacheMiddleware;

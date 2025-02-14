@@ -1,24 +1,11 @@
-import { PrismaClient, Table } from '@prisma/client';
+import { PrismaClient, Table, TableCondition } from '@prisma/client';
 import { Container } from 'inversify';
-import { TableCondition } from '../../../prisma/enums';
-import { TableCreate, TablesDTO, TableSearchCriteria } from '../../dto/tables.dto';
-import { HTTPError } from '../../errors/http-error.class';
-import { TYPES } from '../../types';
-import { TableService } from './table.service';
+import { TableCreate, TablesDTO, TableSearchCriteria } from '../../../dto/tables.dto';
+import { HTTPError } from '../../../errors/http-error.class';
+import { TableService } from '../../../services/tables/table.service';
+import { TYPES } from '../../../types';
 
 describe('TableService', () => {
-	// jest.mock('@prisma/client', () => ({
-	// 	PrismaClient: jest.fn(() => ({
-	// 		table: {
-	// 			findMany: jest.fn(),
-	// 			count: jest.fn(),
-	// 			findUnique: jest.fn(),
-	// 			create: jest.fn(),
-	// 			delete: jest.fn(),
-	// 			update: jest.fn(),
-	// 		},
-	// 	})),
-	// }));
 	let container: Container;
 	let tableService: TableService;
 	let prismaClient: jest.Mocked<PrismaClient>;
@@ -57,10 +44,6 @@ describe('TableService', () => {
 		tableService = container.get<TableService>(TYPES.TableService);
 	});
 
-	// afterEach(() => {
-	// 	jest.clearAllMocks();
-	// });
-
 	describe('findTables', () => {
 		it('should return tables with pagination', async () => {
 			const criteria: TableSearchCriteria = {
@@ -69,7 +52,7 @@ describe('TableService', () => {
 				sortBy: 'id',
 				sortOrder: 'asc',
 			};
-			// prismaClient.table.findMany.mockResolvedValue([]);
+
 			(prismaClient.table.findMany as jest.Mock).mockResolvedValue([]);
 			(prismaClient.table.count as jest.Mock).mockResolvedValue(0);
 
@@ -171,14 +154,9 @@ describe('TableService', () => {
 			const tableId = 1;
 			(prismaClient.table.delete as jest.Mock).mockResolvedValue({ id: tableId });
 
-			// Предполагается, что InvalidateCacheByKeys и InvalidateCacheByPrefix работают корректно
 			await tableService.deleteTable(tableId);
 
 			expect(prismaClient.table.delete).toHaveBeenCalledWith({ where: { id: tableId } });
-			// Здесь можно добавить проверки на вызов методов инвалидирования кэша, если они мокаются
-			// Например:
-			// expect(cache.invalidateByKeys).toHaveBeenCalledWith([`findTableById_${tableId}`]);
-			// expect(cache.invalidateByPrefix).toHaveBeenCalledWith('findTables');
 		});
 
 		it('should handle errors when deleting a table', async () => {

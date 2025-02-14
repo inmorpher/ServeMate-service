@@ -1,18 +1,18 @@
+import { TableAssignment } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
 import 'reflect-metadata';
-import { TypedRequest } from '../../common/route.interface';
+import { TypedRequest } from '../../../common/route.interface';
+import { TableController } from '../../../controllers/tables/table.controller';
 import {
-	TableAssignment,
 	TableCreate,
 	TableSearchCriteria,
 	TableSearchCriteriaSchema,
 	TableUpdate,
-} from '../../dto/tables.dto';
-import { ILogger } from '../../services/logger/logger.service.interface';
-import { TableService } from '../../services/tables/table.service';
-import { TYPES } from '../../types';
-import { TableController } from './table.controller';
+} from '../../../dto/tables.dto';
+import { ILogger } from '../../../services/logger/logger.service.interface';
+import { TableService } from '../../../services/tables/table.service';
+import { TYPES } from '../../../types';
 
 describe('TableController', () => {
 	let tableController: TableController;
@@ -263,7 +263,7 @@ describe('TableController', () => {
 				serverId: 1,
 				assignedTables: [1, 2, 3],
 				isPrimary: true,
-			};
+			} as unknown as TableAssignment;
 			req = { body: assignment };
 			tableService.assignTables.mockResolvedValue();
 
@@ -280,7 +280,7 @@ describe('TableController', () => {
 				serverId: 1,
 				assignedTables: [1, 2, 3],
 				isPrimary: true,
-			};
+			} as unknown as TableAssignment;
 			req = { body: assignment };
 			const error = new Error('Assignment error');
 			tableService.assignTables.mockRejectedValue(error);

@@ -11,7 +11,7 @@ export abstract class AbstractPaymentService extends BaseService {
 		drinkItems?: number[],
 		foodItems?: number[]
 	): Promise<any>;
-	abstract completePayment(orderId: number): Promise<string>;
+	abstract completePayment(paymentId: number): Promise<string>; // updated parameter name
 	abstract refundPayment(paymentId: number, reason: string): Promise<string>;
 	abstract cancelPayment(paymentId: number): Promise<string>;
 

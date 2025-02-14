@@ -1,14 +1,13 @@
+import { UserRole } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
-
-import { Role } from '../../dto/enums';
-import { ValidatedUserData } from '../../dto/user.dto';
-import { HTTPError } from '../../errors/http-error.class';
-import { ILogger } from '../../services/logger/logger.service.interface';
-import { ITokenService } from '../../services/tokens/token.service.interface';
-import { UserService } from '../../services/users/user.service';
-import { TYPES } from '../../types';
-import { AuthenticationController } from './auth.controller';
+import { AuthenticationController } from '../../../controllers/auth/auth.controller';
+import { ValidatedUserData } from '../../../dto/user.dto';
+import { HTTPError } from '../../../errors/http-error.class';
+import { ILogger } from '../../../services/logger/logger.service.interface';
+import { ITokenService } from '../../../services/tokens/token.service.interface';
+import { UserService } from '../../../services/users/user.service';
+import { TYPES } from '../../../types';
 
 describe('AuthenticationController', () => {
 	let authController: AuthenticationController;
@@ -64,7 +63,7 @@ describe('AuthenticationController', () => {
 	});
 
 	it('should respond with 200 and access token on successful login', async () => {
-		const user = { id: 1, email: 'test@example.com', name: 'Test User', role: Role.USER };
+		const user = { id: 1, email: 'test@example.com', name: 'Test User', role: UserRole.USER };
 		mockUserService.validateUser.mockResolvedValue(user);
 		mockTokenService.generateToken.mockResolvedValue('accessToken');
 
@@ -101,7 +100,7 @@ describe('AuthenticationController', () => {
 	});
 
 	it('should respond with 500 and call next with error when tokenService.generateToken throws an error during login', async () => {
-		const user = { id: 1, email: 'test@example.com', name: 'Test User', role: Role.USER };
+		const user = { id: 1, email: 'test@example.com', name: 'Test User', role: UserRole.USER };
 		mockUserService.validateUser.mockResolvedValue(user);
 		const error = new Error('Token generation error');
 		mockTokenService.generateToken.mockRejectedValue(error);
@@ -114,7 +113,7 @@ describe('AuthenticationController', () => {
 	});
 
 	it('should respond with 500 and call next with error when userService.updateUser throws an error', async () => {
-		const user = { id: 1, email: 'test@example.com', name: 'Test User', role: Role.USER };
+		const user = { id: 1, email: 'test@example.com', name: 'Test User', role: UserRole.USER };
 		mockUserService.validateUser.mockResolvedValue(user);
 		mockTokenService.generateToken.mockResolvedValue('accessToken');
 		const error = new Error('Update user error');
@@ -155,7 +154,7 @@ describe('AuthenticationController', () => {
 		mockTokenService.verifyToken.mockResolvedValue({
 			id: 1,
 			email: 'test@example.com',
-			role: Role.USER,
+			role: UserRole.USER,
 		});
 		mockTokenService.generateToken.mockRejectedValue(error);
 
@@ -168,7 +167,7 @@ describe('AuthenticationController', () => {
 
 	it('should set a new refresh token cookie with correct options in refreshToken method', async () => {
 		mockRequest.cookies = { refreshToken: 'validRefreshToken' };
-		const decodedUser = { id: 1, email: 'test@example.com', role: Role.USER };
+		const decodedUser = { id: 1, email: 'test@example.com', role: UserRole.USER };
 		mockTokenService.verifyToken.mockResolvedValue(decodedUser);
 		mockTokenService.generateToken.mockResolvedValueOnce('newAccessToken');
 		mockTokenService.generateToken.mockResolvedValueOnce('newRefreshToken');

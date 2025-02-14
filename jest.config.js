@@ -2,7 +2,7 @@ module.exports = {
 	testTimeout: 30000,
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-	roots: ['<rootDir>/src'],
+	roots: ['<rootDir>/src/tests'], // изменено для чтения тестов из папки test, включая вложенные папки
 	transform: {
 		'^.+\\.tsx?$': [
 			'ts-jest',
