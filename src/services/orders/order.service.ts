@@ -1,16 +1,15 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { OrderState, Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { OrderState } from '../../dto/enums';
+
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
+
 import {
 	OrderCreateDTO,
 	OrderFullSingleDTO,
 	OrderSearchCriteria,
 	OrderSearchListResult,
 	OrderUpdateProps,
-} from '../../dto/orders.dto';
-
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
-
+} from '@servemate/dto';
 import 'reflect-metadata';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
@@ -102,7 +101,6 @@ export class OrdersService extends AbstractOrderService {
 				totalPages: Math.ceil(total / pageSize),
 			};
 		} catch (error) {
-			console.log(error);
 			throw this.handleError(error);
 		}
 	}
@@ -184,7 +182,7 @@ export class OrdersService extends AbstractOrderService {
 	 */
 	@InvalidateCacheByPrefix(`findOrders_`)
 	@InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
-	async delete(order: number): Promise<boolean> {
+	async delete(order: number): Promise<void> {
 		try {
 			await this.prisma.$transaction(async (prisma) => {
 				// Delete all related food items associated with the order.
@@ -201,8 +199,6 @@ export class OrdersService extends AbstractOrderService {
 					where: { id: order },
 				});
 			});
-
-			return true;
 		} catch (error) {
 			throw this.handleError(error);
 		}
@@ -243,10 +239,7 @@ export class OrdersService extends AbstractOrderService {
 				const printedItems = allItems.filter((item) => item.printed);
 
 				if (printedItems.length !== 0) {
-					throw new HTTPError(
-						500,
-						'Print', 'Items have already been printed',
-					);
+					throw new HTTPError(500, 'Print', 'Items have already been printed');
 				}
 
 				await prisma.orderFoodItem.updateMany({
@@ -375,28 +368,32 @@ export class OrdersService extends AbstractOrderService {
 			totalAmount: number;
 		}
 	) {
-		const { foodItems, drinkItems, totalAmount } = updatedData;
-
-		return this.prisma.order.update({
-			where: { id: orderId },
-			data: {
-				totalAmount,
-				foodItems: {
-					deleteMany: {},
-					createMany: {
-						data: foodItems,
+		try {
+			const { foodItems, drinkItems, totalAmount } = updatedData;
+			return await this.prisma.order.update({
+				where: { id: orderId },
+				data: {
+					totalAmount,
+					foodItems: {
+						deleteMany: {},
+						createMany: {
+							data: foodItems,
+						},
+					},
+					drinkItems: {
+						deleteMany: {},
+						createMany: {
+							data: drinkItems,
+						},
 					},
 				},
-				drinkItems: {
-					deleteMany: {},
-					createMany: {
-						data: drinkItems,
-					},
-				},
-			},
-			include: ORDER_INCLUDE,
-		});
+				include: ORDER_INCLUDE,
+			});
+		} catch (error) {
+			throw this.handleError(error);
+		}
 	}
+
 	/**
 	 * Updates the food and drink items in an existing order.
 	 *
@@ -418,31 +415,33 @@ export class OrdersService extends AbstractOrderService {
 		updatedData: Pick<OrderCreateDTO, 'foodItems' | 'drinkItems'>
 	) {
 		try {
-			return await this.prisma.$transaction(async () => {
-				const existingOrder = await this.findOrderById(orderId);
+			return await this.prisma.$transaction(async (prisma) => {
+				try {
+					const existingOrder = await this.findOrderById(orderId);
 
-				const { mergedItems, totalAmount } = await this.prepareOrderItems(
-					existingOrder,
-					updatedData
-				);
+					const { mergedItems, totalAmount } = await this.prepareOrderItems(
+						existingOrder,
+						updatedData
+					);
 
-				const formattedNewOrder: {
-					foodItems: Prisma.OrderFoodItemCreateManyOrderInput[];
-					drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
-					totalAmount: number;
-				} = {
-					foodItems: mergedItems.foodItems,
-					drinkItems: mergedItems.drinkItems,
-					totalAmount,
-				};
+					const formattedNewOrder: {
+						foodItems: Prisma.OrderFoodItemCreateManyOrderInput[];
+						drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
+						totalAmount: number;
+					} = {
+						foodItems: mergedItems.foodItems,
+						drinkItems: mergedItems.drinkItems,
+						totalAmount,
+					};
 
-				const updatedOrder = await this.updateOrderItemsInDatabase(orderId, formattedNewOrder);
-
-				return this.formatOrder(updatedOrder);
+					const updatedOrder = await this.updateOrderItemsInDatabase(orderId, formattedNewOrder);
+					return this.formatOrder(updatedOrder);
+				} catch (error) {
+					throw this.handleError(error);
+				}
 			});
 		} catch (error) {
-			// If the error is from findOrderById, it will already be properly formatted
-			throw error;
+			throw this.handleError(error);
 		}
 	}
 
@@ -477,7 +476,6 @@ export class OrdersService extends AbstractOrderService {
 
 			return this.formatOrder(updatedOrder);
 		} catch (error) {
-			
 			throw this.handleError(error);
 		}
 	}

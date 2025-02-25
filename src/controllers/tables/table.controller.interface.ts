@@ -1,13 +1,13 @@
-import { NextFunction, Response } from 'express';
-import { BaseController } from '../../common/base.controller';
-import { TypedRequest } from '../../common/route.interface';
 import {
 	TableAssignment,
 	TableCreate,
 	TableId,
 	TableSearchCriteria,
 	TableUpdate,
-} from '../../dto/tables.dto';
+} from '@servemate/dto';
+import { NextFunction, Response } from 'express';
+import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
 
 export abstract class ITableController extends BaseController {
 	/**

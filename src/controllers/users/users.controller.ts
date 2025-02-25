@@ -1,10 +1,3 @@
-import { NextFunction, Request, Response } from 'express';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { BaseController } from '../../common/base.controller';
-import { TypedRequest } from '../../common/route.interface';
-import { Controller, Delete, Get, Post, Put } from '../../decorators/httpDecorators';
-import { UserRole } from '../../dto/enums';
 import {
 	CreateUser,
 	CreateUserSchema,
@@ -12,9 +5,16 @@ import {
 	UpdateUserSchema,
 	UserListResult,
 	UserParamSchema,
+	UserRole,
 	UserSearchCriteria,
 	UserSortColumn,
-} from '../../dto/user.dto';
+} from '@servemate/dto';
+import { NextFunction, Request, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
+import { Controller, Delete, Get, Post, Put } from '../../decorators/httpDecorators';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';

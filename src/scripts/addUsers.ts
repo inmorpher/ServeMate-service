@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { PrismaClient } from '@prisma/client';
+import { CreateUser, UserRole } from '@servemate/dto';
 import bcrypt from 'bcrypt';
-import { Role } from '../dto/enums';
-import { CreateUser } from '../dto/user.dto';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +13,7 @@ async function generateUsers(count: number) {
 		const lastName = faker.person.lastName();
 		const email = faker.internet.email({ firstName, lastName });
 		const password = await bcrypt.hash(faker.internet.password(), 10);
-		const role = faker.helpers.arrayElement(Object.values(Role));
+		const role = faker.helpers.arrayElement(Object.values(UserRole));
 
 		users.push({
 			name: `${firstName} ${lastName}`,

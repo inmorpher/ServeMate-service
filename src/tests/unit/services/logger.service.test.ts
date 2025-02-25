@@ -1,10 +1,26 @@
 import 'reflect-metadata';
 import { Logger } from 'tslog';
 import { LoggerService } from '../../../services/logger/logger.service';
+
+// Mock tslog module
+jest.mock('tslog', () => {
+    const originalModule = jest.requireActual('tslog');
+    return {
+        ...originalModule,
+        Logger: class extends originalModule.Logger {
+            constructor(settings: any) {
+                super(settings);
+                // Override the transportFormatted function to prevent console output
+                this.settings.transportFormatted = jest.fn();
+            }
+        }
+    };
+});
+
 jest.mock('../../../../env', () => ({
-	ENV: {
-		LOG_TO_FILE: true,
-	},
+    ENV: {
+        LOG_TO_FILE: true,
+    },
 }));
 
 describe('LoggerService', () => {

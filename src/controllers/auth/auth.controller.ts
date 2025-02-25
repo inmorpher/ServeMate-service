@@ -1,3 +1,4 @@
+import { UserCredentials, UserLoginSchema } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
@@ -5,7 +6,6 @@ import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Post } from '../../decorators/httpDecorators';
-import { UserCredentials, UserLoginSchema } from '../../dto/user.dto';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { ITokenService } from '../../services/tokens/token.service.interface';
@@ -127,12 +127,6 @@ export class AuthenticationController extends BaseController {
 	 * @returns A Promise that resolves when the token refresh process is complete.
 	 * @throws Will pass any caught errors to the next middleware for handling.
 	 */
-	// 	{
-	// 		method: 'post',
-	// 		path: '/refresh-token',
-	// 		func: this.refreshToken,
-	// 		middlewares: [],
-	// 	},
 
 	@Post('/refresh-token')
 	async refreshToken(req: Request, res: Response, next: NextFunction) {

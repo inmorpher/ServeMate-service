@@ -1,9 +1,15 @@
 import { PrismaClient } from '@prisma/client';
+import {
+	PaymentState,
+	TableCondition,
+	TableCreate,
+	TablesDTO,
+	TableSearchCriteria,
+	TableUpdate,
+} from '@servemate/dto';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
-import { PaymentState, TableCondition } from '../../dto/enums';
-import { TableCreate, TablesDTO, TableSearchCriteria, TableUpdate } from '../../dto/tables.dto';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { ITableService } from './table.service.interface';
@@ -17,7 +23,7 @@ export class TableService extends ITableService {
 		super();
 		this.prisma = prisma;
 	}
-	// @Cache(60)
+	@Cache(60)
 	async findTables(criteria: TableSearchCriteria): Promise<// TablesList
 	any> {
 		try {
@@ -169,6 +175,8 @@ export class TableService extends ITableService {
 		}
 	}
 
+	@InvalidateCacheByKeys((tableId) => [`findTableById_${tableId}`])
+	@InvalidateCacheByPrefix('findTables')
 	async updateTable(id: number, table: TableUpdate): Promise<any> {
 		return await this.prisma.$transaction(async (prisma) => {
 			try {
@@ -200,6 +208,8 @@ export class TableService extends ITableService {
 		});
 	}
 
+	@InvalidateCacheByKeys((tableId) => [`findTableById_${tableId}`])
+	@InvalidateCacheByPrefix('findTables')
 	async clearTable(id: number): Promise<string> {
 		try {
 			return await this.prisma.$transaction(async (prisma) => {
@@ -258,6 +268,8 @@ export class TableService extends ITableService {
 		}
 	}
 
+	@InvalidateCacheByKeys((tableId) => [`findTableById_${tableId}`])
+	@InvalidateCacheByPrefix('findTables')
 	async assignTables(tableIds: number[], serverId: number): Promise<void> {
 		try {
 			await this.prisma.$transaction(async (prisma) => {

@@ -7,7 +7,7 @@ import {
 	UserListResult,
 	UserSearchCriteria,
 	ValidatedUserData,
-} from '../../dto/user.dto';
+} from '../../../dto-package';
 
 export interface IUserService {
 	/**

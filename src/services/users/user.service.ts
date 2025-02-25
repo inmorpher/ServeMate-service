@@ -1,9 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { compare } from 'bcrypt';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { BaseService } from '../../common/base.service';
-import { UserRole } from '../../dto/enums';
 import {
 	CreatedUserData,
 	CreateUser,
@@ -12,9 +7,14 @@ import {
 	UserDto,
 	UserListItem,
 	UserListResult,
+	UserRole,
 	UserSearchCriteria,
 	ValidatedUserData,
-} from '../../dto/user.dto';
+} from '@servemate/dto';
+import { compare } from 'bcrypt';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { BaseService } from '../../common/base.service';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { hashPassword } from '../../utils/password';

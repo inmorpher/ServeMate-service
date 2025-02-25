@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import 'reflect-metadata';
-import { ILogger } from '../services/logger/logger.service.interface';
-import { ExceptionFilter } from './exception.filter';
-import { IExceptionFilter } from './exception.filter.interface';
-import { HTTPError } from './http-error.class';
+import { ExceptionFilter } from '../../../errors/exception.filter';
+import { IExceptionFilter } from '../../../errors/exception.filter.interface';
+import { HTTPError } from '../../../errors/http-error.class';
+import { ILogger } from '../../../services/logger/logger.service.interface';
 
 describe('ExceptionFilter', () => {
 	let exceptionFilter: IExceptionFilter;

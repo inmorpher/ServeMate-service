@@ -31,14 +31,6 @@ export function Cache(ttl: number = 60, getCacheKey?: (...args: any[]) => string
 			const key = getCacheKey ? getCacheKey(...args) : `${propertyKey}_${JSON.stringify(args)}`;
 
 			const cachedResult = this.cache.get(key);
-			let count = 0;
-
-			if (count === 0) {
-				console.log('cachedResult:', !!cachedResult);
-			}
-			if (!!cachedResult) {
-				count++;
-			}
 
 			if (cachedResult) {
 				return cachedResult;

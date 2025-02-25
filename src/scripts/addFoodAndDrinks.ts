@@ -1,5 +1,5 @@
 import { FoodCategory, FoodType, Prisma, PrismaClient } from '@prisma/client';
-import { DrinkCategory } from '../dto/enums';
+import { DrinkCategory } from '../../dto-package';
 
 const prisma = new PrismaClient();
 

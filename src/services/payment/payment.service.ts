@@ -1,9 +1,16 @@
 import { trace } from '@opentelemetry/api';
 import { Prisma, PrismaClient } from '@prisma/client';
+import {
+	OrderState,
+	PaymentDTO,
+	PaymentListDTO,
+	PaymentSearchCriteria,
+	PaymentState,
+	RefundState,
+} from '@servemate/dto';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { OrderState, PaymentState, RefundState } from '../../dto/enums';
-import { PaymentDTO, PaymentListDTO, PaymentSearchCriteria } from '../../dto/payment.dto';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { AbstractPaymentService } from './abstract-payment.service';
@@ -37,6 +44,7 @@ export class PaymentService extends AbstractPaymentService {
 	 *
 	 * @throws Will throw an error if the payment retrieval fails.
 	 */
+	@Cache(60)
 	async findPayments(criteria: PaymentSearchCriteria): Promise<PaymentListDTO> {
 		const where = this.buildWhere<PaymentSearchCriteria, Prisma.PaymentWhereInput>(criteria);
 		const { page, pageSize, sortBy, sortOrder } = criteria;
@@ -75,6 +83,7 @@ export class PaymentService extends AbstractPaymentService {
 	 * @throws {HTTPError} Throws a 404 HTTP error if the payment is not found.
 	 * @throws {Error} Throws an error if there is an issue with the database query or any other unexpected error.
 	 */
+	@Cache(60)
 	async findPaymentById(paymentId: number): Promise<PaymentDTO> {
 		try {
 			const payment = await this.prisma.payment.findUnique({
@@ -120,6 +129,8 @@ export class PaymentService extends AbstractPaymentService {
 	 * }
 	 * ```
 	 */
+	@InvalidateCacheByPrefix('findPayments_')
+	@InvalidateCacheByKeys((payment) => [`findPaymentById_${payment.id}`])
 	async createPayment(
 		orderId: number,
 		orderDrinkItems: number[],
@@ -192,27 +203,27 @@ export class PaymentService extends AbstractPaymentService {
 					const [updatedFoods, updatedDrinks] = await Promise.all([
 						selectedFoods.length > 0
 							? prisma.orderFoodItem.updateMany({
-								where: {
-									id: {
-										in: selectedFoods.map((item) => item.id),
+									where: {
+										id: {
+											in: selectedFoods.map((item) => item.id),
+										},
 									},
-								},
-								data: {
-									paymentStatus: PaymentState.PENDING,
-								},
-							})
+									data: {
+										paymentStatus: PaymentState.PENDING,
+									},
+							  })
 							: { count: 0 },
 						selectedDrinks.length > 0
 							? prisma.orderDrinkItem.updateMany({
-								where: {
-									id: {
-										in: selectedDrinks.map((item) => item.id),
+									where: {
+										id: {
+											in: selectedDrinks.map((item) => item.id),
+										},
 									},
-								},
-								data: {
-									paymentStatus: PaymentState.PENDING,
-								},
-							})
+									data: {
+										paymentStatus: PaymentState.PENDING,
+									},
+							  })
 							: { count: 0 },
 					]);
 
@@ -247,6 +258,8 @@ export class PaymentService extends AbstractPaymentService {
 	 * @returns {Promise<string>} A promise that resolves to a success message indicating the payment completion.
 	 * @throws {HTTPError} Throws an HTTPError if the payment or order is not found, if the order is already completed, or if the payment completion fails.
 	 */
+	@InvalidateCacheByPrefix('findPayments_')
+	@InvalidateCacheByKeys((payment) => [`findPaymentById_${payment.id}`])
 	async completePayment(paymentId: number): Promise<string> {
 		try {
 			return await this.prisma.$transaction(async (prisma) => {
@@ -355,6 +368,8 @@ export class PaymentService extends AbstractPaymentService {
 	 *
 	 * The method uses a database transaction to ensure all operations are atomic.
 	 */
+	@InvalidateCacheByPrefix('findPayments_')
+	@InvalidateCacheByKeys((payment) => [`findPaymentById_${payment.id}`])
 	async refundPayment(paymentId: number, reason: string): Promise<string> {
 		try {
 			return await this.prisma.$transaction(async (prisma) => {
@@ -468,6 +483,8 @@ export class PaymentService extends AbstractPaymentService {
 	 *
 	 * The method uses a database transaction to ensure all operations are atomic.
 	 */
+	@InvalidateCacheByPrefix('findPayments_')
+	@InvalidateCacheByKeys((payment) => [`findPaymentById_${payment.id}`])
 	async cancelPayment(paymentId: number): Promise<string> {
 		try {
 			return await this.prisma.$transaction(async (prisma) => {

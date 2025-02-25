@@ -1,12 +1,12 @@
-import { NextFunction, Response } from 'express';
-import { BaseController } from '../../common/base.controller';
-import { TypedRequest } from '../../common/route.interface';
 import {
 	OrderCreateDTO,
 	OrderSearchCriteria,
 	OrderUpdateItems,
 	OrderUpdateProps,
-} from '../../dto/orders.dto';
+} from '@servemate/dto';
+import { NextFunction, Response } from 'express';
+import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
 
 /**
  * Interface for Orders Controller, extending the BaseController.

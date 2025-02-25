@@ -1,4 +1,4 @@
-import { UserDto } from '../../dto/user.dto';
+import { UserDto } from '../../../dto-package';
 
 /**
  * Represents the decoded user information.

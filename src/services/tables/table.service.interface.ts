@@ -1,5 +1,5 @@
+import { TableCreate, TableSearchCriteria, TablesList, TableUpdate } from '@servemate/dto';
 import { BaseService } from '../../common/base.service';
-import { TableCreate, TableSearchCriteria, TablesList, TableUpdate } from '../../dto/tables.dto';
 
 /**
  * Abstract class representing the table service.

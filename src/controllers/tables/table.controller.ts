@@ -1,7 +1,9 @@
 import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
+
 import { TypedRequest } from '../../common/route.interface';
+
 import {
 	TableAssignment,
 	TableAssignmentSchema,
@@ -13,8 +15,7 @@ import {
 	TableSearchCriteriaSchema,
 	TableUpdate,
 	TableUpdatesSchema,
-} from '../../dto/tables.dto';
-
+} from '@servemate/dto';
 import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';

@@ -1,14 +1,15 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { BaseService } from '../../common/base.service';
 import {
 	CreateFoodItemDTO,
 	FoodItemDTO,
 	FoodItemsListDTO,
 	SearchFoodItemsDTO,
 	UpdateFoodItemDTO,
-} from '../../dto/items.dto';
+} from '../../../dto-package';
+import { BaseService } from '../../common/base.service';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 
@@ -21,6 +22,8 @@ export class FoodItemsService extends BaseService {
 		this.prisma = prisma;
 	}
 
+	@InvalidateCacheByPrefix('getFoodItems_')
+	@InvalidateCacheByKeys((foodItem) => [`getFoodItemById_${foodItem.id}`])
 	async createFoodItem(data: CreateFoodItemDTO): Promise<FoodItemDTO> {
 		try {
 			const newFoodItem = await this.prisma.foodItem.create({
@@ -32,6 +35,7 @@ export class FoodItemsService extends BaseService {
 		}
 	}
 
+	@Cache(60)
 	async getFoodItemById(id: number): Promise<FoodItemDTO> {
 		try {
 			const foodItem = await this.prisma.foodItem.findUnique({
@@ -48,11 +52,12 @@ export class FoodItemsService extends BaseService {
 		}
 	}
 
+	@Cache(60)
 	async getFoodItems(criteria: SearchFoodItemsDTO): Promise<FoodItemsListDTO> {
 		try {
 			const { page, pageSize, sortBy, sortOrder } = criteria;
 
-			if (typeof criteria.ingredients && Array.isArray(criteria.ingredients)) {
+			if (criteria.ingredients && Array.isArray(criteria.ingredients)) {
 				criteria.ingredients = criteria.ingredients.filter((ing) => ing.trim() !== '');
 			}
 
@@ -84,6 +89,8 @@ export class FoodItemsService extends BaseService {
 		}
 	}
 
+	@InvalidateCacheByPrefix('getFoodItems_')
+	@InvalidateCacheByKeys((foodItem) => [`getFoodItemById_${foodItem.id}`])
 	async deleteFoodItem(id: number): Promise<void> {
 		try {
 			const foodItem = await this.prisma.foodItem.delete({
@@ -98,6 +105,8 @@ export class FoodItemsService extends BaseService {
 		}
 	}
 
+	@InvalidateCacheByPrefix('getFoodItems_')
+	@InvalidateCacheByKeys((foodItem) => [`getFoodItemById_${foodItem.id}`])
 	async updateFoodItem(id: number, data: UpdateFoodItemDTO): Promise<FoodItemDTO> {
 		try {
 			const foodItem = await this.prisma.foodItem.update({
@@ -117,69 +126,4 @@ export class FoodItemsService extends BaseService {
 			throw this.handleError(error);
 		}
 	}
-	// 	// Food Items CRUD
-	// 	async createFoodItem(data: CreateFoodItemDto): Promise<FoodItem> {
-	// 		try {
-	// 			const foodItem = await this.prisma.foodItem.create({
-	// 				data,
-	// 			});
-	// 			return foodItem;
-	// 		} catch (error) {
-	// 			// Ensure the function always returns a FoodItem or throws an error
-	// 		}
-	// 	}
-
-	// 	async getFoodItem(id: number): Promise<FoodItem | null> {
-	// 		return this.prisma.foodItem.findUnique({
-	// 			where: { id },
-	// 		});
-	// 	}
-
-	// 	async getAllFoodItems(): Promise<FoodItem[]> {
-	// 		return this.prisma.foodItem.findMany();
-	// 	}
-
-	// 	async updateFoodItem(id: number, data: UpdateFoodItemDto): Promise<FoodItem> {
-	// 		return this.prisma.foodItem.update({
-	// 			where: { id },
-	// 			data,
-	// 		});
-	// 	}
-
-	// 	async deleteFoodItem(id: number): Promise<FoodItem> {
-	// 		return this.prisma.foodItem.delete({
-	// 			where: { id },
-	// 		});
-	// 	}
-
-	// 	// Drink Items CRUD
-	// 	async createDrinkItem(data: CreateDrinkItemDto): Promise<DrinkItem> {
-	// 		return this.prisma.drinkItem.create({
-	// 			data,
-	// 		});
-	// 	}
-
-	// 	async getDrinkItem(id: number): Promise<DrinkItem | null> {
-	// 		return this.prisma.drinkItem.findUnique({
-	// 			where: { id },
-	// 		});
-	// 	}
-
-	// 	async getAllDrinkItems(): Promise<DrinkItem[]> {
-	// 		return this.prisma.drinkItem.findMany();
-	// 	}
-
-	// 	async updateDrinkItem(id: number, data: UpdateDrinkItemDto): Promise<DrinkItem> {
-	// 		return this.prisma.drinkItem.update({
-	// 			where: { id },
-	// 			data,
-	// 		});
-	// 	}
-
-	// 	async deleteDrinkItem(id: number): Promise<DrinkItem> {
-	// 		return this.prisma.drinkItem.delete({
-	// 			where: { id },
-	// 		});
-	// 	}
-	// }
 }

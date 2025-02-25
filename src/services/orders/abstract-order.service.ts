@@ -2,12 +2,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { inject, injectable } from 'inversify';
 import { BaseService } from '../../common/base.service';
-import {
-	GuestItemsDTO,
-	OrderCreateDTO,
-	OrderFullSingleDTO,
-	OrderItemExt,
-} from '../../dto/orders.dto';
+
+import { GuestItemsDTO, OrderCreateDTO, OrderFullSingleDTO, OrderItemExt } from '@servemate/dto';
 import { TYPES } from '../../types';
 
 export type FlattenedFoodItem = Prisma.OrderFoodItemCreateManyOrderInput;

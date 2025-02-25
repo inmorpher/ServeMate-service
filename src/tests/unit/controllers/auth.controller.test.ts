@@ -1,8 +1,8 @@
 import { UserRole } from '@prisma/client';
+import { ValidatedUserData } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
 import { AuthenticationController } from '../../../controllers/auth/auth.controller';
-import { ValidatedUserData } from '../../../dto/user.dto';
 import { HTTPError } from '../../../errors/http-error.class';
 import { ILogger } from '../../../services/logger/logger.service.interface';
 import { ITokenService } from '../../../services/tokens/token.service.interface';

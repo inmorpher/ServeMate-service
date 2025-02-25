@@ -1,9 +1,3 @@
-import { NextFunction, Response } from 'express';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { BaseController } from '../../common/base.controller';
-import { TypedRequest } from '../../common/route.interface';
-import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
 import {
 	OrderCreateDTO,
 	OrderCreateSchema,
@@ -13,7 +7,13 @@ import {
 	OrderUpdateItems,
 	OrderUpdateItemsSchema,
 	OrderUpdateProps,
-} from '../../dto/orders.dto';
+} from '@servemate/dto';
+import { NextFunction, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
+import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
@@ -30,8 +30,6 @@ export class OrdersController extends BaseController {
 	) {
 		super(loggerService);
 		this.cacheMiddleware = new CacheMiddleware(this.cache, 'orders');
-		
-	
 	}
 
 	/**
@@ -101,11 +99,11 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const newOrder = await this.ordersService.createOrder(req.body);
+			await this.ordersService.createOrder(req.body);
 
 			const message = `Order for table ${req.body.tableNumber} created successfully`;
 			this.loggerService.log(message);
-			this.ok(res, newOrder);
+			this.noContent(res);
 		} catch (error) {
 			next(error);
 		}
@@ -131,11 +129,8 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const updatedOrder = await this.ordersService.updateItemsInOrder(
-				Number(req.params.id),
-				req.body
-			);
-			this.ok(res, updatedOrder);
+			await this.ordersService.updateItemsInOrder(Number(req.params.id), req.body);
+			this.noContent(res);
 		} catch (error) {
 			next(error);
 		}
@@ -165,7 +160,7 @@ export class OrdersController extends BaseController {
 				Number(req.params.id),
 				req.body
 			);
-			this.ok(res, updatedOrder);
+			this.noContent(res);
 		} catch (error) {
 			next(error);
 		}
@@ -191,9 +186,9 @@ export class OrdersController extends BaseController {
 		try {
 			const orderId = Number(req.params.id);
 			const orderItemsIds = req.body.ids;
-			const printedItems = await this.ordersService.printOrderItems(orderId, orderItemsIds);
+			await this.ordersService.printOrderItems(orderId, orderItemsIds);
 
-			this.ok(res, printedItems);
+			this.noContent(res);
 		} catch (error) {
 			next(error);
 		}
@@ -219,9 +214,9 @@ export class OrdersController extends BaseController {
 		try {
 			const orderId = Number(req.params.id);
 			const orderItemsIds = req.body.orderItemsIds;
-			const calledItems = await this.ordersService.callOrderItems(orderId, orderItemsIds);
+			await this.ordersService.callOrderItems(orderId, orderItemsIds);
 
-			this.ok(res, calledItems);
+			this.noContent(res);
 		} catch (error) {
 			next(error);
 		}
@@ -246,7 +241,7 @@ export class OrdersController extends BaseController {
 	): Promise<void> {
 		try {
 			await this.ordersService.delete(Number(req.params.id));
-			this.ok(res, `Order with id ${req.params.id} deleted successfully`);
+			this.noContent(res);
 		} catch (error) {
 			next(error);
 		}

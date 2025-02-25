@@ -1,8 +1,3 @@
-import { NextFunction, Response } from 'express';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { TypedRequest } from '../../common/route.interface';
-import { Controller, Get, Post } from '../../decorators/httpDecorators';
 import {
 	PaymentDTO,
 	PaymentSchema,
@@ -10,7 +5,12 @@ import {
 	PaymentSearchSchema,
 	RefundDTO,
 	RefundSchema,
-} from '../../dto/payment.dto';
+} from '@servemate/dto';
+import { NextFunction, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { TypedRequest } from '../../common/route.interface';
+import { Controller, Get, Post } from '../../decorators/httpDecorators';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { PaymentService } from '../../services/payment/payment.service';

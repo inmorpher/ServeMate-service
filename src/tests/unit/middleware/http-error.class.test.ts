@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { HTTPError } from './http-error.class';
+import { HTTPError } from '../../../errors/http-error.class';
 
 // jest.mock('axios');
 

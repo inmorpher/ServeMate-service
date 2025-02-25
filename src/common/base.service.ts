@@ -122,7 +122,6 @@ export class BaseService {
 
 			// Process array and skip empty arrays
 			if (Array.isArray(value)) {
-				console.log('Array:', value);
 				let filtered = value;
 				if (value.length && typeof value[0] === 'string') {
 					filtered = value.filter((item) => item.trim() !== '');
@@ -152,52 +151,16 @@ export class BaseService {
 		return res;
 	}
 
-	// protected buildWhere<TCriteria extends Record<string, any>, TWhere>(criteria: TCriteria): TWhere {
-	// 	// Fields that should not be included in the where clause
-	// 	const EXCLUDED_WHERE_FIELDS = [
-	// 		'page',
-	// 		'pageSize',
-	// 		'sortBy',
-	// 		'sortOrder',
-	// 		'test',
-	// 		'serverName',
-	// 	] as const;
-
-	// 	const res = Object.entries(criteria).reduce((acc, [key, value]) => {
-	// 		// Skip fields that should not be included in the where clause
-	// 		if (EXCLUDED_WHERE_FIELDS.includes(key as any)) {
-	// 			return acc;
-	// 		}
-
-	// 		// Skip undefined and null values
-	// 		if (value === undefined || value === null) {
-	// 			return acc;
-	// 		}
-
-	// 		// Skip empty arrays
-	// 		if (Array.isArray(value)) {
-	// 			if (value.length === 0) {
-	// 				return acc;
-	// 			}
-	// 			return { ...acc, [key]: { hasSome: value } };
-	// 		}
-
-	// 		// Convert numbers to number type
-	// 		if (typeof value === 'number' || !isNaN(Number(value))) {
-	// 			return { ...acc, [key]: Number(value) };
-	// 		}
-
-	// 		//	Uppercase string values
-	// 		if (typeof value === 'string') {
-	// 			if (value === value.toUpperCase()) {
-	// 				return { ...acc, [key]: { equals: value } };
-	// 			}
-	// 			return { ...acc, [key]: value };
-	// 		}
-
-	// 		return { ...acc, [key]: value };
-	// 	}, {}) as TWhere;
-
-	// 	return res;
-	// }
+	protected buildWhereForArrayField(
+		key: string,
+		value: any,
+		whereInput: any,
+		transformValue?: (value: any) => any
+	): void {
+		if (Array.isArray(value)) {
+			whereInput[key] = {
+				hasEvery: transformValue ? value.map(transformValue) : value,
+			};
+		}
+	}
 }

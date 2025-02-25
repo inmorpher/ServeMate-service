@@ -1,6 +1,6 @@
 import { PrismaClient, Table, TableCondition } from '@prisma/client';
+import { TableCreate, TablesDTO, TableSearchCriteria } from '@servemate/dto';
 import { Container } from 'inversify';
-import { TableCreate, TablesDTO, TableSearchCriteria } from '../../../dto/tables.dto';
 import { HTTPError } from '../../../errors/http-error.class';
 import { TableService } from '../../../services/tables/table.service';
 import { TYPES } from '../../../types';

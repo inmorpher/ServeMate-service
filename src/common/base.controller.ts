@@ -5,30 +5,18 @@ import 'reflect-metadata';
 import { RouteDefinition } from '../decorators/httpDecorators';
 import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
+
 @injectable()
 export abstract class BaseController {
-	// private readonly _router: Router;
 	public router: Router;
 	private readonly _cache: NodeCache;
 	private context: string;
-	/**
-	 * Creates an instance of BaseController.
-	 * @param logger - The logger service to be used for logging.
-	 */
+
 	constructor(@inject(TYPES.ILogger) private logger: ILogger) {
 		this.router = Router();
 		this.context = this.constructor.name;
 		this._cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 	}
-
-	/**
-	 * Gets the router instance.
-	 * @returns The Express Router instance.
-	 */
-
-	// get router(): Router {
-	// 	return this.router;
-	// }
 
 	get cache(): NodeCache {
 		return this._cache;
@@ -137,27 +125,29 @@ export abstract class BaseController {
 		return this.send(res, 500, { message });
 	}
 
-	/**
-	 * Binds the provided routes to the router.
-	 * @param routes - An array of route configurations.
-	 */
 	protected bindRoutes() {
-		const prefix = Reflect.getMetadata('prefix', this.constructor);
+		const prefix = Reflect.getMetadata('prefix', this.constructor) || '';
 		const routes: RouteDefinition[] = Reflect.getMetadata('routes', this.constructor) || [];
 
 		routes.forEach((route: RouteDefinition) => {
 			if (!route || !route.handlerName) {
-				this.logger.warn(`Invalid route definition: ${route}`);
+				this.logger.warn(`Invalid route definition: ${JSON.stringify(route)}`);
 				return;
 			}
+
 			const handler = (this as any)[route.handlerName].bind(this);
 
 			if (route.middlewares && route.middlewares.length > 0) {
 				const middlewares = route.middlewares.map((m: any) => m.execute.bind(m));
 				this.router[route.method](prefix + route.path, ...middlewares, handler);
-				this.logger.log('Middleware:', middlewares);
+				this.logger.debug(
+					`Registered route: ${route.method.toUpperCase()} ${prefix + route.path} with ${
+						middlewares.length
+					} middleware(s)`
+				);
 			} else {
 				this.router[route.method](prefix + route.path, handler);
+				this.logger.debug(`Registered route: ${route.method.toUpperCase()} ${prefix + route.path}`);
 			}
 		});
 	}

@@ -1,15 +1,15 @@
 import { TableAssignment } from '@prisma/client';
-import { NextFunction, Request, Response } from 'express';
-import { Container } from 'inversify';
-import 'reflect-metadata';
-import { TypedRequest } from '../../../common/route.interface';
-import { TableController } from '../../../controllers/tables/table.controller';
 import {
 	TableCreate,
 	TableSearchCriteria,
 	TableSearchCriteriaSchema,
 	TableUpdate,
-} from '../../../dto/tables.dto';
+} from '@servemate/dto';
+import { NextFunction, Request, Response } from 'express';
+import { Container } from 'inversify';
+import 'reflect-metadata';
+import { TypedRequest } from '../../../common/route.interface';
+import { TableController } from '../../../controllers/tables/table.controller';
 import { ILogger } from '../../../services/logger/logger.service.interface';
 import { TableService } from '../../../services/tables/table.service';
 import { TYPES } from '../../../types';
@@ -48,10 +48,8 @@ describe('TableController', () => {
 
 		res = {
 			status: jest.fn().mockReturnThis(),
-			// json: jest.fn(), // Удалено
 		};
 
-		// Шпионаж на метод ok контроллера
 		const mockResponse = {
 			json: jest.fn(),
 			status: jest.fn().mockReturnThis(),

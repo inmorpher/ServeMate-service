@@ -1,611 +1,697 @@
+import { OrderState, PaymentState, PrismaClient } from '@prisma/client';
+import { OrderCreateDTO, OrderSearchCriteria, OrderUpdateProps } from '@servemate/dto';
+import { Container } from 'inversify';
 import 'reflect-metadata';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { OrdersService } from '../../../services/orders/order.service';
-import { OrderState, PaymentState } from '../../../dto/enums';
 import { HTTPError } from '../../../errors/http-error.class';
-import { OrderCreateDTO, OrderUpdateProps } from '../../../dto/orders.dto';
-import { FlattenedDrinkItem, FlattenedFoodItem, ORDER_INCLUDE } from '../../../services/orders/abstract-order.service';
-
-// Mock PrismaClient
-const prisma = new PrismaClient();
-jest.mock('@prisma/client', () => ({
-    PrismaClient: jest.fn().mockImplementation(() => ({
-        order: {
-            findMany: jest.fn(),
-            count: jest.fn(),
-            findUnique: jest.fn(),
-            create: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
-        },
-        orderFoodItem: {
-            findMany: jest.fn(),
-            updateMany: jest.fn(),
-            deleteMany: jest.fn(),
-        },
-        orderDrinkItem: {
-            findMany: jest.fn(),
-            updateMany: jest.fn(),
-            deleteMany: jest.fn(),
-        },
-        $transaction: jest.fn((callback) => callback(prisma)),
-    })),
-}));
-
-describe('OrdersService', () => {
-    let service: OrdersService;
-    let prisma: jest.Mocked<PrismaClient>;
-
-    beforeEach(() => {
-        prisma = new PrismaClient() as jest.Mocked<PrismaClient>;
-        service = new OrdersService(prisma);
-    });
-
-    describe('findOrders', () => {
-        const mockCriteria = {
-            page: 1,
-            pageSize: 10,
-            sortBy: 'orderTime',
-            sortOrder: 'desc' as const,
-            serverName: 'John'
-        };
-
-        const mockOrders = [
-            {
-                id: 1,
-                status: OrderState.AWAITING,
-                server: { name: 'John', id: 1 },
-                tableNumber: 1,
-                guestsCount: 2,
-                orderTime: new Date(),
-                completionTime: null,
-                updatedAt: new Date(),
-                allergies: ['PEANUT'],
-                comments: 'test comment',
-                totalAmount: 100,
-                discount: 0,
-                tip: 10,
-            },
-        ];
-
-        it('should successfully find orders', async () => {
-            (prisma.order.findMany as jest.Mock).mockResolvedValue(mockOrders);
-            (prisma.order.count as jest.Mock).mockResolvedValue(1);
-
-            const result = await service.findOrders(mockCriteria);
-
-            expect(result).toEqual({
-                orders: mockOrders,
-                totalCount: 1,
-                page: 1,
-                pageSize: 10,
-                totalPages: 1,
-            });
-
-            expect(prisma.order.findMany).toHaveBeenCalledWith(expect.objectContaining({
-                where: expect.objectContaining({
-                    server: {
-                        name: {
-                            contains: 'John',
-                            mode: 'insensitive',
-                        },
-                    },
-                }),
-            }));
-        });
-
-        it('should handle database errors when finding orders', async () => {
-            const error = new Error('Database error');
-            (prisma.order.findMany as jest.Mock).mockRejectedValue(error);
-
-            await expect(service.findOrders(mockCriteria)).rejects.toThrow();
-        });
-    });
-
-    describe('findOrderById', () => {
-        const mockOrder = {
-            id: 1,
-            status: OrderState.AWAITING,
-            foodItems: [
-                {
-                    id: 1,
-                    itemId: 1,
-                    foodItem: { name: 'Burger', id: 1 },
-                    guestNumber: 1,
-                    price: 10,
-                    discount: 0,
-                    finalPrice: 10,
-                    specialRequest: null,
-                    allergies: [],
-                    printed: false,
-                    fired: false,
-                    paymentStatus: PaymentState.NONE
-                },
-                {
-                    id: 2,
-                    itemId: 1,
-                    foodItem: { name: 'Burger', id: 1 },
-                    guestNumber: 1,
-                    price: 10,
-                    discount: 0,
-                    finalPrice: 10,
-                    specialRequest: null,
-                    allergies: [],
-                    printed: false,
-                    fired: false,
-                    paymentStatus: PaymentState.NONE
-                }
-            ],
-            drinkItems: [
-                {
-                    id: 3,
-                    itemId: 2,
-                    drinkItem: { name: 'Cola', id: 2 },
-                    guestNumber: 1,
-                    price: 5,
-                    discount: 0,
-                    finalPrice: 5,
-                    specialRequest: null,
-                    allergies: [],
-                    printed: false,
-                    fired: false,
-                    paymentStatus: PaymentState.NONE
-                }
-            ],
-        };
-
-        it('should successfully find order by ID', async () => {
-            (prisma.order.findUnique as jest.Mock).mockResolvedValue(mockOrder);
-
-            const result = await service.findOrderById(1);
-
-            // The result should be grouped by guest number
-            expect(result).toEqual({
-                ...mockOrder,
-                foodItems: [{
-                    guestNumber: 1,
-                    items: [{
-                        id: 1,
-                        itemId: 1,
-                        name: 'Burger',
-                        allergies: [],
-                        price: 10,
-                        discount: 0,
-                        finalPrice: 10,
-                        printed: false,
-                        fired: false,
-                        guest: 1
-                    },
-                    {
-                        id: 2,
-                        itemId: 1,
-                        name: 'Burger',
-                        allergies: [],
-                        price: 10,
-                        discount: 0,
-                        finalPrice: 10,
-                        printed: false,
-                        fired: false,
-                        guest: 1
-                    }]
-                }],
-                drinkItems: [{
-                    guestNumber: 1,
-                    items: [{
-                        id: 3,
-                        itemId: 2,
-                        name: 'Cola',
-                        allergies: [],
-                        price: 5,
-                        discount: 0,
-                        finalPrice: 5,
-                        printed: false,
-                        fired: false,
-                        guest: 1
-                    }]
-                }]
-            });
-        });
-
-        it('should throw error when order not found', async () => {
-            (prisma.order.findUnique as jest.Mock).mockResolvedValue(null);
-
-            await expect(service.findOrderById(1)).rejects.toThrow('Order not found in the database');
-        });
-    });
-
-    describe('createOrder', () => {
-        const mockOrderData: OrderCreateDTO = {
-            tableNumber: 1,
-            guestsCount: 2,
-            serverId: 1,
-            status: OrderState.AWAITING,
-            totalAmount: 15,  // 10 + 5
-            discount: 0,
-            allergies: ['PEANUT'],
-            comments: 'test comment',
-            foodItems: [
-                { 
-                    guestNumber: 1, 
-                    items: [{
-                        itemId: 1,
-                        price: 10,
-                        discount: 0,
-                        finalPrice: 10,
-                        specialRequest: null,
-                        allergies: [],
-                        printed: false,
-                        fired: false,
-                        paymentStatus: PaymentState.NONE
-                    }] 
-                }
-            ],
-            drinkItems: [
-                { 
-                    guestNumber: 1, 
-                    items: [{
-                        itemId: 1,
-                        price: 5,
-                        discount: 0,
-                        finalPrice: 5,
-                        specialRequest: null,
-                        allergies: [],
-                        printed: false,
-                        fired: false,
-                        paymentStatus: PaymentState.NONE
-                    }] 
-                }
-            ],
-        };
-
-        it('should successfully create an order', async () => {
-            const mockCreatedOrder: {order: OrderCreateDTO & {
-                flattenedFoodItems: FlattenedFoodItem[];
-                flattenedDrinkItems: FlattenedDrinkItem[];
-            }} = {
-               
-                ...mockOrderData,
-             
-                foodItems: [
-                        {id: 1,
-                        itemId: 1,
-                        guestNumber: 1, 
-                        price: 10,
-                        discount: 0,
-                        finalPrice: 10,
-                        specialRequest: null,
-                        allergies: [],
-                        printed: false,
-                        fired: false,
-                        paymentStatus: PaymentState.NONE}
-                    ]  as Prisma.OrderFoodItemCreateManyOrderInput[],
-                drinkItems: [{ 
-                    guestNumber: 1, 
-                    items: [{
-                        id: 2,
-                        itemId: 1,
-                        price: 5,
-                        discount: 0,
-                        finalPrice: 5,
-                        specialRequest: null,
-                        allergies: [],
-                        printed: false,
-                        fired: false,
-                        paymentStatus: PaymentState.NONE
-                    }] 
-                }],
-            };
-
-
-            (prisma.order.create as jest.Mock).mockResolvedValue(mockCreatedOrder);
-
-            const result = await service.createOrder(mockOrderData);
-
-            expect(result).toEqual(mockCreatedOrder);
-        });
-
-        it('should handle errors during order creation', async () => {
-            const error = new Error('Creation failed');
-            (prisma.order.create as jest.Mock).mockRejectedValue(error);
-
-            await expect(service.createOrder(mockOrderData)).rejects.toThrow();
-        });
-    });
-
-    describe('printOrderItems', () => {
-        const mockItems = [
-            { printed: false },
-            { printed: false },
-        ];
-
-        it('should successfully print order items', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    orderDrinkItem: {
-                        findMany: jest.fn().mockResolvedValue([mockItems[0]]),
-                        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-                    },
-                    orderFoodItem: {
-                        findMany: jest.fn().mockResolvedValue([mockItems[1]]),
-                        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            const result = await service.printOrderItems(1, [1, 2]);
-            expect(result).toContain('Items have been ptinted');
-        });
-
-        it('should throw error when items already printed', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    orderDrinkItem: {
-                        findMany: jest.fn().mockResolvedValue([{ printed: true }]),
-                    },
-                    orderFoodItem: {
-                        findMany: jest.fn().mockResolvedValue([{ printed: true }]),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            await expect(service.printOrderItems(1, [1, 2])).rejects.toThrow('Items have already been printed');
-        });
-    });
-
-    describe('callOrderItems', () => {
-        it('should successfully call order items', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    order: {
-                        findUnique: jest.fn().mockResolvedValue({ id: 1 }),
-                    },
-                    orderDrinkItem: {
-                        findMany: jest.fn().mockResolvedValue([{ printed: true, fired: false }]),
-                        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-                    },
-                    orderFoodItem: {
-                        findMany: jest.fn().mockResolvedValue([{ printed: true, fired: false }]),
-                        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            const result = await service.callOrderItems(1, [1, 2]);
-            expect(result).toContain('have been called');
-        });
-
-        it('should throw error when order not found', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    order: {
-                        findUnique: jest.fn().mockResolvedValue(null),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            await expect(service.callOrderItems(1, [1, 2])).rejects.toThrow('Order with ID 1 not found in the database');
-        });
-
-        it('should throw error when items not printed', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    order: {
-                        findUnique: jest.fn().mockResolvedValue({ id: 1 }),
-                    },
-                    orderDrinkItem: {
-                        findMany: jest.fn().mockResolvedValue([{ printed: false, fired: false }]),
-                    },
-                    orderFoodItem: {
-                        findMany: jest.fn().mockResolvedValue([]),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            await expect(service.callOrderItems(1, [1])).rejects.toThrow('have not been printed');
-        });
-
-        it('should throw error when items already fired', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    order: {
-                        findUnique: jest.fn().mockResolvedValue({ id: 1 }),
-                    },
-                    orderDrinkItem: {
-                        findMany: jest.fn().mockResolvedValue([{ printed: true, fired: true }]),
-                    },
-                    orderFoodItem: {
-                        findMany: jest.fn().mockResolvedValue([]),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            await expect(service.callOrderItems(1, [1])).rejects.toThrow('have been fired');
-        });
-    });
-
-    describe('updateOrderProperties', () => {
-        it('should successfully update order properties', async () => {
-            const updateProps: OrderUpdateProps = {
-                status: OrderState.COMPLETED,
-                allergies: ['SHELLFISH'],
-                comments: 'Updated comment',
-            };
-
-            const mockUpdatedOrder = {
-                id: 1,
-                status: OrderState.COMPLETED,
-                allergies: ['SHELLFISH'],
-                comments: 'Updated comment',
-                completionTime: new Date(),
-                foodItems: [],
-                drinkItems: [],
-            };
-
-            (prisma.order.update as jest.Mock).mockResolvedValue(mockUpdatedOrder);
-
-            const result = await service.updateOrderProperties(1, updateProps);
-
-            expect(prisma.order.update).toHaveBeenCalledWith({
-                where: { id: 1 },
-                data: {
-                    ...updateProps,
-                    completionTime: expect.any(Date),
-                },
-                include: ORDER_INCLUDE,
-            });
-
-            expect(result).toEqual(mockUpdatedOrder);
-        });
-
-        it('should throw error when order not found', async () => {
-            const error = new Error('Record to update not found.');
-            (error as any).code = 'P2025';  // Prisma not found error code
-            (prisma.order.update as jest.Mock).mockRejectedValue(error);
-
-            await expect(service.updateOrderProperties(1, { status: OrderState.COMPLETED }))
-                .rejects.toThrow('Order not found in the database');
-        });
-    });
-
-    describe('delete', () => {
-        it('should successfully delete an order', async () => {
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    orderFoodItem: {
-                        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
-                    },
-                    orderDrinkItem: {
-                        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
-                    },
-                    order: {
-                        delete: jest.fn().mockResolvedValue({ id: 1 }),
-                    },
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            const result = await service.delete(1);
-            expect(result).toBe(true);
-        });
-
-        it('should handle errors during deletion', async () => {
-            const error = new Error('Deletion failed');
-            (prisma.$transaction as jest.Mock).mockRejectedValue(error);
-
-            await expect(service.delete(1)).rejects.toThrow();
-        });
-    });
-
-    describe('updateItemsInOrder', () => {
-        const mockExistingOrder = {
-            id: 1,
-            status: OrderState.AWAITING,
-            server: { name: 'Test Server', id: 1 },
-            tableNumber: 1,
-            guestsCount: 2,
-            orderTime: new Date(),
-            updatedAt: new Date(),
-            completionTime: null,
-            totalAmount: 10,
-            discount: 0,
-            allergies: [],
-            comments: '',
-            foodItems: [{ 
-                guestNumber: 1, 
-                items: [{
-                    id: 1,
-                    itemId: 1,
-                    name: 'Test Food',
-                    price: 10,
-                    discount: 0,
-                    finalPrice: 10,
-                    specialRequest: null,
-                    allergies: [],
-                    printed: false,
-                    fired: false,
-                    paymentStatus: PaymentState.NONE,
-                    guest: 1
-                }] 
-            }],
-            drinkItems: []
-        };
-
-        const mockUpdatedData: Pick<OrderCreateDTO, 'foodItems' | 'drinkItems'> = {
-            foodItems: [{ 
-                guestNumber: 1, 
-                items: [{
-                    itemId: 2,
-                    price: 15,
-                    discount: 0,
-                    finalPrice: 15,
-                    specialRequest: null,
-                    allergies: [],
-                    paymentStatus: PaymentState.NONE
-                }] 
-            }],
-            drinkItems: []
-        };
-
-        const mockUpdatedOrder = {
-            ...mockExistingOrder,
-            totalAmount: 25,
-            foodItems: [
-                ...mockExistingOrder.foodItems,
-                ...mockUpdatedData.foodItems
-            ]
-        };
-
-        it('should successfully update order items', async () => {
-            // Mock findUnique for the initial order lookup
-            (prisma.order.findUnique as jest.Mock).mockResolvedValue(mockExistingOrder);
-
-            // Mock the transaction
-            const mockTransactionImplementation = async (callback: any) => {
-                const transactionPrisma = {
-                    ...prisma,
-                    order: {
-                        ...prisma.order,
-                        findUnique: jest.fn().mockResolvedValue(mockExistingOrder),
-                        update: jest.fn().mockResolvedValue(mockUpdatedOrder)
-                    }
-                };
-                return callback(transactionPrisma);
-            };
-
-            (prisma.$transaction as jest.Mock).mockImplementation(mockTransactionImplementation);
-
-            const result = await service.updateItemsInOrder(1, mockUpdatedData);
-            expect(result).toBeDefined();
-            expect(result.id).toBe(1);
-            expect(result.foodItems).toHaveLength(mockExistingOrder.foodItems.length + mockUpdatedData.foodItems.length);
-        });
-
-        it('should throw error when order not found', async () => {
-            // Mock findUnique to return null
-            (prisma.order.findUnique as jest.Mock).mockResolvedValue(null);
-
-            await expect(service.updateItemsInOrder(1, mockUpdatedData))
-                .rejects.toThrow('Order not found in the database');
-        });
-    });
+import { ORDER_INCLUDE } from '../../../services/orders/abstract-order.service';
+import { OrdersService } from '../../../services/orders/order.service';
+import { TYPES } from '../../../types';
+
+describe('OrderService', () => {
+	let container: Container;
+	let orderService: OrdersService;
+	let mockPrisma: jest.Mocked<any>;
+
+	beforeEach(() => {
+		container = new Container();
+		mockPrisma = {
+			order: {
+				findMany: jest.fn(),
+				findUnique: jest.fn(),
+				create: jest.fn(),
+				delete: jest.fn(),
+				update: jest.fn(),
+				count: jest.fn(),
+			},
+			orderFoodItem: {
+				findMany: jest.fn(),
+				deleteMany: jest.fn(),
+				updateMany: jest.fn(),
+				createMany: jest.fn(),
+			},
+			orderDrinkItem: {
+				findMany: jest.fn(),
+				deleteMany: jest.fn(),
+				updateMany: jest.fn(),
+				createMany: jest.fn(),
+			},
+			foodItem: {
+				findMany: jest.fn(),
+			},
+			drinkItem: {
+				findMany: jest.fn(),
+			},
+			$transaction: jest.fn((callback) => callback(mockPrisma)),
+		} as unknown as jest.Mocked<PrismaClient>;
+
+		container.bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(mockPrisma);
+		container.bind<OrdersService>(TYPES.OrdersService).to(OrdersService);
+
+		orderService = container.get<OrdersService>(TYPES.OrdersService);
+	});
+
+	describe('findOrders', () => {
+		const mockSearchCriteria: OrderSearchCriteria = {
+			page: 1,
+			pageSize: 10,
+			sortBy: 'id',
+			sortOrder: 'asc',
+		};
+
+		it('should return orders list successfully', async () => {
+			const mockOrders = [
+				{
+					id: 1,
+					status: OrderState.RECEIVED,
+					server: { name: 'John', id: 1 },
+					tableNumber: 1,
+					guestsCount: 2,
+					orderTime: new Date(),
+					completionTime: null,
+					updatedAt: new Date(),
+					allergies: [],
+					comments: '',
+					totalAmount: 100,
+					discount: 0,
+					tip: 0,
+				},
+			];
+
+			mockPrisma.order.findMany.mockResolvedValue(mockOrders);
+			mockPrisma.order.count.mockResolvedValue(1);
+
+			const result = await orderService.findOrders(mockSearchCriteria);
+
+			expect(result.orders).toHaveLength(1);
+			expect(result.totalCount).toBe(1);
+			expect(result.page).toBe(1);
+			expect(result.pageSize).toBe(10);
+			expect(result.totalPages).toBe(1);
+		});
+
+		it('should handle empty results', async () => {
+			mockPrisma.order.findMany.mockResolvedValue([]);
+			mockPrisma.order.count.mockResolvedValue(0);
+
+			const result = await orderService.findOrders(mockSearchCriteria);
+
+			expect(result.orders).toHaveLength(0);
+			expect(result.totalCount).toBe(0);
+			expect(result.totalPages).toBe(0);
+		});
+
+		it('should handle database errors', async () => {
+			mockPrisma.order.findMany.mockRejectedValue(new Error('Database error'));
+
+			await expect(orderService.findOrders(mockSearchCriteria)).rejects.toThrow(HTTPError);
+		});
+	});
+
+	describe('findOrderById', () => {
+		it('should return order by id successfully', async () => {
+			const mockOrder = {
+				id: 1,
+				status: OrderState.RECEIVED,
+				foodItems: [],
+				drinkItems: [],
+				server: { name: 'John', id: 1 },
+			};
+
+			mockPrisma.order.findUnique.mockResolvedValue(mockOrder);
+
+			const result = await orderService.findOrderById(1);
+
+			expect(result).toBeDefined();
+			expect(result.id).toBe(1);
+		});
+
+		it('should throw error when order not found', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue(null);
+
+			await expect(orderService.findOrderById(999)).rejects.toThrow(
+				'Order not found in the database'
+			);
+		});
+	});
+
+	describe('createOrder', () => {
+		const mockOrderData: OrderCreateDTO = {
+			tableNumber: 107,
+			serverId: 100004,
+			guestsCount: 3,
+			status: OrderState.SERVED,
+			foodItems: [
+				{
+					guestNumber: 1,
+					items: [
+						{
+							itemId: 1,
+							price: 10,
+							discount: 0,
+							finalPrice: 10,
+							specialRequest: null,
+							allergies: [],
+							printed: false,
+							fired: false,
+							paymentStatus: PaymentState.NONE,
+						},
+					],
+				},
+				{
+					guestNumber: 1,
+					items: [
+						{
+							itemId: 1,
+							price: 10,
+							discount: 0,
+							finalPrice: 10,
+							specialRequest: null,
+							allergies: [],
+							printed: false,
+							fired: false,
+							paymentStatus: PaymentState.NONE,
+						},
+					],
+				},
+				{
+					guestNumber: 2,
+					items: [
+						{
+							itemId: 2,
+							price: 20,
+							discount: 0,
+							finalPrice: 20,
+							specialRequest: null,
+							allergies: [],
+							printed: false,
+							fired: false,
+							paymentStatus: PaymentState.NONE,
+						},
+					],
+				},
+			],
+			drinkItems: [],
+			allergies: [],
+			comments: 'Test order',
+			totalAmount: 40, // Sum of all finalPrices: 10 + 10 + 20
+			discount: 0,
+		};
+
+		beforeEach(() => {
+			// Mock food item prices lookup
+			mockPrisma.foodItem.findMany.mockResolvedValue([
+				{ id: 1, price: 10, name: 'Caesar Salad' },
+				{ id: 2, price: 20, name: 'Grilled Salmon' },
+			]);
+
+			// Mock drink item prices lookup
+			mockPrisma.drinkItem.findMany.mockResolvedValue([]);
+		});
+
+		it('should create order successfully', async () => {
+			const mockCreatedOrder = {
+				id: 1,
+				...mockOrderData,
+				foodItems: mockOrderData.foodItems.flatMap((guest) =>
+					guest.items.map((item) => ({
+						id: Math.random(),
+						orderId: 1,
+						itemId: item.itemId,
+						guestNumber: guest.guestNumber,
+						price: item.price,
+						discount: item.discount,
+						finalPrice: item.finalPrice,
+						specialRequest: item.specialRequest,
+						allergies: item.allergies,
+						printed: item.printed,
+						fired: item.fired,
+						paymentStatus: item.paymentStatus,
+						foodItem: {
+							id: item.itemId,
+							name: item.itemId === 1 ? 'Caesar Salad' : 'Grilled Salmon',
+						},
+					}))
+				),
+				drinkItems: [],
+				server: { id: mockOrderData.serverId, name: 'Test Server' },
+				orderTime: new Date(),
+				updatedAt: new Date(),
+			};
+
+			mockPrisma.order.create.mockResolvedValue(mockCreatedOrder);
+
+			const result = await orderService.createOrder(mockOrderData);
+
+			expect(result).toBeDefined();
+			expect(result.tableNumber).toBe(mockOrderData.tableNumber);
+			expect(result.foodItems).toBeDefined();
+			expect(Array.isArray(result.foodItems)).toBe(true);
+			// Verify items are grouped by guest
+			expect(result.foodItems.length).toBeLessThanOrEqual(mockOrderData.foodItems.length);
+			// Verify food items were looked up for price validation
+			expect(mockPrisma.foodItem.findMany).toHaveBeenCalled();
+		});
+
+		it('should handle database errors during creation', async () => {
+			mockPrisma.order.create.mockRejectedValue(new Error('Creation failed'));
+
+			await expect(orderService.createOrder(mockOrderData)).rejects.toThrow(HTTPError);
+		});
+
+		it('should validate and correct item prices', async () => {
+			const modifiedOrder = {
+				...mockOrderData,
+				foodItems: [
+					{
+						guestNumber: 1,
+						items: [
+							{
+								itemId: 1,
+								price: 15, // Different from DB price
+								discount: 0,
+								finalPrice: 15,
+								specialRequest: null,
+								allergies: [],
+								printed: false,
+								fired: false,
+								paymentStatus: PaymentState.NONE,
+							},
+						],
+					},
+				],
+			};
+
+			const mockCreatedOrder = {
+				id: 1,
+				...modifiedOrder,
+				foodItems: [
+					{
+						id: 1,
+						orderId: 1,
+						itemId: 1,
+						guestNumber: 1,
+						price: 10, // Should be corrected to DB price
+						discount: 0,
+						finalPrice: 10,
+						specialRequest: null,
+						allergies: [],
+						printed: false,
+						fired: false,
+						paymentStatus: PaymentState.NONE,
+						foodItem: { id: 1, name: 'Caesar Salad' },
+					},
+				],
+				drinkItems: [],
+				server: { id: modifiedOrder.serverId, name: 'Test Server' },
+				orderTime: new Date(),
+				updatedAt: new Date(),
+			};
+
+			mockPrisma.order.create.mockResolvedValue(mockCreatedOrder);
+
+			const result = await orderService.createOrder(modifiedOrder);
+
+			expect(result.foodItems[0].items[0].price).toBe(10); // Should be corrected to DB price
+			expect(result.foodItems[0].items[0].finalPrice).toBe(10); // Should be corrected to DB price
+		});
+	});
+
+	describe('delete', () => {
+		it('should delete order and related items successfully', async () => {
+			mockPrisma.orderFoodItem.deleteMany.mockResolvedValue({ count: 1 });
+			mockPrisma.orderDrinkItem.deleteMany.mockResolvedValue({ count: 1 });
+			mockPrisma.order.delete.mockResolvedValue({ id: 1 });
+
+			await expect(orderService.delete(1)).resolves.not.toThrow();
+
+			expect(mockPrisma.orderFoodItem.deleteMany).toHaveBeenCalledWith({
+				where: { orderId: 1 },
+			});
+			expect(mockPrisma.orderDrinkItem.deleteMany).toHaveBeenCalledWith({
+				where: { orderId: 1 },
+			});
+			expect(mockPrisma.order.delete).toHaveBeenCalledWith({
+				where: { id: 1 },
+			});
+		});
+
+		it('should handle database errors during deletion', async () => {
+			mockPrisma.orderFoodItem.deleteMany.mockRejectedValue(new Error('Deletion failed'));
+
+			await expect(orderService.delete(1)).rejects.toThrow(HTTPError);
+		});
+	});
+
+	describe('printOrderItems', () => {
+		const orderId = 1;
+		const itemIds = [1, 2];
+
+		it('should print order items successfully', async () => {
+			mockPrisma.orderDrinkItem.findMany.mockResolvedValue([{ id: 1, printed: false }]);
+			mockPrisma.orderFoodItem.findMany.mockResolvedValue([
+				{ id: 2, printed: false, fired: false },
+			]);
+
+			mockPrisma.orderFoodItem.updateMany.mockResolvedValue({ count: 1 });
+			mockPrisma.orderDrinkItem.updateMany.mockResolvedValue({ count: 1 });
+
+			const result = await orderService.printOrderItems(orderId, itemIds);
+
+			expect(result).toBe('Items have been ptinted');
+			expect(mockPrisma.orderFoodItem.updateMany).toHaveBeenCalledWith({
+				where: { id: { in: itemIds } },
+				data: { printed: true },
+			});
+			expect(mockPrisma.orderDrinkItem.updateMany).toHaveBeenCalledWith({
+				where: { id: { in: itemIds } },
+				data: { printed: true },
+			});
+		});
+
+		it('should throw error if items already printed', async () => {
+			mockPrisma.orderDrinkItem.findMany.mockResolvedValue([{ id: 1, printed: true }]);
+			mockPrisma.orderFoodItem.findMany.mockResolvedValue([{ id: 2, printed: true, fired: false }]);
+
+			await expect(orderService.printOrderItems(orderId, itemIds)).rejects.toThrow(
+				'Items have already been printed'
+			);
+		});
+	});
+
+	describe('callOrderItems', () => {
+		const orderId = 1;
+		const itemIds = [1, 2];
+
+		it('should call order items successfully', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue({ id: 1 });
+			mockPrisma.orderFoodItem.findMany.mockResolvedValue([{ id: 1, printed: true, fired: false }]);
+			mockPrisma.orderDrinkItem.findMany.mockResolvedValue([
+				{ id: 2, printed: true, fired: false },
+			]);
+
+			mockPrisma.orderFoodItem.updateMany.mockResolvedValue({ count: 1 });
+			mockPrisma.orderDrinkItem.updateMany.mockResolvedValue({ count: 1 });
+
+			const result = await orderService.callOrderItems(orderId, itemIds);
+
+			expect(result).toBe(`items ${itemIds} have been called.`);
+			expect(mockPrisma.orderFoodItem.updateMany).toHaveBeenCalledWith({
+				where: { id: { in: itemIds } },
+				data: { fired: true },
+			});
+		});
+
+		it('should throw error if order not found', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue(null);
+
+			await expect(orderService.callOrderItems(orderId, itemIds)).rejects.toThrow(
+				`Order with ID ${orderId} not found in the database`
+			);
+		});
+
+		it('should throw error if items not printed', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue({ id: 1 });
+			mockPrisma.orderFoodItem.findMany.mockResolvedValue([
+				{ id: 1, printed: false, fired: false },
+			]);
+			mockPrisma.orderDrinkItem.findMany.mockResolvedValue([]);
+
+			await expect(orderService.callOrderItems(orderId, itemIds)).rejects.toThrow(
+				'have not been printed'
+			);
+		});
+
+		it('should throw error if items already fired', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue({ id: 1 });
+			mockPrisma.orderFoodItem.findMany.mockResolvedValue([{ id: 1, printed: true, fired: true }]);
+			mockPrisma.orderDrinkItem.findMany.mockResolvedValue([]);
+
+			await expect(orderService.callOrderItems(orderId, itemIds)).rejects.toThrow(
+				'have been fired'
+			);
+		});
+	});
+
+	describe('updateOrderProperties', () => {
+		const orderId = 1;
+		const updateProps: OrderUpdateProps = {
+			status: OrderState.COMPLETED,
+			comments: 'Updated comments',
+		};
+
+		it('should update order properties successfully', async () => {
+			const mockUpdatedOrder = {
+				id: orderId,
+				tableNumber: 1,
+				orderNumber: 1,
+				guestsCount: 2,
+				orderTime: new Date(),
+				updatedAt: new Date(),
+				allergies: [],
+				serverId: 1,
+				totalAmount: 15, // Sum of food and drink items
+				status: OrderState.COMPLETED,
+				comments: 'Updated comments',
+				completionTime: new Date(),
+				discount: 0,
+				tip: 0,
+				shiftId: null,
+				foodItems: [
+					{
+						id: 1,
+						itemId: 1,
+						foodItem: { id: 1, name: 'Test Food' },
+						guestNumber: 1,
+						price: 10,
+						discount: 0,
+						finalPrice: 10,
+						specialRequest: null,
+						allergies: [],
+						printed: false,
+						fired: false,
+						paymentStatus: PaymentState.NONE,
+					},
+				],
+				drinkItems: [
+					{
+						id: 2,
+						itemId: 2,
+						drinkItem: { id: 2, name: 'Test Drink' },
+						guestNumber: 1,
+						price: 5,
+						discount: 0,
+						finalPrice: 5,
+						specialRequest: null,
+						allergies: [],
+						printed: false,
+						fired: false,
+						paymentStatus: PaymentState.NONE,
+					},
+				],
+				server: { id: 1, name: 'Test Server' },
+			};
+
+			mockPrisma.order.update.mockResolvedValue(mockUpdatedOrder);
+
+			const result = await orderService.updateOrderProperties(orderId, updateProps);
+
+			expect(result).toBeDefined();
+			expect(result.status).toBe(OrderState.COMPLETED);
+			expect(result.comments).toBe(updateProps.comments);
+			expect(result.foodItems).toBeDefined();
+			expect(result.drinkItems).toBeDefined();
+			expect(mockPrisma.order.update).toHaveBeenCalledWith({
+				where: { id: orderId },
+				data: {
+					...updateProps,
+					completionTime: expect.any(Date),
+				},
+				include: expect.any(Object),
+			});
+		});
+
+		it('should handle database errors during update', async () => {
+			mockPrisma.order.update.mockRejectedValue(new Error('Update failed'));
+
+			await expect(orderService.updateOrderProperties(orderId, updateProps)).rejects.toThrow(
+				HTTPError
+			);
+		});
+	});
+
+	describe('updateOrderItemsInDatabase', () => {
+		it('should update order items successfully', async () => {
+			const orderId = 1;
+			const updatedData = {
+				foodItems: [
+					{
+						itemId: 1,
+						guestNumber: 1,
+						price: 10,
+						discount: 0,
+						finalPrice: 10,
+						specialRequest: null,
+						allergies: [],
+						printed: false,
+						fired: false,
+					},
+				],
+				drinkItems: [
+					{
+						itemId: 2,
+						guestNumber: 1,
+						price: 5,
+						discount: 0,
+						finalPrice: 5,
+						specialRequest: null,
+						allergies: [],
+						printed: false,
+						fired: false,
+					},
+				],
+				totalAmount: 15,
+			};
+
+			const mockUpdatedOrder = {
+				id: orderId,
+				status: OrderState.RECEIVED,
+				foodItems: updatedData.foodItems,
+				drinkItems: updatedData.drinkItems,
+				totalAmount: updatedData.totalAmount,
+				server: { name: 'John', id: 1 },
+			};
+
+			mockPrisma.order.update.mockResolvedValue(mockUpdatedOrder);
+
+			const result = await orderService.updateOrderItemsInDatabase(orderId, updatedData);
+
+			expect(result).toBeDefined();
+			expect(result.id).toBe(orderId);
+			expect(result.totalAmount).toBe(updatedData.totalAmount);
+			expect(mockPrisma.order.update).toHaveBeenCalledWith({
+				where: { id: orderId },
+				data: {
+					totalAmount: updatedData.totalAmount,
+					foodItems: {
+						deleteMany: {},
+						createMany: {
+							data: updatedData.foodItems,
+						},
+					},
+					drinkItems: {
+						deleteMany: {},
+						createMany: {
+							data: updatedData.drinkItems,
+						},
+					},
+				},
+				include: ORDER_INCLUDE,
+			});
+		});
+
+		it('should handle database errors during update', async () => {
+			mockPrisma.order.update.mockRejectedValue(new Error('Update failed'));
+
+			await expect(
+				orderService.updateOrderItemsInDatabase(1, {
+					foodItems: [],
+					drinkItems: [],
+					totalAmount: 0,
+				})
+			).rejects.toThrow(HTTPError);
+		});
+	});
+
+	describe('updateItemsInOrder', () => {
+		const orderId = 1;
+		const updatedItems = {
+			foodItems: [
+				{
+					guestNumber: 1,
+					items: [
+						{
+							itemId: 1,
+							price: 10,
+							discount: 0,
+							finalPrice: 10,
+							specialRequest: null,
+							allergies: [],
+							printed: false,
+							fired: false,
+							paymentStatus: PaymentState.NONE,
+						},
+					],
+				},
+			],
+			drinkItems: [
+				{
+					guestNumber: 1,
+					items: [
+						{
+							itemId: 2,
+							price: 5,
+							discount: 0,
+							finalPrice: 5,
+							specialRequest: null,
+							allergies: [],
+							printed: false,
+							fired: false,
+							paymentStatus: PaymentState.NONE,
+						},
+					],
+				},
+			],
+		};
+
+		beforeEach(() => {
+			// Mock findOrderById
+			mockPrisma.order.findUnique.mockResolvedValue({
+				id: orderId,
+				status: OrderState.RECEIVED,
+				foodItems: [],
+				drinkItems: [],
+				server: { name: 'John', id: 1 },
+			});
+
+			// Mock food and drink item price validation
+			mockPrisma.foodItem.findMany.mockResolvedValue([{ id: 1, price: 10, name: 'Test Food' }]);
+			mockPrisma.drinkItem.findMany.mockResolvedValue([{ id: 2, price: 5, name: 'Test Drink' }]);
+
+			// Mock the update
+			mockPrisma.order.update.mockResolvedValue({
+				id: orderId,
+				status: OrderState.RECEIVED,
+				foodItems: updatedItems.foodItems,
+				drinkItems: updatedItems.drinkItems,
+				totalAmount: 15,
+				server: { name: 'John', id: 1 },
+			});
+		});
+
+		it('should update order items successfully', async () => {
+			const result = await orderService.updateItemsInOrder(orderId, updatedItems);
+
+			expect(result).toBeDefined();
+			expect(mockPrisma.order.findUnique).toHaveBeenCalled();
+			expect(mockPrisma.order.update).toHaveBeenCalled();
+			expect(mockPrisma.foodItem.findMany).toHaveBeenCalled();
+			expect(mockPrisma.drinkItem.findMany).toHaveBeenCalled();
+		});
+
+		it('should handle non-existent order', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue(null);
+
+			await expect(orderService.updateItemsInOrder(999, updatedItems)).rejects.toThrow(
+				'Order not found in the database'
+			);
+		});
+
+		it('should handle database errors during update', async () => {
+			mockPrisma.order.update.mockRejectedValue(new Error('Update failed'));
+
+			await expect(orderService.updateItemsInOrder(orderId, updatedItems)).rejects.toThrow(
+				HTTPError
+			);
+		});
+	});
 });

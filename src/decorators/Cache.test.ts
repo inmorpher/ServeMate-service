@@ -39,8 +39,13 @@ class MockService extends BaseService {
 		return this.fetchData(id);
 	}
 
-	@Cache() // Тест дефолтного TTL
+	@Cache() // Test default TTL
 	async getDataDefaultTTL(id: number) {
+		return this.fetchData(id);
+	}
+
+	@Cache(60)
+	async getDataWithoutKeyGen(id: number) {
 		return this.fetchData(id);
 	}
 
@@ -75,6 +80,27 @@ describe('Cache Decorators', () => {
 			expect(service.fetchData).not.toHaveBeenCalled();
 		});
 
+		test('should cache result when not in cache', async () => {
+			const fetchedData = { id: 1, name: 'Test' };
+			(service.cache.get as jest.Mock).mockReturnValue(null);
+			(service.fetchData as jest.Mock).mockResolvedValue(fetchedData);
+
+			const result = await service.getData(1);
+
+			expect(result).toEqual(fetchedData);
+			expect(service.cache.set).toHaveBeenCalledWith('data_1', fetchedData, 60);
+		});
+
+		test('should use default cache key when no key generator provided', async () => {
+			const fetchedData = { id: 1, name: 'Test' };
+			(service.cache.get as jest.Mock).mockReturnValue(null);
+			(service.fetchData as jest.Mock).mockResolvedValue(fetchedData);
+
+			await service.getDataWithoutKeyGen(1);
+
+			expect(service.cache.get).toHaveBeenCalledWith('getDataWithoutKeyGen_[1]');
+		});
+
 		test('should cache result with default TTL when not specified', async () => {
 			const fetchedData = { id: 1, name: 'Test' };
 			(service.cache.get as jest.Mock).mockReturnValue(null);
@@ -85,14 +111,17 @@ describe('Cache Decorators', () => {
 			expect(service.cache.set).toHaveBeenCalledWith('getDataDefaultTTL_[1]', fetchedData, 60);
 		});
 
-		test('should handle null cache key generator', async () => {
-			const fetchedData = { id: 1, name: 'Test' };
-			(service.cache.get as jest.Mock).mockReturnValue(null);
-			(service.fetchData as jest.Mock).mockResolvedValue(fetchedData);
+		test('should increment counter when cache hit occurs', async () => {
+			const cachedData = { id: 1, name: 'Cached' };
+			(service.cache.get as jest.Mock)
+				.mockReturnValueOnce(cachedData)
+				.mockReturnValueOnce(cachedData);
 
-			await service.getDataDefaultTTL(1);
+			await service.getData(1);
+			await service.getData(1);
 
-			expect(service.cache.get).toHaveBeenCalled();
+			expect(service.cache.get).toHaveBeenCalledTimes(2);
+			expect(service.fetchData).not.toHaveBeenCalled();
 		});
 	});
 
@@ -119,6 +148,20 @@ describe('Cache Decorators', () => {
 
 			expect(service.cache.del).not.toHaveBeenCalled();
 		});
+
+		test('should throw error if not used on BaseService', async () => {
+			class InvalidService {
+				@InvalidateCacheByKeys(() => ['key'])
+				async update() {
+					return true;
+				}
+			}
+
+			const invalidService = new InvalidService();
+			await expect(invalidService.update()).rejects.toThrow(
+				'Cache decorator can only be used on Services extending BaseService'
+			);
+		});
 	});
 
 	describe('@InvalidateCacheByPrefix decorator', () => {
@@ -141,10 +184,24 @@ describe('Cache Decorators', () => {
 			expect(service.cache.keys).toHaveBeenCalled();
 			expect(service.cache.del).not.toHaveBeenCalled();
 		});
+
+		test('should throw error if not used on BaseService', async () => {
+			class InvalidService {
+				@InvalidateCacheByPrefix('test_')
+				async refresh() {
+					return true;
+				}
+			}
+
+			const invalidService = new InvalidService();
+			await expect(invalidService.refresh()).rejects.toThrow(
+				'Cache decorator can only be used on Services extending BaseService'
+			);
+		});
 	});
 
 	describe('Error cases', () => {
-		test('should throw error if service does not extend BaseService', () => {
+		test('should throw error if Cache decorator not used on BaseService', async () => {
 			class InvalidService {
 				@Cache(60)
 				async getData() {
@@ -153,7 +210,7 @@ describe('Cache Decorators', () => {
 			}
 
 			const invalidService = new InvalidService();
-			expect(invalidService.getData()).rejects.toThrow(
+			await expect(invalidService.getData()).rejects.toThrow(
 				'Cache decorator can only be used on Services extending BaseService'
 			);
 		});

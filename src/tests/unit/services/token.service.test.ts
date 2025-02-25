@@ -1,7 +1,7 @@
+import { UserRole } from '@servemate/dto';
 import jwt from 'jsonwebtoken';
 import 'reflect-metadata';
 import { ENV } from '../../../../env';
-import { UserRole } from '../../../dto/enums';
 import { TokenService } from '../../../services/tokens/token.service';
 import {
 	AccessTokenPayload,
