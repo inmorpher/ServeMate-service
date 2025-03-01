@@ -1,5 +1,5 @@
 import { FoodCategory, FoodType, Prisma, PrismaClient } from '@prisma/client';
-import { DrinkCategory } from '../../dto-package';
+import { DrinkCategory } from '@servemate/dto';
 
 const prisma = new PrismaClient();
 

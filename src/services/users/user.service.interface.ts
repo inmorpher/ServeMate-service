@@ -7,7 +7,7 @@ import {
 	UserListResult,
 	UserSearchCriteria,
 	ValidatedUserData,
-} from '../../../dto-package';
+} from '@servemate/dto';
 
 export interface IUserService {
 	/**

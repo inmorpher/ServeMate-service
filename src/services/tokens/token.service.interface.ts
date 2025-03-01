@@ -1,4 +1,4 @@
-import { UserDto } from '../../../dto-package';
+import { UserDto } from '@servemate/dto';
 
 /**
  * Represents the decoded user information.
