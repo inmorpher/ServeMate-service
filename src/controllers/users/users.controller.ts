@@ -15,6 +15,7 @@ import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Post, Put } from '../../decorators/httpDecorators';
+import { Roles } from '../../decorators/Roles';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
@@ -55,6 +56,7 @@ export class UserController extends BaseController implements IUserController {
 	 */
 	@Validate(UserParamSchema, 'query')
 	@Get('/')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async getUsers(
 		req: TypedRequest<{}, UserSearchCriteria, {}>,
 		res: Response,
@@ -124,7 +126,7 @@ export class UserController extends BaseController implements IUserController {
 	 */
 	@Validate(CreateUserSchema, 'body')
 	@Post('/')
-	//TODO Role admin or manager
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async createUser(req: TypedRequest<{}, {}, CreateUser>, res: Response, next: NextFunction) {
 		try {
 			const newUser = await this.userService.createUser({
@@ -155,19 +157,9 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is deleted successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
-	// 	{
-	// 		method: 'delete',
-	// 		path: '/:id',
-	// 		func: this.deleteUser,
-	// 		middlewares: [
-	// 			new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
-	// 			new ValidateMiddleware(IdParamSchema, 'params'),
-	// 			this.cacheMiddleware,
-	// 		],
-	// 	},
 	@Validate(UserParamSchema, 'params')
 	@Delete('/:id')
-	//TODO Role admin or manager
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async deleteUser(req: TypedRequest<{ id: string | number }>, res: Response, next: NextFunction) {
 		const userId = typeof req.params.id === 'string' ? parseInt(req.params.id, 10) : req.params.id;
 
@@ -192,19 +184,7 @@ export class UserController extends BaseController implements IUserController {
 	 * @returns {Promise<void>} Sends a JSON response with a success message if the user is updated successfully.
 	 *                          If an error occurs during the process, it's passed to the next middleware for error handling.
 	 */
-	// 	{
-	// 		method: 'put',
-	// 		path: '/:id',
-	// 		func: this.updateUser,
-	// 		middlewares: [
-	// 			new RoleMiddleware([Role.ADMIN, Role.MANAGER]),
-	// 			new ValidateMiddleware(IdParamSchema, 'params'),
-	// 			new ValidateMiddleware(UpdateUserSchema, 'body'),
-	// 			this.cacheMiddleware,
-	// 		],
-	// 	},
-	// ]);
-	//TODO Role admin or manager
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	@Validate(UpdateUserSchema, 'body')
 	@Validate(UserParamSchema.pick({ id: true }), 'params')
 	@Put('/:id')

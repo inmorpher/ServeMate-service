@@ -59,7 +59,7 @@ export class OrdersService extends AbstractOrderService {
 										contains: criteria.serverName,
 										mode: 'insensitive',
 									},
-							  }
+								}
 							: undefined,
 					},
 
@@ -185,6 +185,90 @@ export class OrdersService extends AbstractOrderService {
 	async delete(order: number): Promise<void> {
 		try {
 			await this.prisma.$transaction(async (prisma) => {
+				// Check if order exists
+				const existingOrder = await prisma.order.findUnique({
+					where: { id: order },
+					select: {
+						id: true,
+						payments: {
+							select: {
+								id: true,
+							},
+						},
+						foodItems: {
+							select: {
+								id: true,
+								printed: true,
+								fired: true,
+								paymentStatus: true,
+							},
+						},
+						drinkItems: {
+							select: {
+								id: true,
+								printed: true,
+								fired: true,
+								paymentStatus: true,
+							},
+						},
+					},
+				});
+
+				if (!existingOrder) {
+					throw new HTTPError(404, this.serviceName, 'Order not found', `/orders/${order}`);
+				}
+
+				// Check if any payments are associated with this order
+				if (existingOrder.payments.length > 0) {
+					throw new HTTPError(
+						400,
+						this.serviceName,
+						'Cannot delete order with associated payments',
+						`/orders/${order}`
+					);
+				}
+
+				// Check if any food or drink items have been printed or fired
+				const printedFoodItems = existingOrder.foodItems.filter((item) => item.printed);
+				const printedDrinkItems = existingOrder.drinkItems.filter((item) => item.printed);
+				const firedFoodItems = existingOrder.foodItems.filter((item) => item.fired);
+				const firedDrinkItems = existingOrder.drinkItems.filter((item) => item.fired);
+
+				if (printedFoodItems.length > 0 || printedDrinkItems.length > 0) {
+					throw new HTTPError(
+						400,
+						this.serviceName,
+						'Cannot delete order with printed items',
+						`/orders/${order}`
+					);
+				}
+
+				if (firedFoodItems.length > 0 || firedDrinkItems.length > 0) {
+					throw new HTTPError(
+						400,
+						this.serviceName,
+						'Cannot delete order with fired/called items',
+						`/orders/${order}`
+					);
+				}
+
+				// Check if any food or drink items have associated payment status
+				const paidFoodItems = existingOrder.foodItems.filter(
+					(item) => item.paymentStatus !== 'NONE'
+				);
+				const paidDrinkItems = existingOrder.drinkItems.filter(
+					(item) => item.paymentStatus !== 'NONE'
+				);
+
+				if (paidFoodItems.length > 0 || paidDrinkItems.length > 0) {
+					throw new HTTPError(
+						400,
+						this.serviceName,
+						'Cannot delete order with items that have payment status',
+						`/orders/${order}`
+					);
+				}
+
 				// Delete all related food items associated with the order.
 				await prisma.orderFoodItem.deleteMany({
 					where: { orderId: order },
@@ -194,6 +278,7 @@ export class OrdersService extends AbstractOrderService {
 				await prisma.orderDrinkItem.deleteMany({
 					where: { orderId: order },
 				});
+
 				// Delete the order itself.
 				await prisma.order.delete({
 					where: { id: order },

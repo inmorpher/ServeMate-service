@@ -10,7 +10,7 @@ import {
 	DrinkItemsListDTO,
 	SearchDrinkItemsDTO,
 	UpdateDrinkItemDTO,
-} from 'dto-package';
+} from '@servemate/dto';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 

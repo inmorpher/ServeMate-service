@@ -16,7 +16,6 @@ export const TYPES = {
 	AuthenticationController: Symbol.for('AuthenticationController'),
 	ITokenService: Symbol.for('ITokenService'),
 	// Tables
-	//TODO : Add types for TableController and TableService
 	TableService: Symbol.for('ITableService'),
 	TableController: Symbol.for('ITableController'),
 	// Orders

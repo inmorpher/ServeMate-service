@@ -15,8 +15,10 @@ import {
 	TableSearchCriteriaSchema,
 	TableUpdate,
 	TableUpdatesSchema,
+	UserRole,
 } from '@servemate/dto';
 import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
+import { Roles } from '../../decorators/Roles';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { TableService } from '../../services/tables/table.service';
@@ -88,6 +90,7 @@ export class TableController extends ITableController {
 	 */
 	@Validate(TableCreateSchema, 'body')
 	@Post('/')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async createTable(
 		req: TypedRequest<unknown, unknown, TableCreate>,
 		res: Response,
@@ -111,6 +114,7 @@ export class TableController extends ITableController {
 	 */
 	@Validate(TableIdSchema, 'params')
 	@Delete('/:id')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async deleteTable(
 		req: TypedRequest<TableId, {}, {}>,
 		res: Response,
@@ -137,6 +141,7 @@ export class TableController extends ITableController {
 	@Validate(TableUpdatesSchema, 'body')
 	@Validate(TableIdSchema, 'params')
 	@Put('/:id')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async updateTable(
 		req: TypedRequest<TableId, {}, TableUpdate>,
 		res: Response,
@@ -187,6 +192,7 @@ export class TableController extends ITableController {
 	 */
 	@Validate(TableAssignmentSchema, 'body')
 	@Post('/assign')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async assignTableToServer(
 		req: TypedRequest<{}, {}, TableAssignment>,
 		res: Response,

@@ -5,12 +5,14 @@ import {
 	PaymentSearchSchema,
 	RefundDTO,
 	RefundSchema,
+	UserRole,
 } from '@servemate/dto';
 import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Get, Post } from '../../decorators/httpDecorators';
+import { Roles } from '../../decorators/Roles';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { PaymentService } from '../../services/payment/payment.service';
@@ -171,6 +173,7 @@ export class PaymentController extends AbstractPaymentController {
 	@Validate(RefundSchema, 'body')
 	@Validate(PaymentSchema.pick({ id: true }), 'params')
 	@Post('/refund/:id')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async refundPayment(
 		req: TypedRequest<{ id: PaymentDTO['id'] }, {}, RefundDTO>,
 		res: Response,

@@ -1,7 +1,7 @@
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
-import { BaseService } from '../common/base.service';
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from './Cache';
+import { BaseService } from '../../../common/base.service';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../../decorators/Cache';
 
 const mockCache: Partial<NodeCache> = {
 	get: jest.fn(),

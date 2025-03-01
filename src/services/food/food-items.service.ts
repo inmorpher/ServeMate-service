@@ -1,13 +1,13 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
 import {
 	CreateFoodItemDTO,
 	FoodItemDTO,
 	FoodItemsListDTO,
 	SearchFoodItemsDTO,
 	UpdateFoodItemDTO,
-} from '../../../dto-package';
+} from '@servemate/dto';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 import { BaseService } from '../../common/base.service';
 import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import { HTTPError } from '../../errors/http-error.class';

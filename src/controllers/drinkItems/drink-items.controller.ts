@@ -5,6 +5,7 @@ import {
 	SearchDrinkItemsDTO,
 	searchDrinkItemsSchema,
 	updateDrinkItemSchema,
+	UserRole,
 } from '@servemate/dto';
 import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
@@ -12,6 +13,7 @@ import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
+import { Roles } from '../../decorators/Roles';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { DrinkItemsService } from '../../services/drinks/drink-items.service';
 import { ILogger } from '../../services/logger/logger.service.interface';
@@ -29,6 +31,7 @@ export class DrinkItemsController extends BaseController {
 
 	@Validate(createDrinkItemSchema, 'body')
 	@Post('/')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async createDrinkItem(
 		req: TypedRequest<{}, {}, CreateDrinkItemDTO>,
 		res: Response,
@@ -74,6 +77,7 @@ export class DrinkItemsController extends BaseController {
 
 	@Validate(drinkItemSchema.pick({ id: true }), 'params')
 	@Delete('/:id')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async deleteDrinkItem(
 		req: TypedRequest<{ id: number }, {}, {}>,
 		res: Response,
@@ -90,6 +94,7 @@ export class DrinkItemsController extends BaseController {
 	@Validate(updateDrinkItemSchema.partial(), 'body')
 	@Validate(drinkItemSchema.pick({ id: true }), 'params')
 	@Patch('/:id')
+	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async updateDrinkItem(
 		req: TypedRequest<{ id: number }, {}, CreateDrinkItemDTO>,
 		res: Response,

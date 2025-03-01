@@ -31,7 +31,6 @@ export class App {
 		@inject(TYPES.ExceptionFilter) private exceptionFilter: IExceptionFilter,
 		@inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
 		@inject(TYPES.AuthenticationController) private authController: AuthenticationController,
-		//TODO :Add types for other controllers
 		@inject(TYPES.UserController) private userController: IUserController,
 		@inject(TYPES.TableController) private tableController: ITableController,
 		//Orders
