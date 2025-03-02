@@ -1,18 +1,25 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache python3 make g++
+# Install build dependencies including OpenSSL
+RUN apk add --no-cache python3 make g++ openssl
+
+# Install PM2 globally
+RUN npm install -g pm2
 
 # Install dependencies first (for better caching)
 COPY package*.json ./
 RUN npm install
 
-# Copy prisma schema before generating client
+# Copy prisma schema
 COPY prisma ./prisma/
 
-# Generate Prisma client
+# Remove the custom generator from schema.prisma during build
+RUN sed -i '/^generator enums {/,/^}/d' ./prisma/schema.prisma
+
+# Generate Prisma client with a dummy DATABASE_URL
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npx prisma generate
 
 # Copy the rest of the app source
@@ -21,12 +28,12 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Set environment variables
+# Set environment variables for runtime
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3002
 
 # Expose the port the app will run on
-EXPOSE 3000
+EXPOSE 3002
 
 # Start the app
 CMD ["npm", "run", "start:prod"]
