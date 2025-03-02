@@ -12,6 +12,7 @@ RUN npm install -g pm2
 COPY package*.json ./
 RUN npm install
 
+COPY ecosystem.config.js .
 # Copy prisma schema
 COPY prisma ./prisma/
 
@@ -36,4 +37,4 @@ ENV PORT=3002
 EXPOSE 3002
 
 # Start the app
-CMD ["npm", "run", "start:prod"]
+CMD ["pm2-runtime", "ecosystem.config.js"]
