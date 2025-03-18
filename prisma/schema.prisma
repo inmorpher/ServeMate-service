@@ -50,6 +50,7 @@ model Order {
   foodItems      OrderFoodItem[]
   payments       Payment[]
   serverActions  orderServerAction[]
+  reservations   Reservation[]
 }
 
 model OrderFoodItem {
@@ -143,6 +144,7 @@ model Table {
   guests             Int              @default(0)
   orders             Order[]
   assignment         TableAssignment[]
+  reservations       Reservation[]
 }
 
 model orderServerAction {
@@ -199,7 +201,33 @@ model TableAssignment {
   @@unique([tableId, serverId])
 }
 
+model Reservation {
+  id          Int      @id @default(autoincrement())
+  guestsCount Int
+  time        DateTime
+  name       String
+  phone      String
+  email      String?
+  allergies  Allergy[] @default([])
+  tables     Table[]
+  status     ReservationStatus @default(PENDING)
+  order   Order[]
+  comments   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive    Boolean  @default(true)
+
+}
+
 //Enums
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
 
 enum UserRole {
   ADMIN

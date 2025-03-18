@@ -12,6 +12,7 @@ import { DrinkItemsController } from './controllers/drinkItems/drink-items.contr
 import { FoodItemsController } from './controllers/foodItems/food-items.controller';
 import { OrdersController } from './controllers/orders/orders.controller';
 import { PaymentController } from './controllers/payments/payment.controller';
+import { ReservationController } from './controllers/reservations/reservation.controller';
 import { ITableController } from './controllers/tables/table.controller.interface';
 import { IUserController } from './controllers/users/user.controller.interface';
 import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
@@ -37,6 +38,8 @@ export class App {
 		@inject(TYPES.OrdersController) private ordersController: OrdersController,
 		//Payments
 		@inject(TYPES.PaymentController) private paymentController: PaymentController,
+		//Reservations
+		@inject(TYPES.ReservationController) private reservationController: ReservationController,
 		//Food items
 		@inject(TYPES.FoodItemsController) private foodItemsController: FoodItemsController,
 		//Drink items
@@ -50,6 +53,7 @@ export class App {
 			this.tableController,
 			this.ordersController,
 			this.paymentController,
+			this.reservationController,
 			this.foodItemsController,
 			this.drinkItemsController,
 		];

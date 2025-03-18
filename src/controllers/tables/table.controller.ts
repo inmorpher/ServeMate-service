@@ -13,6 +13,8 @@ import {
 	TableIdSchema,
 	TableSearchCriteria,
 	TableSearchCriteriaSchema,
+	TableSeatingDTO,
+	TableSeatingSchema,
 	TableUpdate,
 	TableUpdatesSchema,
 	UserRole,
@@ -205,6 +207,37 @@ export class TableController extends ITableController {
 				', '
 			)} assigned to server ${serverId} successfully`;
 			this.loggerService.log(message);
+			this.ok(res, message);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
+	 * Seats guests at a table.
+	 * @param req - The request object containing table ID and seating data.
+	 * @param res - The response object.
+	 * @param next - The next middleware function.
+	 */
+	@Validate(TableSeatingSchema, 'body')
+	@Validate(TableIdSchema, 'params')
+	@Patch('/:id/seat')
+	async seatGuests(
+		req: TypedRequest<TableId, {}, TableSeatingDTO>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			const tableId = req.params.id;
+			const seatingData = req.body;
+
+			await this.tableService.seatGuests(tableId, seatingData);
+
+			const message =
+				seatingData.SeatingType === 'WALK_IN'
+					? `Guests seated at table ${tableId} successfully`
+					: `Reservation ${seatingData.reservationId}seated at table ${tableId} successfully`;
+
 			this.ok(res, message);
 		} catch (error) {
 			next(error);

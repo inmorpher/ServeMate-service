@@ -8,8 +8,9 @@ import {
 	UserSearchCriteria,
 	ValidatedUserData,
 } from '@servemate/dto';
+import { BaseService } from '../../common/base.service';
 
-export interface IUserService {
+export interface IUserService extends BaseService {
 	/**
 	 * Validates a user's credentials.
 	 * @param credentials - The user's login credentials.

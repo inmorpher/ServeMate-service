@@ -318,6 +318,13 @@ describe('OrderService', () => {
 
 	describe('delete', () => {
 		it('should delete order and related items successfully', async () => {
+			// Mock существования заказа с полным набором необходимых полей
+			mockPrisma.order.findUnique.mockResolvedValue({
+				id: 1,
+				payments: [],
+				foodItems: [],
+				drinkItems: [],
+			});
 			mockPrisma.orderFoodItem.deleteMany.mockResolvedValue({ count: 1 });
 			mockPrisma.orderDrinkItem.deleteMany.mockResolvedValue({ count: 1 });
 			mockPrisma.order.delete.mockResolvedValue({ id: 1 });
@@ -335,7 +342,32 @@ describe('OrderService', () => {
 			});
 		});
 
+		it('should throw error when order not found', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue(null);
+
+			await expect(orderService.delete(1)).rejects.toThrow('Order not found');
+		});
+
+		it('should throw error when order has payments', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue({
+				id: 1,
+				payments: [{ id: 1 }],
+				foodItems: [],
+				drinkItems: [],
+			});
+
+			await expect(orderService.delete(1)).rejects.toThrow(
+				'Cannot delete order with associated payments'
+			);
+		});
+
 		it('should handle database errors during deletion', async () => {
+			mockPrisma.order.findUnique.mockResolvedValue({
+				id: 1,
+				payments: [],
+				foodItems: [],
+				drinkItems: [],
+			});
 			mockPrisma.orderFoodItem.deleteMany.mockRejectedValue(new Error('Deletion failed'));
 
 			await expect(orderService.delete(1)).rejects.toThrow(HTTPError);

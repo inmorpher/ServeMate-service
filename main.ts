@@ -8,6 +8,7 @@ import { FoodItemsController } from './src/controllers/foodItems/food-items.cont
 import { OrdersController } from './src/controllers/orders/orders.controller';
 import { PaymentController } from './src/controllers/payments/payment.controller';
 import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
+import { ReservationController } from './src/controllers/reservations/reservation.controller';
 import { TableController } from './src/controllers/tables/table.controller';
 import { ITableController } from './src/controllers/tables/table.controller.interface';
 import { IUserController } from './src/controllers/users/user.controller.interface';
@@ -23,6 +24,7 @@ import { ILogger } from './src/services/logger/logger.service.interface';
 import { OrdersService } from './src/services/orders/order.service';
 import { AbstractPaymentService } from './src/services/payment/abstract-payment.service';
 import { PaymentService } from './src/services/payment/payment.service';
+import { ReservationService } from './src/services/reservations/reservation.service';
 import { TableService } from './src/services/tables/table.service';
 import { ITableService } from './src/services/tables/table.service.interface';
 import { TokenService } from './src/services/tokens/token.service';
@@ -165,6 +167,28 @@ export const paymentModule = new ContainerModule((bind: interfaces.Bind) => {
 });
 
 /**
+ * @module reservationsModule
+ *
+ * @description This module configures dependency injection for reservation-related components.
+ *
+ * In particular, it:
+ * - Binds the ReservationService to its corresponding DI token (TYPES.ReservationService) in singleton scope.
+ * - Binds the ReservationController to its DI token (TYPES.ReservationController) in singleton scope.
+ *
+ * The use of singleton scope ensures that only one instance of each service is created and reused
+ * throughout the application's lifecycle.
+ *
+ * @remarks
+ * This module leverages InversifyJS for managing dependencies, enabling modular and testable architecture.
+ */
+export const reservationsModule = new ContainerModule((bind: interfaces.Bind) => {
+	bind<ReservationService>(TYPES.ReservationService).to(ReservationService).inSingletonScope();
+	bind<ReservationController>(TYPES.ReservationController)
+		.to(ReservationController)
+		.inSingletonScope();
+});
+
+/**
  * Module that sets up the bindings for the FoodItems feature.
  *
  * This module binds the `FoodItemsController` and `FoodItemsService` to their respective
@@ -205,6 +229,7 @@ export const appBindings = [
 	tablesModule,
 	ordersModule,
 	paymentModule,
+	reservationsModule,
 	foodItemsModule,
 	drinkItemsModule,
 	appModule,

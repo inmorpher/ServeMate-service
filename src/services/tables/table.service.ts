@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import {
 	PaymentState,
+	ReservationStatus,
 	TableCondition,
 	TableCreate,
 	TablesDTO,
 	TableSearchCriteria,
+	TableSeatingDTO,
 	TableUpdate,
 } from '@servemate/dto';
 import { inject, injectable } from 'inversify';
@@ -308,6 +310,74 @@ export class TableService extends ITableService {
 						serverId: serverId,
 						isPrimary: true,
 					})),
+				});
+			});
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
+	@InvalidateCacheByKeys((tableId) => [`findTableById_${tableId}`])
+	@InvalidateCacheByPrefix('findTables')
+	async seatGuests(tableId: number, seatingData: TableSeatingDTO) {
+		try {
+			return await this.prisma.$transaction(async (prisma) => {
+				// Find the table
+				const table = await prisma.table.findUnique({
+					where: { id: tableId },
+					include: {
+						reservations: true,
+					},
+				});
+
+				// Check if the table exists
+				if (!table) {
+					throw new HTTPError(404, 'TableService', 'Table not found');
+				}
+
+				// Check if the table is occupied or not available
+				if (table.isOccupied || table.status !== TableCondition.AVAILABLE) {
+					throw new HTTPError(400, 'TableService', 'Table is not available now');
+				}
+
+				// Check seating type is RESERVATION
+				if (seatingData.SeatingType === 'RESERVATION') {
+					const reservation = await prisma.reservation.findUnique({
+						where: { id: seatingData.reservationId },
+					});
+
+					// Check if the reservation exists
+					if (!reservation) {
+						throw new HTTPError(404, 'TableService', 'Reservation not found');
+					}
+
+					// Check if the reservation is already seated
+					if (reservation.status === ReservationStatus.CONFIRMED) {
+						throw new HTTPError(400, 'TableService', 'Reservation already seated');
+					}
+
+					// Connect reservation to the table
+					await prisma.reservation.update({
+						where: { id: seatingData.reservationId },
+						data: {
+							status: ReservationStatus.CONFIRMED,
+							tables: {
+								connect: {
+									id: tableId,
+								},
+							},
+						},
+					});
+				}
+
+				// Update the table status
+				await prisma.table.update({
+					where: { id: tableId },
+					data: {
+						status: TableCondition.OCCUPIED,
+						isOccupied: true,
+						guests: seatingData.guests,
+					},
 				});
 			});
 		} catch (error) {

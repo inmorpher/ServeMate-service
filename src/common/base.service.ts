@@ -1,7 +1,13 @@
+import { PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { injectable } from 'inversify';
 import NodeCache from 'node-cache';
 import { HTTPError } from '../errors/http-error.class';
+
+export type PrismaTransaction = Omit<
+	PrismaClient,
+	'$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
 
 @injectable()
 export class BaseService {

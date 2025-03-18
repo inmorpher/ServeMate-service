@@ -24,6 +24,9 @@ export const TYPES = {
 	// Payments
 	PaymentService: Symbol.for('AbstractPaymentService'),
 	PaymentController: Symbol.for('AbstractPaymentController'),
+	// Reservations
+	ReservationService: Symbol.for('ReservationService'),
+	ReservationController: Symbol.for('ReservationController'),
 	//Food items
 	FoodItemsService: Symbol.for('FoodItemsService'),
 	FoodItemsController: Symbol.for('FoodItemsController'),
