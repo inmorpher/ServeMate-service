@@ -1,16 +1,17 @@
 import { PrismaClient } from '@prisma/client';
-import { Allergies } from '@servemate/dto';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { ListReturnType, ReservationStatus } from '../../../dto-package/src';
 import {
+	Allergies,
 	CreateReservationDTO,
+	ListReturnType,
 	ReservationDetailedDTO,
 	ReservationGuestInfo,
 	ReservationSearchCriteriaDTO,
+	ReservationStatus,
 	ReservationWithTablesDTO,
 	UpdateReservationDTO,
-} from '../../../dto-package/src/dto/reservation.dto';
+} from '@servemate/dto';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';

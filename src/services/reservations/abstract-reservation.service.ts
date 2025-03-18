@@ -1,16 +1,17 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { inject, injectable } from 'inversify';
-import { ListReturnType, ReservationStatus } from '../../../dto-package/src';
 import {
 	CreateReservationDTO,
+	ListReturnType,
 	ReservationConflictDTO,
 	ReservationDetailedDTO,
 	ReservationGuestInfo,
 	ReservationId,
 	ReservationSearchCriteriaDTO,
+	ReservationStatus,
 	ReservationWithTablesDTO,
 	UpdateReservationDTO,
-} from '../../../dto-package/src/dto/reservation.dto';
+} from '@servemate/dto';
+import { inject, injectable } from 'inversify';
 import { BaseService, PrismaTransaction } from '../../common/base.service';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';

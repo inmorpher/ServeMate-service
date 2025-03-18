@@ -1,9 +1,5 @@
-import { Allergies } from '@servemate/dto';
-import { NextFunction, Response } from 'express';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { ReservationStatus } from '../../../dto-package/src';
 import {
+	Allergies,
 	CreateReservationDTO,
 	CreateReservationSchema,
 	ReservationDTO,
@@ -12,8 +8,12 @@ import {
 	ReservationSchema,
 	ReservationSearchCriteria,
 	ReservationSearchCriteriaDTO,
+	ReservationStatus,
 	UpdateReservationDTO,
-} from '../../../dto-package/src/dto/reservation.dto';
+} from '@servemate/dto';
+import { NextFunction, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';

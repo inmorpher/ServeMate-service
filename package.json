@@ -31,7 +31,7 @@
 		"@opentelemetry/sdk-node": "^0.57.1",
 		"@prisma/client": "^6.2.1",
 		"@prisma/generator-helper": "^5.22.0",
-		"@servemate/dto": "^1.0.6",
+		"@servemate/dto": "^1.0.7",
 		"axios": "^1.7.7",
 		"bcrypt": "^5.1.1",
 		"cookie-parser": "^1.4.7",

@@ -1,15 +1,17 @@
-import { NextFunction, Response } from 'express';
-import { Container } from 'inversify';
-import 'reflect-metadata';
-import { Allergies, ListReturnType, ReservationStatus } from '../../../../dto-package/src';
 import {
+	Allergies,
 	CreateReservationDTO,
+	ListReturnType,
 	ReservationDTO,
 	ReservationGuestInfo,
 	ReservationSearchCriteriaDTO,
+	ReservationStatus,
 	ReservationWithTablesDTO,
 	UpdateReservationDTO,
-} from '../../../../dto-package/src/dto/reservation.dto';
+} from '@servemate/dto';
+import { NextFunction, Response } from 'express';
+import { Container } from 'inversify';
+import 'reflect-metadata';
 import { TypedRequest } from '../../../common/route.interface';
 import { ReservationController } from '../../../controllers/reservations/reservation.controller';
 import { ILogger } from '../../../services/logger/logger.service.interface';
