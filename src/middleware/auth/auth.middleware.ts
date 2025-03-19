@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { ENV } from '../../../env';
 import { IMiddleware } from '../../common/middleware.interface';
 import { HTTPError } from '../../errors/http-error.class';
+import { IUserService } from '../../services/users/user.service.interface';
+import { TYPES } from '../../types';
 
 export type DecodedUser = Pick<User, 'email' | 'role' | 'id'>;
 
@@ -15,7 +17,7 @@ export type DecodedUser = Pick<User, 'email' | 'role' | 'id'>;
 export class AuthMiddleware implements IMiddleware {
 	private tokenCache: NodeCache;
 
-	constructor() {
+	constructor(@inject(TYPES.UserService) private userService: IUserService) {
 		this.tokenCache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
 	}
 
@@ -165,7 +167,12 @@ export class AuthMiddleware implements IMiddleware {
 	): Promise<{ accessToken: string; refreshToken: string } | null> {
 		try {
 			const decoded = (await this.verifyToken(refreshToken, ENV.JWT_REFRESH)) as DecodedUser;
-			const user = { id: decoded.id, email: decoded.email, role: decoded.role };
+
+			const currentUser = await this.userService.findUserById(decoded.id);
+			if (!currentUser) {
+				return null;
+			}
+			const user = { id: currentUser.id, email: currentUser.email, role: currentUser.role };
 
 			const newAccessToken = this.generateToken(user);
 			const newRefreshToken = this.generateRefreshToken(user);

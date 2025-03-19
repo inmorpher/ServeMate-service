@@ -71,10 +71,10 @@ describe('AuthenticationController', () => {
 
 		await authController.login(mockRequest as Request, mockResponse as Response, mockNext);
 
-		expect(okSpy).toHaveBeenCalledWith(mockResponse, { accessToken: 'accessToken' });
+		expect(okSpy).toHaveBeenCalledWith(mockResponse, { user, accessToken: 'accessToken' });
 
 		expect(mockResponse.status).toHaveBeenCalledWith(200);
-		expect(mockResponse.json).toHaveBeenCalledWith({ accessToken: 'accessToken' });
+		expect(mockResponse.json).toHaveBeenCalledWith({ user, accessToken: 'accessToken' });
 
 		okSpy.mockRestore();
 	});

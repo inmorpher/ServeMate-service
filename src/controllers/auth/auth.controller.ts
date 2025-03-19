@@ -40,9 +40,6 @@ export class AuthenticationController extends BaseController {
 		@inject(TYPES.UserService) private userService: UserService
 	) {
 		super(loggerService);
-		// this.loggerService.setContext('AuthenticationController');
-		// this.loggerService.log('AuthenticationController');
-		// this.bindRoutes([
 	}
 
 	/**
@@ -57,12 +54,7 @@ export class AuthenticationController extends BaseController {
 	 * @returns A Promise that resolves when the login process is complete.
 	 * @throws Will throw an error if authentication fails or if there's an issue during the process.
 	 */
-	// 	{
-	// 		method: 'post',
-	// 		path: '/login',
-	// 		func: this.login,
-	// 		middlewares: [new ValidateMiddleware(UserLoginSchema)],
-	// 	},
+
 	@Validate(UserLoginSchema, 'body')
 	@Post('/login')
 	async login(req: TypedRequest<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
@@ -82,7 +74,7 @@ export class AuthenticationController extends BaseController {
 			this.setCookie(res, 'refreshToken', refreshToken);
 			this.loggerService.log(`\x1b[1mUser logged in: ${email}\x1b[0m`);
 			await this.userService.updateUser(user.id, { lastLogin: new Date() });
-			this.ok(res, { accessToken });
+			this.ok(res, { user, accessToken });
 		} catch (error) {
 			next(error);
 		}
@@ -97,13 +89,6 @@ export class AuthenticationController extends BaseController {
 	 * @returns A Promise that resolves when the logout process is complete.
 	 */
 
-	// 	{
-	// 		method: 'post',
-	// 		path: '/logout',
-	// 		func: this.logout,
-	// 		middlewares: [],
-	// 	},
-	// ]);
 	@Post('/logout')
 	async logout(req: TypedRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
