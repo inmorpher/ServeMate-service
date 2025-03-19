@@ -1,17 +1,24 @@
+import { PrismaClient } from '@prisma/client';
+import { UserDto } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../../../../env';
 import { HTTPError } from '../../../errors/http-error.class';
 import { AuthMiddleware, DecodedUser } from '../../../middleware/auth/auth.middleware';
+import { UserService } from '../../../services/users/user.service';
 
 describe('AuthMiddleware', () => {
+	let prismaClient: PrismaClient;
 	let authMiddleware: AuthMiddleware;
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
 	let nextFunction: NextFunction;
+	let userService: UserService;
 
 	beforeEach(() => {
-		authMiddleware = new AuthMiddleware();
+		prismaClient = new PrismaClient();
+		userService = new UserService(prismaClient);
+		authMiddleware = new AuthMiddleware(userService);
 		mockRequest = {
 			headers: {},
 		};
@@ -43,7 +50,7 @@ describe('AuthMiddleware', () => {
 
 		it('should correctly set the expiration time for generated tokens', () => {
 			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
-			const authMiddleware = new AuthMiddleware();
+			const authMiddleware = new AuthMiddleware(userService);
 
 			// Mock the ENV values
 			const originalJwtExpiresIn = ENV.JWT_EXPIRES_IN;
@@ -68,7 +75,7 @@ describe('AuthMiddleware', () => {
 		});
 
 		it('should include the correct payload information in generated tokens', () => {
-			const authMiddleware = new AuthMiddleware();
+			const authMiddleware = new AuthMiddleware(userService);
 			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
 			const token = authMiddleware.generateToken(mockDecodedUser);
 			const refreshToken = authMiddleware.generateRefreshToken(mockUser);
@@ -201,18 +208,24 @@ describe('AuthMiddleware', () => {
 
 	describe('generateRefreshToken', () => {
 		it('should generate a new access token and refresh token when refreshing with a valid refresh token', async () => {
-			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
+			const mockUser = {
+				id: 1,
+				email: 'test@example.com',
+				role: 'USER',
+			} as UserDto;
 			const mockRefreshToken = 'validRefreshToken';
 			const mockNewAccessToken = 'newAccessToken';
 			const mockNewRefreshToken = 'newRefreshToken';
 
 			jest.spyOn(authMiddleware as any, 'verifyToken').mockResolvedValue(mockUser);
+			jest.spyOn(userService, 'findUserById').mockResolvedValue(mockUser);
 			jest.spyOn(authMiddleware, 'generateToken').mockReturnValue(mockNewAccessToken);
 			jest.spyOn(authMiddleware, 'generateRefreshToken').mockReturnValue(mockNewRefreshToken);
 
 			const result = await authMiddleware.refreshToken(mockRefreshToken);
 
 			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockRefreshToken, ENV.JWT_REFRESH);
+			expect(userService.findUserById).toHaveBeenCalledWith(mockUser.id);
 			expect(authMiddleware.generateToken).toHaveBeenCalledWith(mockUser);
 			expect(authMiddleware.generateRefreshToken).toHaveBeenCalledWith(mockUser);
 			expect(result).toEqual({
@@ -233,6 +246,20 @@ describe('AuthMiddleware', () => {
 				invalidRefreshToken,
 				ENV.JWT_REFRESH
 			);
+			expect(result).toBeNull();
+		});
+
+		it('should return null when user is not found in database', async () => {
+			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
+			const mockRefreshToken = 'validRefreshToken';
+
+			jest.spyOn(authMiddleware as any, 'verifyToken').mockResolvedValue(mockUser);
+			jest.spyOn(userService, 'findUserById').mockResolvedValue(null);
+
+			const result = await authMiddleware.refreshToken(mockRefreshToken);
+
+			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockRefreshToken, ENV.JWT_REFRESH);
+			expect(userService.findUserById).toHaveBeenCalledWith(mockUser.id);
 			expect(result).toBeNull();
 		});
 	});
