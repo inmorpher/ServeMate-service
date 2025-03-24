@@ -101,7 +101,6 @@ export class DrinkItemsController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			console.log('req.body', req.body);
 			const updatedDrinkItem = await this.drinkItemsService.updateDrinkItem(
 				Number(req.params.id),
 				req.body

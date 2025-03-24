@@ -2,7 +2,6 @@ import { UserCredentials, UserLoginSchema } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Post } from '../../decorators/httpDecorators';
@@ -125,34 +124,14 @@ export class AuthenticationController extends BaseController {
 				return this.unauthorized(res, ERROR_MESSAGES.REFRESH_TOKEN_NOT_PROVIDED);
 			}
 
-			try {
-				const decodedUser = await this.tokenService.verifyToken(refreshToken, ENV.JWT_REFRESH);
+			const result = await this.tokenService.refreshToken(refreshToken, this.userService);
 
-				if (!decodedUser) {
-					this.loggerService.warn('Декодированный пользователь равен null после проверки токена');
-					return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
-				}
-
-				const fullUser = await this.userService.findUserById(decodedUser.id);
-				if (!fullUser) {
-					return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
-				}
-
-				// Создаем полный объект пользователя для генерации токена
-				const userForToken = {
-					id: fullUser.id,
-					email: fullUser.email,
-					role: fullUser.role,
-				};
-
-				const newAccessToken = await this.tokenService.generateToken(userForToken, false);
-				const newRefreshToken = await this.tokenService.generateToken(userForToken, true);
-
-				this.setCookie(res, 'refreshToken', newRefreshToken);
-				this.ok(res, { accessToken: newAccessToken });
-			} catch (verifyError) {
+			if (!result) {
 				return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 			}
+
+			this.setCookie(res, 'refreshToken', result.refreshToken);
+			this.ok(res, { accessToken: result.accessToken });
 		} catch (error) {
 			this.loggerService.error(
 				`unexpected error in refreshToken: ${error instanceof Error ? error.message : String(error)}`

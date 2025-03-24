@@ -286,8 +286,6 @@ export class ReservationService extends AbstractReservationService {
 		reservationId: number,
 		allergies: Allergies[]
 	): Promise<ReservationDetailedDTO> {
-		console.log('fired');
-
 		return this.performUpdate(reservationId, { allergies });
 	}
 	/**

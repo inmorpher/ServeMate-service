@@ -218,8 +218,6 @@ async function seedMenuItems() {
 			await prisma.foodItem.create({ data: item });
 		}
 
-		console.log('Food items seeded successfully');
-
 		// Seed drink items
 		const drinkItems: Prisma.DrinkItemCreateInput[] = [
 			{
@@ -254,8 +252,6 @@ async function seedMenuItems() {
 		for (const item of drinkItems) {
 			await prisma.drinkItem.create({ data: item });
 		}
-
-		console.log('Drink items seeded successfully');
 
 		// ... rest of the h (error) {
 	} catch (error) {

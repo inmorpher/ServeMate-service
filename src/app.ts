@@ -67,6 +67,25 @@ export class App {
 			next();
 		});
 
+		this.app.use(
+			cors({
+				origin: 'http://localhost:3000',
+				credentials: true, // Важно для работы с cookies
+				methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+				allowedHeaders: [
+					'Content-Type',
+					'Authorization',
+					'X-Requested-With',
+					'Accept',
+					'Origin',
+					'Access-Control-Allow-Headers',
+				],
+				exposedHeaders: ['Set-Cookie'],
+			})
+		);
+
+		this.app.use(cookieParser());
+
 		if (ENV.PRODUCTION) {
 			this.app.use('/api', (req, res, next) => {
 				if (req.method === 'OPTIONS') {
@@ -79,16 +98,6 @@ export class App {
 				this.authMiddleware.execute(req, res, next);
 			});
 		}
-
-		this.app.use(
-			cors({
-				origin: 'http://localhost:3000', // URL вашего Next.js клиента
-				credentials: true, // Важно для работы с cookies
-				methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-				allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-			})
-		);
-		this.app.use(cookieParser());
 	}
 
 	private useRoutes(): void {

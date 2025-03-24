@@ -23,7 +23,7 @@ describe('AuthMiddleware', () => {
 		tokenService.authenticate = jest.fn();
 		tokenService.refreshToken = jest.fn();
 
-		authMiddleware = new AuthMiddleware(userService, tokenService);
+		authMiddleware = new AuthMiddleware(tokenService);
 		mockRequest = {
 			headers: {},
 		};
@@ -53,7 +53,7 @@ describe('AuthMiddleware', () => {
 
 			(tokenService.refreshToken as jest.Mock).mockResolvedValue(mockRefreshResult);
 
-			const result = await authMiddleware.refreshToken(mockRefreshToken);
+			const result = await tokenService.refreshToken(mockRefreshToken, userService);
 
 			expect(tokenService.refreshToken).toHaveBeenCalledWith(mockRefreshToken, userService);
 			expect(result).toEqual(mockRefreshResult);
@@ -63,7 +63,7 @@ describe('AuthMiddleware', () => {
 			const invalidRefreshToken = 'invalidRefreshToken';
 			(tokenService.refreshToken as jest.Mock).mockResolvedValue(null);
 
-			const result = await authMiddleware.refreshToken(invalidRefreshToken);
+			const result = await tokenService.refreshToken(invalidRefreshToken, userService);
 
 			expect(tokenService.refreshToken).toHaveBeenCalledWith(invalidRefreshToken, userService);
 			expect(result).toBeNull();
@@ -84,7 +84,7 @@ describe('AuthMiddleware', () => {
 
 			// Проверяем что refreshToken просто проксирует вызов
 			const mockRefreshToken = 'testRefreshToken';
-			await authMiddleware.refreshToken(mockRefreshToken);
+			await tokenService.refreshToken(mockRefreshToken, userService);
 			expect(tokenService.refreshToken).toHaveBeenCalledWith(mockRefreshToken, userService);
 			expect(tokenService.refreshToken).toHaveBeenCalledTimes(1);
 		});
