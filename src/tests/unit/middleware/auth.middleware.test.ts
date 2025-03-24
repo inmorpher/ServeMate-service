@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import { ENV } from '../../../../env';
 import { HTTPError } from '../../../errors/http-error.class';
 import { AuthMiddleware, DecodedUser } from '../../../middleware/auth/auth.middleware';
+import { TokenService } from '../../../services/tokens/token.service';
+import { ITokenService } from '../../../services/tokens/token.service.interface';
 import { UserService } from '../../../services/users/user.service';
 
 describe('AuthMiddleware', () => {
@@ -14,11 +16,14 @@ describe('AuthMiddleware', () => {
 	let mockResponse: Partial<Response>;
 	let nextFunction: NextFunction;
 	let userService: UserService;
+	let tokenService: ITokenService;
 
 	beforeEach(() => {
 		prismaClient = new PrismaClient();
 		userService = new UserService(prismaClient);
-		authMiddleware = new AuthMiddleware(userService);
+		tokenService = new TokenService();
+
+		authMiddleware = new AuthMiddleware(userService, tokenService);
 		mockRequest = {
 			headers: {},
 		};
@@ -50,7 +55,7 @@ describe('AuthMiddleware', () => {
 
 		it('should correctly set the expiration time for generated tokens', () => {
 			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
-			const authMiddleware = new AuthMiddleware(userService);
+			const authMiddleware = new AuthMiddleware(userService, tokenService);
 
 			// Mock the ENV values
 			const originalJwtExpiresIn = ENV.JWT_EXPIRES_IN;
@@ -75,7 +80,7 @@ describe('AuthMiddleware', () => {
 		});
 
 		it('should include the correct payload information in generated tokens', () => {
-			const authMiddleware = new AuthMiddleware(userService);
+			const authMiddleware = new AuthMiddleware(userService, tokenService);
 			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
 			const token = authMiddleware.generateToken(mockDecodedUser);
 			const refreshToken = authMiddleware.generateRefreshToken(mockUser);

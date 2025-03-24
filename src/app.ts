@@ -69,14 +69,25 @@ export class App {
 
 		if (ENV.PRODUCTION) {
 			this.app.use('/api', (req, res, next) => {
+				if (req.method === 'OPTIONS') {
+					return next();
+				}
 				if (req.path.startsWith('/auth')) {
 					return next();
 				}
+
 				this.authMiddleware.execute(req, res, next);
 			});
 		}
 
-		this.app.use(cors());
+		this.app.use(
+			cors({
+				origin: 'http://localhost:3000', // URL вашего Next.js клиента
+				credentials: true, // Важно для работы с cookies
+				methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+				allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+			})
+		);
 		this.app.use(cookieParser());
 	}
 

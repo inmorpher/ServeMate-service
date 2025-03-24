@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ENV } from '../../../env';
 import { IMiddleware } from '../../common/middleware.interface';
 import { HTTPError } from '../../errors/http-error.class';
+import { ITokenService } from '../../services/tokens/token.service.interface';
 import { IUserService } from '../../services/users/user.service.interface';
 import { TYPES } from '../../types';
 
@@ -17,8 +18,11 @@ export type DecodedUser = Pick<User, 'email' | 'role' | 'id'>;
 export class AuthMiddleware implements IMiddleware {
 	private tokenCache: NodeCache;
 
-	constructor(@inject(TYPES.UserService) private userService: IUserService) {
-		this.tokenCache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
+	constructor(
+		@inject(TYPES.UserService) private userService: IUserService,
+		@inject(TYPES.ITokenService) private tokenService: ITokenService
+	) {
+		this.tokenCache = new NodeCache({ stdTTL: 100 }); // Cache for 1 hour
 	}
 
 	/**
@@ -94,7 +98,8 @@ export class AuthMiddleware implements IMiddleware {
 			if (cachedUser) {
 				decoded = cachedUser;
 			} else {
-				decoded = await this.verifyToken(token, ENV.JWT_SECRET);
+				// decoded = await this.verifyToken(token, ENV.JWT_SECRET);
+				decoded = await this.tokenService.verifyToken(token, ENV.JWT_SECRET);
 				this.tokenCache.set(token, decoded);
 			}
 
@@ -166,16 +171,27 @@ export class AuthMiddleware implements IMiddleware {
 		refreshToken: string
 	): Promise<{ accessToken: string; refreshToken: string } | null> {
 		try {
-			const decoded = (await this.verifyToken(refreshToken, ENV.JWT_REFRESH)) as DecodedUser;
+			const decoded = (await this.tokenService.verifyToken(
+				refreshToken,
+				ENV.JWT_REFRESH
+			)) as DecodedUser;
+
+			console.log('Decoded refresh token:', decoded);
 
 			const currentUser = await this.userService.findUserById(decoded.id);
 			if (!currentUser) {
 				return null;
 			}
+
+			console.log('Current user:', currentUser);
 			const user = { id: currentUser.id, email: currentUser.email, role: currentUser.role };
 
-			const newAccessToken = this.generateToken(user);
-			const newRefreshToken = this.generateRefreshToken(user);
+			// const newAccessToken = this.generateToken(user);
+			// const newRefreshToken = this.generateRefreshToken(user);
+			const newAccessToken = await this.tokenService.generateToken(user, false);
+			const newRefreshToken = await this.tokenService.generateToken(user, true);
+
+			this.tokenCache.del(refreshToken);
 
 			return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 		} catch (error) {

@@ -118,22 +118,53 @@ export class AuthenticationController extends BaseController {
 		try {
 			const refreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
 
+			this.loggerService.log(`Попытка обновить токен. Токен существует: ${Boolean(refreshToken)}`);
+
 			if (!refreshToken) {
-				return this.unauthorized(res, 'Refresh token not provided');
+				this.loggerService.warn('Токен обновления не предоставлен');
+				return this.unauthorized(res, ERROR_MESSAGES.REFRESH_TOKEN_NOT_PROVIDED);
 			}
 
-			const decodedUser = await this.tokenService.verifyToken(refreshToken, ENV.JWT_REFRESH);
+			try {
+				const decodedUser = await this.tokenService.verifyToken(refreshToken, ENV.JWT_REFRESH);
+				this.loggerService.log(`Токен обновления проверен для пользователя ID: ${decodedUser?.id}`);
 
-			if (!decodedUser) {
-				return this.unauthorized(res, 'Invalid refresh token');
+				if (!decodedUser) {
+					this.loggerService.warn('Декодированный пользователь равен null после проверки токена');
+					return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+				}
+
+				// Получаем полные данные пользователя из базы данных
+				const fullUser = await this.userService.findUserById(decodedUser.id);
+				if (!fullUser) {
+					this.loggerService.warn(
+						`Пользователь с ID ${decodedUser.id} не найден при обновлении токена`
+					);
+					return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
+				}
+
+				// Создаем полный объект пользователя для генерации токена
+				const userForToken = {
+					id: fullUser.id,
+					email: fullUser.email,
+					role: fullUser.role,
+				};
+
+				// Генерируем новые токены с полными данными пользователя
+				const newAccessToken = await this.tokenService.generateToken(userForToken, false);
+				const newRefreshToken = await this.tokenService.generateToken(userForToken, true);
+
+				this.setCookie(res, 'refreshToken', newRefreshToken);
+				this.loggerService.log(`Токены обновлены для пользователя ID: ${decodedUser.id}`);
+				this.ok(res, { accessToken: newAccessToken });
+			} catch (verifyError) {
+				this.loggerService.error(`Проверка токена не удалась: ${verifyError}`);
+				return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 			}
-
-			const newAccessToken = await this.tokenService.generateToken(decodedUser, false);
-			const newRefreshToken = await this.tokenService.generateToken(decodedUser, true);
-
-			this.setCookie(res, 'refreshToken', newRefreshToken);
-			this.ok(res, { accessToken: newAccessToken });
 		} catch (error) {
+			this.loggerService.error(
+				`Неожиданная ошибка в refreshToken: ${error instanceof Error ? error.message : String(error)}`
+			);
 			next(error);
 		}
 	}

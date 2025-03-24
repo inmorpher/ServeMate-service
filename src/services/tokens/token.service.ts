@@ -31,6 +31,7 @@ export class TokenService implements ITokenService {
 		if (!isRefreshToken) {
 			payload = {
 				...basePayload,
+				id: user.id,
 				email: user.email,
 				role: user.role,
 			};
