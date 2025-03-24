@@ -1,4 +1,6 @@
 import { UserDto } from '@servemate/dto';
+import { NextFunction, Request, Response } from 'express';
+import { IUserService } from '../users/user.service.interface';
 
 /**
  * Represents the decoded user information.
@@ -58,4 +60,25 @@ export interface ITokenService {
 	 * @returns A Promise that resolves to the decoded user information.
 	 */
 	verifyToken(token: string, secret: string): Promise<DecodedUser>;
+
+	/**
+	 * Authenticates the request by verifying the token in the authorization header.
+	 *
+	 * @param req - The request object.
+	 * @param res - The response object.
+	 * @param next - The next middleware function.
+	 */
+	authenticate(req: Request, res: Response, next: NextFunction): Promise<void>;
+
+	/**
+	 * Refreshes the given refresh token and generates new access and refresh tokens.
+	 *
+	 * @param refreshToken - The refresh token to refresh.
+	 * @param userService - The user service to find the user by ID.
+	 * @returns A Promise that resolves to an object containing the new access and refresh tokens, or null if the refresh token is invalid.
+	 */
+	refreshToken(
+		refreshToken: string,
+		userService: IUserService
+	): Promise<{ accessToken: string; refreshToken: string } | null>;
 }

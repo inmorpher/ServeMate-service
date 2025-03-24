@@ -127,19 +127,14 @@ export class AuthenticationController extends BaseController {
 
 			try {
 				const decodedUser = await this.tokenService.verifyToken(refreshToken, ENV.JWT_REFRESH);
-				this.loggerService.log(`Токен обновления проверен для пользователя ID: ${decodedUser?.id}`);
 
 				if (!decodedUser) {
 					this.loggerService.warn('Декодированный пользователь равен null после проверки токена');
 					return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 				}
 
-				// Получаем полные данные пользователя из базы данных
 				const fullUser = await this.userService.findUserById(decodedUser.id);
 				if (!fullUser) {
-					this.loggerService.warn(
-						`Пользователь с ID ${decodedUser.id} не найден при обновлении токена`
-					);
 					return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 				}
 
@@ -150,20 +145,17 @@ export class AuthenticationController extends BaseController {
 					role: fullUser.role,
 				};
 
-				// Генерируем новые токены с полными данными пользователя
 				const newAccessToken = await this.tokenService.generateToken(userForToken, false);
 				const newRefreshToken = await this.tokenService.generateToken(userForToken, true);
 
 				this.setCookie(res, 'refreshToken', newRefreshToken);
-				this.loggerService.log(`Токены обновлены для пользователя ID: ${decodedUser.id}`);
 				this.ok(res, { accessToken: newAccessToken });
 			} catch (verifyError) {
-				this.loggerService.error(`Проверка токена не удалась: ${verifyError}`);
 				return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 			}
 		} catch (error) {
 			this.loggerService.error(
-				`Неожиданная ошибка в refreshToken: ${error instanceof Error ? error.message : String(error)}`
+				`unexpected error in refreshToken: ${error instanceof Error ? error.message : String(error)}`
 			);
 			next(error);
 		}

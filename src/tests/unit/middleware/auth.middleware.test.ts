@@ -1,10 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { UserDto } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import { ENV } from '../../../../env';
-import { HTTPError } from '../../../errors/http-error.class';
-import { AuthMiddleware, DecodedUser } from '../../../middleware/auth/auth.middleware';
+import { AuthMiddleware } from '../../../middleware/auth/auth.middleware';
 import { TokenService } from '../../../services/tokens/token.service';
 import { ITokenService } from '../../../services/tokens/token.service.interface';
 import { UserService } from '../../../services/users/user.service';
@@ -23,6 +19,10 @@ describe('AuthMiddleware', () => {
 		userService = new UserService(prismaClient);
 		tokenService = new TokenService();
 
+		// Создаем моки для методов tokenService
+		tokenService.authenticate = jest.fn();
+		tokenService.refreshToken = jest.fn();
+
 		authMiddleware = new AuthMiddleware(userService, tokenService);
 		mockRequest = {
 			headers: {},
@@ -30,242 +30,63 @@ describe('AuthMiddleware', () => {
 		mockResponse = {};
 		nextFunction = jest.fn();
 	});
-	describe('generateToken', () => {
-		const mockDecodedUser: DecodedUser = {
-			id: 1,
-			email: 'test@example.com',
-			role: 'USER',
-		};
 
-		it('should authenticate successfully with a valid token', async () => {
-			const mockToken = 'validToken';
-			mockRequest.headers = { authorization: `Bearer ${mockToken}` };
-			jest.spyOn(authMiddleware['tokenCache'], 'get').mockReturnValue(null);
-			jest.spyOn(authMiddleware as any, 'verifyToken').mockResolvedValue(mockDecodedUser);
-			jest.spyOn(authMiddleware['tokenCache'], 'set');
-
+	describe('execute', () => {
+		it('should call tokenService.authenticate with correct parameters', async () => {
 			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
 
-			expect(authMiddleware['tokenCache'].get).toHaveBeenCalledWith(mockToken);
-			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockToken, ENV.JWT_SECRET);
-			expect(authMiddleware['tokenCache'].set).toHaveBeenCalledWith(mockToken, mockDecodedUser);
-			expect((mockRequest as any).user).toEqual(mockDecodedUser);
-			expect(nextFunction).toHaveBeenCalled();
-		});
-
-		it('should correctly set the expiration time for generated tokens', () => {
-			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
-			const authMiddleware = new AuthMiddleware(userService, tokenService);
-
-			// Mock the ENV values
-			const originalJwtExpiresIn = ENV.JWT_EXPIRES_IN;
-			const originalJwtRefreshExpiresIn = ENV.JWT_REFRESH_EXPIRES_IN;
-			ENV.JWT_EXPIRES_IN = '1h';
-			ENV.JWT_REFRESH_EXPIRES_IN = '7d';
-
-			const token = authMiddleware.generateToken(mockDecodedUser);
-			const refreshToken = authMiddleware.generateRefreshToken(mockUser);
-
-			const decodedToken = jwt.decode(token) as jwt.JwtPayload;
-			const decodedRefreshToken = jwt.decode(refreshToken) as jwt.JwtPayload;
-
-			const currentTime = Math.floor(Date.now() / 1000);
-
-			expect(decodedToken.exp).toBe(currentTime + 3600); // 1 hour in seconds
-			expect(decodedRefreshToken.exp).toBe(currentTime + 604800); // 7 days in seconds
-
-			// Restore original ENV values
-			ENV.JWT_EXPIRES_IN = originalJwtExpiresIn;
-			ENV.JWT_REFRESH_EXPIRES_IN = originalJwtRefreshExpiresIn;
-		});
-
-		it('should include the correct payload information in generated tokens', () => {
-			const authMiddleware = new AuthMiddleware(userService, tokenService);
-			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
-			const token = authMiddleware.generateToken(mockDecodedUser);
-			const refreshToken = authMiddleware.generateRefreshToken(mockUser);
-
-			const decodedToken = jwt.decode(token) as jwt.JwtPayload;
-			const decodedRefreshToken = jwt.decode(refreshToken) as jwt.JwtPayload;
-
-			expect(decodedToken).toMatchObject({
-				id: mockUser.id,
-				email: mockUser.email,
-				role: mockUser.role,
-			});
-			expect(decodedToken).toHaveProperty('jti');
-			expect(decodedToken).toHaveProperty('iat');
-			expect(decodedToken).toHaveProperty('exp');
-
-			expect(decodedRefreshToken).toMatchObject({
-				id: mockUser.id,
-			});
-			expect(decodedRefreshToken).toHaveProperty('jti');
-			expect(decodedRefreshToken).toHaveProperty('iat');
-			expect(decodedRefreshToken).toHaveProperty('exp');
-		});
-	});
-
-	describe('verifyToken', () => {
-		it('should return a 401 error when no authorization header is provided', async () => {
-			mockRequest.headers = {};
-			const nextSpy = jest.fn();
-
-			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextSpy);
-
-			expect(nextSpy).toHaveBeenCalledWith(expect.any(HTTPError));
-			expect(nextSpy).toHaveBeenCalledWith(
-				expect.objectContaining({
-					statusCode: 401,
-					context: 'Header',
-					message: 'No authorization header provided',
-				})
-			);
-		});
-
-		it('should return a 401 error when the authorization format is invalid', async () => {
-			mockRequest.headers = { authorization: 'InvalidFormat' };
-			const nextSpy = jest.fn();
-
-			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextSpy);
-
-			expect(nextSpy).toHaveBeenCalledWith(expect.any(HTTPError));
-			expect(nextSpy).toHaveBeenCalledWith(
-				expect.objectContaining({
-					statusCode: 401,
-					context: 'Token',
-					message: 'Invalid authorization format',
-				})
+			expect(tokenService.authenticate).toHaveBeenCalledWith(
+				mockRequest,
+				mockResponse,
+				nextFunction
 			);
 		});
 	});
 
-	describe('caching tokens', () => {
-		it('should use cached user data when available instead of verifying the token again', async () => {
-			const mockToken = 'cachedToken';
-			const mockCachedUser: DecodedUser = {
-				id: 1,
-				email: 'cached@example.com',
-				role: 'USER',
-			};
-			mockRequest.headers = { authorization: `Bearer ${mockToken}` };
-			jest.spyOn(authMiddleware['tokenCache'], 'get').mockReturnValue(mockCachedUser);
-			jest.spyOn(authMiddleware as any, 'verifyToken');
-
-			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
-
-			expect(authMiddleware['tokenCache'].get).toHaveBeenCalledWith(mockToken);
-			expect(authMiddleware['verifyToken']).not.toHaveBeenCalled();
-			expect((mockRequest as any).user).toEqual(mockCachedUser);
-			expect(nextFunction).toHaveBeenCalled();
-		});
-	});
-
-	describe('Expired tokens', () => {
-		it('should handle and return appropriate errors for expired tokens', async () => {
-			const mockExpiredToken = 'expiredToken';
-			mockRequest.headers = { authorization: `Bearer ${mockExpiredToken}` };
-			jest.spyOn(authMiddleware['tokenCache'], 'get').mockReturnValue(null);
-			jest
-				.spyOn(authMiddleware as any, 'verifyToken')
-				.mockRejectedValue(new jwt.TokenExpiredError('Token expired', new Date()));
-			const nextSpy = jest.fn();
-
-			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextSpy);
-
-			expect(authMiddleware['tokenCache'].get).toHaveBeenCalledWith(mockExpiredToken);
-			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockExpiredToken, ENV.JWT_SECRET);
-			expect(nextSpy).toHaveBeenCalledWith(expect.any(HTTPError));
-			expect(nextSpy).toHaveBeenCalledWith(
-				expect.objectContaining({
-					statusCode: 401,
-					context: 'Token',
-					message: 'Token has expired',
-				})
-			);
-		});
-	});
-
-	describe('invalid tokens', () => {
-		it('should handle and return appropriate errors for invalid tokens', async () => {
-			const mockInvalidToken = 'invalidToken';
-			mockRequest.headers = { authorization: `Bearer ${mockInvalidToken}` };
-			jest.spyOn(authMiddleware['tokenCache'], 'get').mockReturnValue(null);
-			jest
-				.spyOn(authMiddleware as any, 'verifyToken')
-				.mockRejectedValue(new jwt.JsonWebTokenError('Invalid token'));
-			const nextSpy = jest.fn();
-
-			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextSpy);
-
-			expect(authMiddleware['tokenCache'].get).toHaveBeenCalledWith(mockInvalidToken);
-			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockInvalidToken, ENV.JWT_SECRET);
-			expect(nextSpy).toHaveBeenCalledWith(expect.any(HTTPError));
-			expect(nextSpy).toHaveBeenCalledWith(
-				expect.objectContaining({
-					statusCode: 401,
-					context: 'Token',
-					message: 'Invalid token',
-				})
-			);
-		});
-	});
-
-	describe('generateRefreshToken', () => {
-		it('should generate a new access token and refresh token when refreshing with a valid refresh token', async () => {
-			const mockUser = {
-				id: 1,
-				email: 'test@example.com',
-				role: 'USER',
-			} as UserDto;
+	describe('refreshToken', () => {
+		it('should call tokenService.refreshToken with correct parameters', async () => {
 			const mockRefreshToken = 'validRefreshToken';
-			const mockNewAccessToken = 'newAccessToken';
-			const mockNewRefreshToken = 'newRefreshToken';
+			const mockRefreshResult = {
+				accessToken: 'newAccessToken',
+				refreshToken: 'newRefreshToken',
+			};
 
-			jest.spyOn(authMiddleware as any, 'verifyToken').mockResolvedValue(mockUser);
-			jest.spyOn(userService, 'findUserById').mockResolvedValue(mockUser);
-			jest.spyOn(authMiddleware, 'generateToken').mockReturnValue(mockNewAccessToken);
-			jest.spyOn(authMiddleware, 'generateRefreshToken').mockReturnValue(mockNewRefreshToken);
+			(tokenService.refreshToken as jest.Mock).mockResolvedValue(mockRefreshResult);
 
 			const result = await authMiddleware.refreshToken(mockRefreshToken);
 
-			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockRefreshToken, ENV.JWT_REFRESH);
-			expect(userService.findUserById).toHaveBeenCalledWith(mockUser.id);
-			expect(authMiddleware.generateToken).toHaveBeenCalledWith(mockUser);
-			expect(authMiddleware.generateRefreshToken).toHaveBeenCalledWith(mockUser);
-			expect(result).toEqual({
-				accessToken: mockNewAccessToken,
-				refreshToken: mockNewRefreshToken,
-			});
+			expect(tokenService.refreshToken).toHaveBeenCalledWith(mockRefreshToken, userService);
+			expect(result).toEqual(mockRefreshResult);
 		});
 
-		it('should return null when attempting to refresh with an invalid refresh token', async () => {
+		it('should return null when tokenService.refreshToken returns null', async () => {
 			const invalidRefreshToken = 'invalidRefreshToken';
-			jest
-				.spyOn(authMiddleware as any, 'verifyToken')
-				.mockRejectedValue(new Error('Invalid token'));
+			(tokenService.refreshToken as jest.Mock).mockResolvedValue(null);
 
 			const result = await authMiddleware.refreshToken(invalidRefreshToken);
 
-			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(
-				invalidRefreshToken,
-				ENV.JWT_REFRESH
-			);
+			expect(tokenService.refreshToken).toHaveBeenCalledWith(invalidRefreshToken, userService);
 			expect(result).toBeNull();
 		});
+	});
 
-		it('should return null when user is not found in database', async () => {
-			const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
-			const mockRefreshToken = 'validRefreshToken';
+	// Демонстрация делегирования функциональности в TokenService
+	describe('delegation pattern', () => {
+		it('should only delegate functionality to tokenService without additional processing', async () => {
+			// Проверяем что execute просто проксирует вызов
+			await authMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+			expect(tokenService.authenticate).toHaveBeenCalledWith(
+				mockRequest,
+				mockResponse,
+				nextFunction
+			);
+			expect(tokenService.authenticate).toHaveBeenCalledTimes(1);
 
-			jest.spyOn(authMiddleware as any, 'verifyToken').mockResolvedValue(mockUser);
-			jest.spyOn(userService, 'findUserById').mockResolvedValue(null);
-
-			const result = await authMiddleware.refreshToken(mockRefreshToken);
-
-			expect(authMiddleware['verifyToken']).toHaveBeenCalledWith(mockRefreshToken, ENV.JWT_REFRESH);
-			expect(userService.findUserById).toHaveBeenCalledWith(mockUser.id);
-			expect(result).toBeNull();
+			// Проверяем что refreshToken просто проксирует вызов
+			const mockRefreshToken = 'testRefreshToken';
+			await authMiddleware.refreshToken(mockRefreshToken);
+			expect(tokenService.refreshToken).toHaveBeenCalledWith(mockRefreshToken, userService);
+			expect(tokenService.refreshToken).toHaveBeenCalledTimes(1);
 		});
 	});
 });

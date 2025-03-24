@@ -12,6 +12,7 @@ const envSchema = z.object({
 	PORT: z.coerce.number().int().positive().default(3000),
 	DATABASE_URL: z.string(),
 	// JWT TOKENS
+	TOKEN_CACHE_TTL: z.coerce.number().int().positive().default(3600),
 	JWT_SECRET: z.string(),
 	JWT_REFRESH: z.string(),
 	JWT_EXPIRES_IN: z.string(),
