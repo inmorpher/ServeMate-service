@@ -86,18 +86,25 @@ export class App {
 
 		this.app.use(cookieParser());
 
-		if (ENV.PRODUCTION) {
-			this.app.use('/api', (req, res, next) => {
-				if (req.method === 'OPTIONS') {
-					return next();
-				}
-				if (req.path.startsWith('/auth')) {
-					return next();
-				}
+		// Применяем middleware аутентификации для всех маршрутов кроме логина/регистрации
+		this.app.use('/api', (req, res, next) => {
+			if (req.method === 'OPTIONS') {
+				return next();
+			}
 
-				this.authMiddleware.execute(req, res, next);
-			});
-		}
+			// Проверяем путь запроса
+			// Для эндпоинтов логина, регистрации и обновления токена не применяем аутентификацию
+			if (
+				req.path.startsWith('/auth/login') ||
+				req.path.startsWith('/auth/register') ||
+				req.path.startsWith('/auth/refresh-token')
+			) {
+				return next();
+			}
+
+			// Для всех остальных эндпоинтов, включая /auth/me, применяем аутентификацию
+			this.authMiddleware.execute(req, res, next);
+		});
 	}
 
 	private useRoutes(): void {

@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
-import { Controller, Post } from '../../decorators/httpDecorators';
+import { Controller, Get, Post } from '../../decorators/httpDecorators';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { ITokenService } from '../../services/tokens/token.service.interface';
@@ -22,12 +22,14 @@ const ROUTES = {
 	LOGIN: '/login',
 	REFRESH_TOKEN: '/refresh-token',
 	LOGOUT: '/logout',
+	ME: '/me',
 };
 
 const ERROR_MESSAGES = {
 	INVALID_CREDENTIALS: 'Invalid email or password',
 	REFRESH_TOKEN_NOT_PROVIDED: 'Refresh token not provided',
 	INVALID_REFRESH_TOKEN: 'Invalid refresh token',
+	NOT_AUTHENTICATED: 'Пользователь не аутентифицирован',
 };
 
 @injectable()
@@ -150,5 +152,44 @@ export class AuthenticationController extends BaseController {
 	 */
 	private setCookie(res: Response, name: string, value: string) {
 		this.cookie(res, name, value, COOKIE_OPTIONS);
+	}
+
+	/**
+	 * Handles the retrieval of the current authenticated user's data.
+	 *
+	 * This function checks if the user is authenticated, retrieves the user's data from the database,
+	 * and returns the user data in the response.
+	 *
+	 * @param req - The Express request object.
+	 * @param res - The Express response object used to send the response.
+	 * @param next - The Express next function for error handling.
+	 * @returns A Promise that resolves when the user data retrieval process is complete.
+	 * @throws Will pass any caught errors to the next middleware for handling.
+	 */
+
+	@Get('/me')
+	async me(req: Request, res: Response, next: NextFunction) {
+		try {
+			const userId = req.user?.id;
+
+			if (!userId) {
+				this.loggerService.warn('Пользователь не аутентифицирован');
+				return this.unauthorized(res, ERROR_MESSAGES.NOT_AUTHENTICATED);
+			}
+
+			const user = await this.userService.findUserById(userId);
+
+			if (!user) {
+				this.loggerService.warn(`Пользователь с ID ${userId} не найден`);
+				return this.unauthorized(res, ERROR_MESSAGES.NOT_AUTHENTICATED);
+			}
+
+			this.ok(res, { user });
+		} catch (error) {
+			this.loggerService.error(
+				`unexpected error in me: ${error instanceof Error ? error.message : String(error)}`
+			);
+			next(error);
+		}
 	}
 }
