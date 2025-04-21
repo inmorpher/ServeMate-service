@@ -4,7 +4,6 @@ import {
 	CreateUser,
 	UpdateUserDto,
 	UserCredentials,
-	UserDto,
 	UserListItem,
 	UserListResult,
 	UserRole,
@@ -238,9 +237,19 @@ export class UserService extends BaseService implements IUserService {
 	 * @param {number} id - The unique identifier of the user to find.
 	 * @returns {Promise<User | null>} A promise that resolves to the user data if found, or null if not found.
 	 */
-	async findUserById(id: number): Promise<UserDto | null> {
+	async findUserById(id: number): Promise<UserListItem | null> {
 		return this.prisma.user.findUnique({
 			where: { id },
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				role: true,
+				isActive: true,
+				lastLogin: true,
+				createdAt: true,
+				updatedAt: true,
+			},
 		});
 	}
 }

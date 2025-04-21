@@ -3,7 +3,7 @@ import {
 	CreateUser,
 	UpdateUserDto,
 	UserCredentials,
-	UserDto,
+	UserListItem,
 	UserListResult,
 	UserSearchCriteria,
 	ValidatedUserData,
@@ -52,5 +52,5 @@ export interface IUserService extends BaseService {
 	 * @param id - The ID of the user to find.
 	 * @returns A promise that resolves to the user data or null if not found.
 	 */
-	findUserById(id: number): Promise<UserDto | null>;
+	findUserById(id: number): Promise<UserListItem | null>;
 }

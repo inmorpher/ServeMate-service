@@ -66,16 +66,22 @@ export class AuthenticationController extends BaseController {
 
 			if (!user) {
 				this.loggerService.warn(`Failed login attempt for email: ${email}`);
-				this.badRequest(res, ERROR_MESSAGES.INVALID_CREDENTIALS);
+				return this.badRequest(res, ERROR_MESSAGES.INVALID_CREDENTIALS);
 			}
 
-			const accessToken = await this.tokenService.generateToken(user, false);
-			const refreshToken = await this.tokenService.generateToken(user, true);
+			const { accessToken, expiresIn } = await this.tokenService.generateAccessToken(user);
+			const refreshToken = await this.tokenService.generateRefreshToken(user);
 
 			this.setCookie(res, 'refreshToken', refreshToken);
+			this.setCookie(res, 'accessToken', accessToken);
 			this.loggerService.log(`\x1b[1mUser logged in: ${email}\x1b[0m`);
 			await this.userService.updateUser(user.id, { lastLogin: new Date() });
-			this.ok(res, { user, accessToken });
+
+			this.ok(res, {
+				user,
+				accessToken,
+				expiresIn,
+			});
 		} catch (error) {
 			next(error);
 		}
@@ -117,23 +123,31 @@ export class AuthenticationController extends BaseController {
 	@Post('/refresh-token')
 	async refreshToken(req: Request, res: Response, next: NextFunction) {
 		try {
-			const refreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
+			const receivedRefreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
 
-			this.loggerService.log(`Попытка обновить токен. Токен существует: ${Boolean(refreshToken)}`);
+			this.loggerService.log(
+				`Попытка обновить токен. Токен существует: ${Boolean(receivedRefreshToken)}`
+			);
 
-			if (!refreshToken) {
+			if (!receivedRefreshToken) {
 				this.loggerService.warn('Токен обновления не предоставлен');
 				return this.unauthorized(res, ERROR_MESSAGES.REFRESH_TOKEN_NOT_PROVIDED);
 			}
 
-			const result = await this.tokenService.refreshToken(refreshToken, this.userService);
+			const { accessToken, refreshToken, expiresIn } = await this.tokenService.refreshToken(
+				receivedRefreshToken,
+				this.userService
+			);
 
-			if (!result) {
+			if (!refreshToken) {
 				return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 			}
 
-			this.setCookie(res, 'refreshToken', result.refreshToken);
-			this.ok(res, { accessToken: result.accessToken });
+			this.setCookie(res, 'refreshToken', refreshToken);
+			this.ok(res, {
+				accessToken,
+				expiresIn,
+			});
 		} catch (error) {
 			this.loggerService.error(
 				`unexpected error in refreshToken: ${error instanceof Error ? error.message : String(error)}`
@@ -171,14 +185,14 @@ export class AuthenticationController extends BaseController {
 	async me(req: Request, res: Response, next: NextFunction) {
 		try {
 			const userId = req.user?.id;
-
+			this.loggerService.log(`Получение данных пользователя с ID: ${userId}`);
 			if (!userId) {
 				this.loggerService.warn('Пользователь не аутентифицирован');
 				return this.unauthorized(res, ERROR_MESSAGES.NOT_AUTHENTICATED);
 			}
 
 			const user = await this.userService.findUserById(userId);
-
+			console.log(user);
 			if (!user) {
 				this.loggerService.warn(`Пользователь с ID ${userId} не найден`);
 				return this.unauthorized(res, ERROR_MESSAGES.NOT_AUTHENTICATED);

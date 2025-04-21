@@ -39,34 +39,28 @@ export type AccessTokenPayload = BasePayload & {
  */
 export type RefreshTokenPayload = BasePayload;
 
+export interface IAccessToken {
+	accessToken: string;
+	expiresIn: number;
+}
+
+export interface IRefreshToken extends IAccessToken {
+	refreshToken: string;
+}
 /**
  * Interface for token service operations.
  */
+/**
+ * Interface representing a token service for handling token-related operations.
+ */
 export interface ITokenService {
-	/**
-	 * Generates a token for the given user.
-	 *
-	 * @param user - The user object containing email, role, and id.
-	 * @param isRefreshToken - Optional flag to indicate if generating a refresh token.
-	 * @returns A string representing the generated token.
-	 */
-	generateToken(user: DecodedUser, isRefreshToken?: boolean): Promise<string>;
-
-	/**
-	 * Verifies the given token using the provided secret.
-	 *
-	 * @param token - The token string to verify.
-	 * @param secret - The secret used to verify the token.
-	 * @returns A Promise that resolves to the decoded user information.
-	 */
-	verifyToken(token: string, secret: string): Promise<DecodedUser>;
-
 	/**
 	 * Authenticates the request by verifying the token in the authorization header.
 	 *
 	 * @param req - The request object.
 	 * @param res - The response object.
-	 * @param next - The next middleware function.
+	 * @param next - The next middleware function to pass control to the next middleware.
+	 * @returns A Promise that resolves when authentication is complete.
 	 */
 	authenticate(req: Request, res: Response, next: NextFunction): Promise<void>;
 
@@ -77,8 +71,9 @@ export interface ITokenService {
 	 * @param userService - The user service to find the user by ID.
 	 * @returns A Promise that resolves to an object containing the new access and refresh tokens, or null if the refresh token is invalid.
 	 */
-	refreshToken(
-		refreshToken: string,
-		userService: IUserService
-	): Promise<{ accessToken: string; refreshToken: string } | null>;
+	refreshToken(refreshToken: string, userService: IUserService): Promise<IRefreshToken>;
+
+	generateAccessToken(user: DecodedUser): Promise<IAccessToken>;
+
+	generateRefreshToken(user: DecodedUser): Promise<any>;
 }
