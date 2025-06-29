@@ -69,7 +69,12 @@ export class App {
 
 		this.app.use(
 			cors({
-				origin: ['http://localhost:3000', 'http://192.168.2.60:3000'],
+				origin: [
+					'http://localhost:3000',
+					'http://192.168.2.60:3000',
+					'http://192.168.2.60:3002',
+					'http://localhost:3002',
+				],
 				credentials: true, // Важно для работы с cookies
 				methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 				allowedHeaders: [
@@ -80,7 +85,7 @@ export class App {
 					'Origin',
 					'Access-Control-Allow-Headers',
 				],
-				exposedHeaders: ['Set-Cookie'],
+				exposedHeaders: ['X-Access-Token', 'X-Refresh-Token', 'Set-Cookie'],
 			})
 		);
 

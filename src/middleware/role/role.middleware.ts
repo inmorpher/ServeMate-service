@@ -31,7 +31,6 @@ export class RoleMiddleware implements IMiddleware {
 		const user = req.user;
 
 		if (!ENV.PRODUCTION) {
-			console.log(`Skipping role check for development environment`);
 			next();
 			return;
 		}

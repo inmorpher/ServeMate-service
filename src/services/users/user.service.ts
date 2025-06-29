@@ -11,7 +11,9 @@ import {
 	ValidatedUserData,
 } from '@servemate/dto';
 import { compare } from 'bcrypt';
+import crypto from 'crypto';
 import { inject, injectable } from 'inversify';
+import NodeCache from 'node-cache';
 import 'reflect-metadata';
 import { BaseService } from '../../common/base.service';
 import { HTTPError } from '../../errors/http-error.class';
@@ -23,6 +25,8 @@ import { IUserService } from './user.service.interface';
 export class UserService extends BaseService implements IUserService {
 	protected serviceName = 'UserService';
 	private prisma: PrismaClient;
+	private authCache = new NodeCache({ stdTTL: 300, checkperiod: 60 }); // 5 минут
+
 	constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient) {
 		super();
 		this.prisma = prisma;
@@ -43,6 +47,17 @@ export class UserService extends BaseService implements IUserService {
 	 */
 	async validateUser(user: UserCredentials): Promise<ValidatedUserData> {
 		const { email, password } = user;
+
+		// Генерируем ключ кэша на основе email и password
+		const cacheKey = crypto.createHash('sha256').update(`${email}:${password}`).digest('hex');
+
+		// Проверяем кэш перед обращением к базе данных
+		const cachedUser = this.authCache.get<ValidatedUserData>(cacheKey);
+		if (cachedUser) {
+			return cachedUser;
+		}
+
+		// Существующая логика поиска пользователя
 		const existingUser = await this.prisma.user.findUnique({
 			where: { email },
 			select: { id: true, password: true, email: true, name: true, role: true },
@@ -60,12 +75,16 @@ export class UserService extends BaseService implements IUserService {
 
 		const userRole: UserRole = UserRole[existingUser.role as keyof typeof UserRole];
 
-		return {
+		const result = {
 			id: existingUser.id,
 			name: existingUser.name,
 			email: existingUser.email,
 			role: userRole,
 		};
+
+		this.authCache.set(cacheKey, result);
+
+		return result;
 	}
 
 	/**

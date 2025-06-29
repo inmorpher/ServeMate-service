@@ -2,6 +2,7 @@ import { UserCredentials, UserLoginSchema } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
+import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Get, Post } from '../../decorators/httpDecorators';
@@ -10,13 +11,14 @@ import { ILogger } from '../../services/logger/logger.service.interface';
 import { ITokenService } from '../../services/tokens/token.service.interface';
 import { UserService } from '../../services/users/user.service';
 import { TYPES } from '../../types';
+import { parseExpiresIn } from '../../utils/expireEncoder';
 
-export const COOKIE_OPTIONS = {
-	httpOnly: true,
-	maxAge: 60 * 60 * 1000 * 24 * 30, // 30 days
-	secure: process.env.NODE_ENV === 'production',
-	sameSite: 'strict' as const,
-};
+// export const COOKIE_OPTIONS = {
+// 	httpOnly: true,
+// 	maxAge: 60 * 60 * 1000 * 24 * 30, // 30 days
+// 	secure: process.env.NODE_ENV === 'production',
+// 	sameSite: 'strict' as const,
+// };
 
 const ROUTES = {
 	LOGIN: '/login',
@@ -59,28 +61,45 @@ export class AuthenticationController extends BaseController {
 	@Validate(UserLoginSchema, 'body')
 	@Post('/login')
 	async login(req: TypedRequest<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
+		const startTime = performance.now();
 		try {
 			const { email, password } = req.body;
 
+			const validateStart = performance.now();
 			const user = await this.userService.validateUser({ email, password });
+			const validateTime = performance.now() - validateStart;
 
 			if (!user) {
 				this.loggerService.warn(`Failed login attempt for email: ${email}`);
 				return this.badRequest(res, ERROR_MESSAGES.INVALID_CREDENTIALS);
 			}
 
-			const { accessToken, expiresIn } = await this.tokenService.generateAccessToken(user);
-			const refreshToken = await this.tokenService.generateRefreshToken(user);
+			// const { accessToken, expiresIn } = await this.tokenService.generateAccessToken(user);
+			// const refreshToken = await this.tokenService.generateRefreshToken(user);
+			// this.setCookie(res, 'accessToken', accessToken);
+			// this.setCookie(res, 'refreshToken', refreshToken, true);
+			// const cookies = res.getHeader('Set-Cookie');
+			// console.log('All cookies being set:', cookies);
+			// this.loggerService.log(`\x1b[1mUser logged in: ${email}\x1b[0m`);
+			const tokenStart = performance.now();
+			const [accessTokenData, refreshToken] = await Promise.all([
+				this.tokenService.generateAccessToken(user),
+				this.tokenService.generateRefreshToken(user),
+			]);
 
-			this.setCookie(res, 'refreshToken', refreshToken);
-			this.setCookie(res, 'accessToken', accessToken);
-			this.loggerService.log(`\x1b[1mUser logged in: ${email}\x1b[0m`);
-			await this.userService.updateUser(user.id, { lastLogin: new Date() });
-
+			console.log('Access token data:', accessTokenData);
+			console.log('Refresh token:', refreshToken);
+			const tokenTime = performance.now() - tokenStart;
+			// this.userService.updateUser(user.id, { lastLogin: new Date() });
+			const totalTime = performance.now() - startTime;
+			this.loggerService.log(
+				`Login performance: total=${totalTime.toFixed(2)}ms, validate=${validateTime.toFixed(2)}ms, tokens=${tokenTime.toFixed(2)}ms`
+			);
 			this.ok(res, {
 				user,
-				accessToken,
-				expiresIn,
+				accessToken: accessTokenData.accessToken,
+				refreshToken,
+				expiresIn: accessTokenData.expiresIn,
 			});
 		} catch (error) {
 			next(error);
@@ -123,11 +142,12 @@ export class AuthenticationController extends BaseController {
 	@Post('/refresh-token')
 	async refreshToken(req: Request, res: Response, next: NextFunction) {
 		try {
-			const receivedRefreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
+			// const receivedRefreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
+			const { refreshToken: receivedRefreshToken } = req.body;
 
-			this.loggerService.log(
-				`Попытка обновить токен. Токен существует: ${Boolean(receivedRefreshToken)}`
-			);
+			// this.loggerService.log(
+			// 	`Попытка обновить токен. Токен существует: ${Boolean(receivedRefreshToken)}`
+			// );
 
 			if (!receivedRefreshToken) {
 				this.loggerService.warn('Токен обновления не предоставлен');
@@ -142,10 +162,14 @@ export class AuthenticationController extends BaseController {
 			if (!refreshToken) {
 				return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 			}
+			this.loggerService.log('token refreshed');
 
-			this.setCookie(res, 'refreshToken', refreshToken);
+			console.log('Access token:', accessToken);
+			console.log('Refresh token:', refreshToken);
+			// this.setCookie(res, 'refreshToken', refreshToken, true);
 			this.ok(res, {
 				accessToken,
+				refreshToken,
 				expiresIn,
 			});
 		} catch (error) {
@@ -164,8 +188,38 @@ export class AuthenticationController extends BaseController {
 	 * @param value - The value to be stored in the cookie.
 	 * @private
 	 */
-	private setCookie(res: Response, name: string, value: string) {
-		this.cookie(res, name, value, COOKIE_OPTIONS);
+	private setCookie(res: Response, name: string, value: string, refresh = false) {
+		const expiresValue = refresh ? ENV.JWT_REFRESH_EXPIRES_IN : ENV.JWT_EXPIRES_IN;
+
+		const cookieLifetime = parseExpiresIn(expiresValue, true);
+
+		const expiryDate = new Date(Date.now() + cookieLifetime);
+
+		// Если это JWT токен, давайте проверим его содержимое
+		if (value && (name === 'accessToken' || name === 'refreshToken')) {
+			try {
+				const decoded = JSON.parse(Buffer.from(value.split('.')[1], 'base64').toString());
+				if (decoded && decoded.exp) {
+					const tokenExpDate = new Date(decoded.exp * 1000);
+					console.log(`[DEBUG] JWT token ${name} exp field: ${tokenExpDate.toUTCString()}`);
+
+					// Проверяем разницу между временем истечения куки и токена
+					const diffMs = tokenExpDate.getTime() - expiryDate.getTime();
+					const diffMinutes = Math.round(diffMs / 60000);
+					console.log(`[DEBUG] Difference between cookie and token expiry: ${diffMinutes} minutes`);
+				}
+			} catch (e: any) {
+				console.log(`[DEBUG] Could not decode JWT token: ${e.message!}`);
+			}
+		}
+
+		this.cookie(res, name, value, {
+			httpOnly: true,
+			expires: expiryDate,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			path: '/',
+		});
 	}
 
 	/**

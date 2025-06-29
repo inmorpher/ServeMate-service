@@ -75,5 +75,5 @@ export interface ITokenService {
 
 	generateAccessToken(user: DecodedUser): Promise<IAccessToken>;
 
-	generateRefreshToken(user: DecodedUser): Promise<any>;
+	generateRefreshToken(user: DecodedUser): Promise<string>;
 }
