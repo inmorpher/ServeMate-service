@@ -1,6 +1,10 @@
 {
 	"name": "servemate-service",
 	"version": "1.0.0",
+	"private": true,
+	"workspaces": [
+		"dto-package"
+	],
 	"description": "",
 	"main": "main.js",
 	"scripts": {
@@ -31,7 +35,7 @@
 		"@opentelemetry/sdk-node": "^0.57.1",
 		"@prisma/client": "^6.2.1",
 		"@prisma/generator-helper": "^5.22.0",
-		"@servemate/dto": "^1.0.7",
+		"@servemate/dto": "workspace:*",
 		"axios": "^1.7.7",
 		"bcrypt": "^5.1.1",
 		"cookie-parser": "^1.4.7",

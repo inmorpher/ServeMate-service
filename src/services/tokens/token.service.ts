@@ -80,6 +80,9 @@ export class TokenService implements ITokenService {
 
 			return { accessToken, expiresIn, refreshToken: newRefreshToken };
 		} catch (error) {
+			if (error instanceof HTTPError) {
+				throw error;
+			}
 			throw new HTTPError(401, 'Token', 'Invalid refresh token');
 		}
 	}
