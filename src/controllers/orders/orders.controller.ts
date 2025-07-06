@@ -58,7 +58,6 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			console.log('Request query:', req.query.allergies);
 			const orders = await this.ordersService.findOrders(req.query);
 
 			this.ok(res, orders);

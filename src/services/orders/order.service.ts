@@ -49,10 +49,11 @@ export class OrdersService extends AbstractOrderService {
 
 			const where = this.buildWhere<Partial<OrderSearchCriteria>, Prisma.OrderWhereInput>(criteria);
 
-			const [orders, total] = await Promise.all([
+			const [orders, total, priceStats] = await Promise.all([
 				this.prisma.order.findMany({
 					where: {
 						...where,
+						totalAmount: this.buildRangeWhere(criteria.minAmount, criteria.maxAmount),
 						server: serverName
 							? {
 									name: {
@@ -87,7 +88,39 @@ export class OrdersService extends AbstractOrderService {
 						[sortBy]: sortOrder,
 					},
 				}),
-				this.prisma.order.count({ where }),
+				this.prisma.order.count({
+					where: {
+						...where,
+						server: serverName
+							? {
+									name: {
+										contains: criteria.serverName,
+										mode: 'insensitive',
+									},
+								}
+							: undefined,
+					},
+				}),
+				this.prisma.order.aggregate({
+					where: {
+						...where,
+						totalAmount: this.buildRangeWhere(criteria.minAmount, criteria.maxAmount),
+						server: serverName
+							? {
+									name: {
+										contains: criteria.serverName,
+										mode: 'insensitive',
+									},
+								}
+							: undefined,
+					},
+					_min: {
+						totalAmount: true,
+					},
+					_max: {
+						totalAmount: true,
+					},
+				}),
 			]);
 
 			return {
@@ -95,6 +128,10 @@ export class OrdersService extends AbstractOrderService {
 					...order,
 					status: order.status as OrderState,
 				})),
+				priceRange: {
+					min: priceStats._min.totalAmount ?? 0,
+					max: priceStats._max.totalAmount ?? 0,
+				},
 				totalCount: total,
 				page,
 				pageSize,

@@ -8,6 +8,20 @@ export type PrismaTransaction = Omit<
 	PrismaClient,
 	'$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
 >;
+interface RangeFilter {
+	gte?: number | Date;
+	lte?: number | Date;
+}
+
+interface NumberRangeFilter {
+	gte?: number;
+	lte?: number;
+}
+
+interface DateRangeFilter {
+	gte?: Date;
+	lte?: Date;
+}
 
 @injectable()
 export class BaseService {
@@ -113,6 +127,8 @@ export class BaseService {
 			'sortOrder',
 			'test',
 			'serverName',
+			'maxAmount',
+			'minAmount',
 		] as const;
 
 		const res = Object.entries(criteria).reduce((acc, [key, value]) => {
@@ -157,6 +173,18 @@ export class BaseService {
 		return res;
 	}
 
+	/**
+	 * Builds a Prisma-compatible `where` filter for fields that are arrays, assigning a `hasEvery` condition.
+	 *
+	 * @param key - The key of the field to filter on.
+	 * @param value - The value(s) to match against the array field. Should be an array.
+	 * @param whereInput - The object to which the filter condition will be added.
+	 * @param transformValue - Optional function to transform each value before adding it to the filter.
+	 *
+	 * @remarks
+	 * This method modifies the `whereInput` object in place. If `value` is an array, it sets a `hasEvery` filter
+	 * on the specified `key`, optionally transforming each value using `transformValue`.
+	 */
 	protected buildWhereForArrayField(
 		key: string,
 		value: any,
@@ -168,5 +196,31 @@ export class BaseService {
 				hasEvery: transformValue ? value.map(transformValue) : value,
 			};
 		}
+	}
+
+	/**
+	 * Constructs a range filter object based on optional minimum and maximum values.
+	 *
+	 * @param min - The minimum value for the range filter (inclusive). Can be a number or a Date. If undefined, no lower bound is applied.
+	 * @param max - The maximum value for the range filter (inclusive). Can be a number or a Date. If undefined, no upper bound is applied.
+	 * @returns A `RangeFilter` object with `gte` (greater than or equal) and/or `lte` (less than or equal) properties set,
+	 *          or `undefined` if both `min` and `max` are undefined.
+	 */
+	protected buildRangeWhere<T extends number | Date>(
+		min?: T,
+		max?: T
+	): (T extends number ? NumberRangeFilter : DateRangeFilter) | undefined {
+		if (min === undefined && max === undefined) {
+			return undefined;
+		}
+
+		const filter: any = {};
+		if (min !== undefined) {
+			filter.gte = min;
+		}
+		if (max !== undefined) {
+			filter.lte = max;
+		}
+		return filter;
 	}
 }

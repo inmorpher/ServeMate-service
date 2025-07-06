@@ -33,7 +33,7 @@
 		"@opentelemetry/auto-instrumentations-node": "^0.55.3",
 		"@opentelemetry/exporter-trace-otlp-http": "^0.57.1",
 		"@opentelemetry/sdk-node": "^0.57.1",
-		"@prisma/client": "^6.2.1",
+		"@prisma/client": "^6.11.1",
 		"@prisma/generator-helper": "^5.22.0",
 		"@servemate/dto": "workspace:*",
 		"axios": "^1.7.7",
