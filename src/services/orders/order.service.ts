@@ -104,7 +104,6 @@ export class OrdersService extends AbstractOrderService {
 				this.prisma.order.aggregate({
 					where: {
 						...where,
-						totalAmount: this.buildRangeWhere(criteria.minAmount, criteria.maxAmount),
 						server: serverName
 							? {
 									name: {
@@ -129,8 +128,8 @@ export class OrdersService extends AbstractOrderService {
 					status: order.status as OrderState,
 				})),
 				priceRange: {
-					min: priceStats._min.totalAmount ?? 0,
-					max: priceStats._max.totalAmount ?? 0,
+					min: Math.floor(priceStats._min.totalAmount ?? 0),
+					max: Math.ceil(priceStats._max.totalAmount ?? 0),
 				},
 				totalCount: total,
 				page,
