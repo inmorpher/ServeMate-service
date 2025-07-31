@@ -67,6 +67,33 @@ export class OrdersController extends BaseController {
 	}
 
 	/**
+	 * Handles the request to retrieve order metadata.
+	 *
+	 * @param req - The incoming HTTP request object, typed with `TypedRequest`.
+	 * @param res - The HTTP response object.
+	 * @param next - The next middleware function in the Express pipeline.
+	 * @returns A promise that resolves when the response is sent.
+	 *
+	 * @remarks
+	 * This method calls the `getOrderMeta` service to fetch metadata related to orders
+	 * and sends it in the response. If an error occurs, it passes the error to the next middleware.
+	 */
+	@Validate(OrderSearchSchema, 'query')
+	@Get('/meta')
+	async getOrderMeta(
+		req: TypedRequest<{}, OrderSearchCriteria, {}>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		try {
+			const meta = await this.ordersService.getOrderMeta(req.query);
+			this.ok(res, meta);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
 	 * Retrieves an order by its ID.
 	 *
 	 * @param req - The request object containing the order ID in the parameters.

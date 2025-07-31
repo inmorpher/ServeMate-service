@@ -4,12 +4,14 @@ import { inject, injectable } from 'inversify';
 import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 
 import {
+	Allergies,
 	OrderCreateDTO,
 	OrderFullSingleDTO,
 	OrderSearchCriteria,
 	OrderSearchListResult,
 	OrderUpdateProps,
 } from '@servemate/dto';
+import { OrderMetaDTO } from '@servemate/dto/src';
 import 'reflect-metadata';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
@@ -176,6 +178,113 @@ export class OrdersService extends AbstractOrderService {
 		}
 	}
 
+	// @Cache(100)
+	/**
+	 * Retrieves metadata related to orders, including maximum guests, price range, date range,
+	 * available table numbers, possible order statuses, and allergies.
+	 *
+	 * @returns {Promise<OrderMetaDTO>} A promise that resolves to an object containing order metadata:
+	 *  - `statuses`: Array of possible order states.
+	 *  - `allergies`: Array of possible allergies.
+	 *  - `maxGuests`: Maximum number of guests found in any order.
+	 *  - `prices`: Object with `min` and `max` total order amounts.
+	 *  - `dates`: Object with `min` and `max` order times in ISO string format.
+	 *  - `tableNumbers`: Array of distinct table numbers from all orders.
+	 *
+	 * @throws Will throw an error if the metadata retrieval fails.
+	 */
+	async getOrderMeta(criteria: OrderSearchCriteria): Promise<OrderMetaDTO> {
+		try {
+			console.log('getOrderMeta criteria', criteria);
+			const baseWhere = this.buildWhere<Partial<OrderSearchCriteria>, Prisma.OrderWhereInput>(
+				criteria
+			);
+
+			const where = {
+				...baseWhere,
+				totalAmount: this.buildRangeWhere(criteria.minAmount, criteria.maxAmount),
+			};
+			console.log('totalAmount', this.buildRangeWhere(criteria.minAmount, criteria.maxAmount));
+			console.log('where', where);
+
+			const [
+				unfilteredAggregation,
+				filteredAggregation,
+				unfilteredTableNumbers,
+				filteredTableNumbers,
+			] = await this.prisma.$transaction([
+				this.prisma.order.aggregate({
+					_max: {
+						guestsCount: true,
+						totalAmount: true,
+						orderTime: true,
+					},
+					_min: {
+						totalAmount: true,
+						orderTime: true,
+					},
+				}),
+				this.prisma.order.aggregate({
+					where,
+					_max: {
+						guestsCount: true,
+						totalAmount: true,
+						orderTime: true,
+					},
+					_min: {
+						totalAmount: true,
+						orderTime: true,
+					},
+					take: criteria.pageSize ?? 10,
+					skip: (criteria.page - 1) * (criteria.pageSize ?? 10),
+				}),
+				this.prisma.order.findMany({
+					select: {
+						tableNumber: true,
+					},
+					distinct: ['tableNumber'],
+				}),
+				this.prisma.order.findMany({
+					select: {
+						tableNumber: true,
+					},
+					distinct: ['tableNumber'],
+				}),
+			]);
+
+			console.log('filteredPriceStats', filteredAggregation);
+
+			return {
+				statuses: Object.values(OrderState),
+				allergies: Object.values(Allergies),
+				maxGuests: unfilteredAggregation._max.guestsCount ?? 0,
+				prices: {
+					min: Math.floor(unfilteredAggregation._min.totalAmount ?? 0),
+					max: Math.ceil(unfilteredAggregation._max.totalAmount ?? 0),
+				},
+				dates: {
+					min: unfilteredAggregation._min.orderTime?.toISOString() ?? new Date().toISOString(),
+					max: unfilteredAggregation._max.orderTime?.toISOString() ?? new Date().toISOString(),
+				},
+				tableNumbers: unfilteredTableNumbers.map((table) => table.tableNumber),
+				filtered: {
+					maxGuests: filteredAggregation._max.guestsCount ?? 0,
+					prices: {
+						min: Math.floor(filteredAggregation._min.totalAmount ?? 0),
+						max: Math.ceil(filteredAggregation._max.totalAmount ?? 0),
+					},
+					dates: {
+						min: filteredAggregation._min.orderTime?.toISOString() ?? new Date().toISOString(),
+						max: filteredAggregation._max.orderTime?.toISOString() ?? new Date().toISOString(),
+					},
+					tableNumbers: filteredTableNumbers.map((table) => table.tableNumber),
+				},
+			};
+		} catch (error) {
+			throw this.handleError(error);
+		}
+	}
+
 	/**
 	 * Creates a new order in the system.
 	 *
@@ -194,6 +303,7 @@ export class OrdersService extends AbstractOrderService {
 	 * @throws {Error} If there's any issue during the order creation process, an error is thrown and handled.
 	 */
 	@InvalidateCacheByPrefix(`findOrders_`)
+	@InvalidateCacheByPrefix(`getOrderMeta_`)
 	async createOrder(order: OrderCreateDTO): Promise<OrderFullSingleDTO> {
 		try {
 			const { mergedItems, totalAmount } = await this.prepareOrderItems(order);
@@ -217,6 +327,7 @@ export class OrdersService extends AbstractOrderService {
 	 * @throws Will throw an error if the deletion fails.
 	 */
 	@InvalidateCacheByPrefix(`findOrders_`)
+	@InvalidateCacheByPrefix(`getOrderMeta_`)
 	@InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
 	async delete(order: number): Promise<void> {
 		try {
@@ -380,7 +491,7 @@ export class OrdersService extends AbstractOrderService {
 						printed: true,
 					},
 				});
-				return `Items have been ptinted`;
+				return `Items have been printed`;
 			} catch (error) {
 				throw this.handleError(error);
 			}

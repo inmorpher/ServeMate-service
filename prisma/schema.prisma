@@ -51,6 +51,12 @@ model Order {
   payments       Payment[]
   serverActions  orderServerAction[]
   reservations   Reservation[]
+  @@index([totalAmount], name: "idx_order_total_amount")
+  @@index([status], name: "idx_order_status")
+  @@index([tableNumber], name: "idx_order_table_number")
+  @@index([serverId], name: "idx_order_server_id")
+  @@index([orderTime], name: "idx_order_time")
+  @@index([guestsCount], name: "idx_order_guests_count")
 }
 
 model OrderFoodItem {
@@ -298,8 +304,7 @@ enum RefundState {
   CANCELLED
 }
 
-enum Allergy {
-  NONE
+enum Allergy { 
   GLUTEN
   DAIRY
   EGG
