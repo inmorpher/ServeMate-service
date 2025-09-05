@@ -235,8 +235,6 @@ export class OrdersService extends AbstractOrderService {
 						totalAmount: true,
 						orderTime: true,
 					},
-					take: criteria.pageSize ?? 10,
-					skip: (criteria.page - 1) * (criteria.pageSize ?? 10),
 				}),
 				this.prisma.order.findMany({
 					select: {
@@ -245,6 +243,7 @@ export class OrdersService extends AbstractOrderService {
 					distinct: ['tableNumber'],
 				}),
 				this.prisma.order.findMany({
+					where,
 					select: {
 						tableNumber: true,
 					},
@@ -270,8 +269,8 @@ export class OrdersService extends AbstractOrderService {
 				filtered: {
 					maxGuests: filteredAggregation._max.guestsCount ?? 0,
 					prices: {
-						min: Math.floor(filteredAggregation._min.totalAmount ?? 0),
-						max: Math.ceil(filteredAggregation._max.totalAmount ?? 0),
+						min: criteria.minAmount ?? unfilteredAggregation._min.totalAmount ?? 0,
+						max: criteria.maxAmount ?? unfilteredAggregation._max.totalAmount ?? 0,
 					},
 					dates: {
 						min: filteredAggregation._min.orderTime?.toISOString() ?? new Date().toISOString(),
