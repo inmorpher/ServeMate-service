@@ -22,6 +22,7 @@ describe('OrderService', () => {
 				delete: jest.fn(),
 				update: jest.fn(),
 				count: jest.fn(),
+				aggregate: jest.fn(),
 			},
 			orderFoodItem: {
 				findMany: jest.fn(),
@@ -79,6 +80,7 @@ describe('OrderService', () => {
 
 			mockPrisma.order.findMany.mockResolvedValue(mockOrders);
 			mockPrisma.order.count.mockResolvedValue(1);
+			mockPrisma.order.aggregate.mockResolvedValue({ _min: { totalAmount: 100 }, _max: { totalAmount: 100 } });
 
 			const result = await orderService.findOrders(mockSearchCriteria);
 
@@ -92,6 +94,7 @@ describe('OrderService', () => {
 		it('should handle empty results', async () => {
 			mockPrisma.order.findMany.mockResolvedValue([]);
 			mockPrisma.order.count.mockResolvedValue(0);
+			mockPrisma.order.aggregate.mockResolvedValue({ _min: { totalAmount: 0 }, _max: { totalAmount: 0 } });
 
 			const result = await orderService.findOrders(mockSearchCriteria);
 
@@ -102,6 +105,8 @@ describe('OrderService', () => {
 
 		it('should handle database errors', async () => {
 			mockPrisma.order.findMany.mockRejectedValue(new Error('Database error'));
+			mockPrisma.order.count.mockResolvedValue(0);
+			mockPrisma.order.aggregate.mockResolvedValue({ _min: { totalAmount: 0 }, _max: { totalAmount: 0 } });
 
 			await expect(orderService.findOrders(mockSearchCriteria)).rejects.toThrow(HTTPError);
 		});
@@ -391,7 +396,7 @@ describe('OrderService', () => {
 
 			const result = await orderService.printOrderItems(orderId, itemIds);
 
-			expect(result).toBe('Items have been ptinted');
+			expect(result).toBe('Items have been printed');
 			expect(mockPrisma.orderFoodItem.updateMany).toHaveBeenCalledWith({
 				where: { id: { in: itemIds } },
 				data: { printed: true },
