@@ -8,7 +8,7 @@ import {
 	UserListResult,
 	UserRole,
 	UserSearchCriteria,
-	ValidatedUserData,
+	ValidatedUserData
 } from '@servemate/dto';
 import { compare } from 'bcrypt';
 import crypto from 'crypto';

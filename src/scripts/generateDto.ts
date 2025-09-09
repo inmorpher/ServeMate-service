@@ -32,7 +32,7 @@ generatorHandler({
 
 		const outputPath = path.resolve(outputFile.value);
 		await fs.mkdir(path.dirname(outputPath), { recursive: true });
-		console.log(`Saving generated enums to: ${outputPath}`);
+	
 		await fs.writeFile(outputPath, header + output.join('\n'), 'utf-8');
 	},
 });

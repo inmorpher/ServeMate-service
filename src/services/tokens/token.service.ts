@@ -26,7 +26,7 @@ export class TokenService implements ITokenService {
 	}
 
 	async authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
-		console.log('Authenticating user...');
+	
 		const authHeader = req.headers.authorization;
 		if (!authHeader) {
 			return next(new HTTPError(401, 'Header', 'No authorization header provided'));
@@ -52,7 +52,7 @@ export class TokenService implements ITokenService {
 		const accessToken = await this.generateToken(user, false);
 		const expiresIn = parseExpiresIn(ENV.JWT_EXPIRES_IN);
 		this.tokenCache.set(accessToken, user);
-		console.log('expiresIn', expiresIn);
+
 		return {
 			accessToken,
 			expiresIn,
@@ -64,7 +64,7 @@ export class TokenService implements ITokenService {
 	}
 
 	async refreshToken(refreshToken: string, userService: IUserService): Promise<IRefreshToken> {
-		console.log('Refreshing token...');
+	
 		try {
 			const decoded = (await this.verifyToken(refreshToken, ENV.JWT_REFRESH, true)) as DecodedUser;
 
@@ -123,13 +123,8 @@ export class TokenService implements ITokenService {
 		const accessDiffMinutes = Math.round((accessExpiresAt - now) / 60000);
 		const refreshDiffMinutes = Math.round((refreshExpiresAt - now) / 60000);
 
-		console.log(`Текущее время: ${nowDate.toLocaleString()}`);
-		console.log(
-			`Access токен истекает: ${accessExpiresDate.toLocaleString()} (через ${accessDiffMinutes} мин)`
-		);
-		console.log(
-			`Refresh токен истекает: ${refreshExpiresDate.toLocaleString()} (через ${refreshDiffMinutes} мин)`
-		);
+
+
 
 		const secret = isRefreshToken ? ENV.JWT_REFRESH : ENV.JWT_SECRET;
 		const expiresIn = isRefreshToken ? parsedRefreshTokenExpiresIn : parsedAccessTokenExpiresIn;
@@ -160,9 +155,7 @@ export class TokenService implements ITokenService {
 
 				if (cachedUser) {
 					const totalTime = performance.now() - startTime;
-					console.log(
-						`Token verification (cached): ${totalTime.toFixed(2)}ms (cache lookup: ${cacheTime.toFixed(2)}ms)`
-					);
+				
 					return cachedUser;
 				}
 
@@ -175,8 +168,7 @@ export class TokenService implements ITokenService {
 					throw new jwt.TokenExpiredError('jwt expired', new Date(decodedToken.exp * 1000));
 				}
 
-				console.log('Decoded token:', (decodedToken.exp as number) * 1000);
-				console.log('Current time:', Date.now());
+		
 			}
 
 			// JWT верификация
@@ -197,9 +189,7 @@ export class TokenService implements ITokenService {
 
 			// Измерение общего времени выполнения
 			const totalTime = performance.now() - startTime;
-			console.log(
-				`Token verification: ${totalTime.toFixed(2)}ms (cache: ${cacheTime.toFixed(2)}ms, decode: ${decodeTime.toFixed(2)}ms, verify: ${verifyTime.toFixed(2)}ms)`
-			);
+		
 
 			return validatedToken as DecodedUser;
 		} catch (error: any) {

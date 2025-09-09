@@ -204,7 +204,7 @@ describe('ReservationService', () => {
 			tables: [1, 2],
 			status: ReservationStatus.PENDING,
 			isActive: true,
-			allergies: [Allergy.NONE],
+			allergies: [Allergy.EGG],
 		};
 
 		beforeEach(() => {

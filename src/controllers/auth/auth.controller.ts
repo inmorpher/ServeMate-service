@@ -87,8 +87,7 @@ export class AuthenticationController extends BaseController {
 				this.tokenService.generateRefreshToken(user),
 			]);
 
-			console.log('Access token data:', accessTokenData);
-			console.log('Refresh token:', refreshToken);
+
 			const tokenTime = performance.now() - tokenStart;
 			// this.userService.updateUser(user.id, { lastLogin: new Date() });
 			const totalTime = performance.now() - startTime;
@@ -164,8 +163,7 @@ export class AuthenticationController extends BaseController {
 			}
 			this.loggerService.log('token refreshed');
 
-			console.log('Access token:', accessToken);
-			console.log('Refresh token:', refreshToken);
+		
 			// this.setCookie(res, 'refreshToken', refreshToken, true);
 			this.ok(res, {
 				accessToken,
@@ -201,15 +199,15 @@ export class AuthenticationController extends BaseController {
 				const decoded = JSON.parse(Buffer.from(value.split('.')[1], 'base64').toString());
 				if (decoded && decoded.exp) {
 					const tokenExpDate = new Date(decoded.exp * 1000);
-					console.log(`[DEBUG] JWT token ${name} exp field: ${tokenExpDate.toUTCString()}`);
+				
 
 					// Проверяем разницу между временем истечения куки и токена
 					const diffMs = tokenExpDate.getTime() - expiryDate.getTime();
 					const diffMinutes = Math.round(diffMs / 60000);
-					console.log(`[DEBUG] Difference between cookie and token expiry: ${diffMinutes} minutes`);
+				
 				}
 			} catch (e: any) {
-				console.log(`[DEBUG] Could not decode JWT token: ${e.message!}`);
+		
 			}
 		}
 

@@ -86,14 +86,14 @@ describe('OrdersController', () => {
 
 	describe('getOrders', () => {
 		it('should return a list of orders successfully', async () => {
-			const mockOrders = { orders: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 1 };
+			const mockOrders = { orders: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 1, priceRange: { min: 0, max: 0 },};
 			const req = mockRequest({}, { page: 1, pageSize: 10 }) as TypedRequest<
 				{},
 				OrderSearchCriteria,
 				{}
 			>;
 
-			ordersService.findOrders.mockResolvedValue(mockOrders);
+			ordersService.findOrders.mockResolvedValue(mockOrders );
 
 			await ordersController.getOrders(req, res as Response, next);
 

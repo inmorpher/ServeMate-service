@@ -195,7 +195,7 @@ export class OrdersService extends AbstractOrderService {
 	 */
 	async getOrderMeta(criteria: OrderSearchCriteria): Promise<OrderMetaDTO> {
 		try {
-			console.log('getOrderMeta criteria', criteria);
+		
 			const baseWhere = this.buildWhere<Partial<OrderSearchCriteria>, Prisma.OrderWhereInput>(
 				criteria
 			);
@@ -204,8 +204,7 @@ export class OrdersService extends AbstractOrderService {
 				...baseWhere,
 				totalAmount: this.buildRangeWhere(criteria.minAmount, criteria.maxAmount),
 			};
-			console.log('totalAmount', this.buildRangeWhere(criteria.minAmount, criteria.maxAmount));
-			console.log('where', where);
+		
 
 			const [
 				unfilteredAggregation,

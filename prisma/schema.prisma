@@ -3,8 +3,9 @@ generator client {
 }
 
 generator enums {
-  provider = "ts-node /Users/inmo/Documents/Projects/ServeMate-service/src/scripts/generateDto.ts"
+  provider = "ts-node /home/inmo/ServeMate-service/src/scripts/generateDto.ts"
 }
+
 
 datasource db {
   provider = "postgresql"

@@ -158,7 +158,7 @@ export class DrinkItemsService extends BaseService {
 	@InvalidateCacheByKeys((drinkItem) => [`getDrinkItemById_${drinkItem.id}`])
 	async updateDrinkItem(id: number, data: UpdateDrinkItemDTO): Promise<DrinkItemDTO> {
 		try {
-			console.log('data', data);
+		
 			const drinkItem = await this.prisma.drinkItem.update({
 				where: { id },
 				data: {
