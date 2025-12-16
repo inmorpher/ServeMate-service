@@ -15,7 +15,7 @@ datasource db {
 //Models
 
 model User {
-  id             Int                 @id @unique @default(dbgenerated("(nextval('user_id_seq'::regclass))::integer"))
+  id             Int                 @id @default(autoincrement())
   name           String              @default("")
   email          String              @unique
   password       String

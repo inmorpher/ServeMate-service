@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { PrismaClient } from '@prisma/client';
 import { CreateUser, UserRole } from '@servemate/dto';
 import bcrypt from 'bcrypt';
+import { hashPassword } from '../utils/password';
 
 const prisma = new PrismaClient();
 
@@ -22,6 +23,13 @@ async function generateUsers(count: number) {
 			role,
 		});
 	}
+
+	users.push({
+		name:'Super Admin',
+		email:'super@super.com',
+		password: await hashPassword('123321'),
+		role: UserRole.ADMIN,
+	})
 
 	return users;
 }

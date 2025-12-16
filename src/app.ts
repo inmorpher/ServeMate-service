@@ -99,10 +99,12 @@ export class App {
 
 			// Проверяем путь запроса
 			// Для эндпоинтов логина, регистрации и обновления токена не применяем аутентификацию
+			// Также исключаем все meta-маршруты (фильтры, категории и т.д.)
 			if (
 				req.path.startsWith('/auth/login') ||
 				req.path.startsWith('/auth/register') ||
-				req.path.startsWith('/auth/refresh-token')
+				req.path.startsWith('/auth/refresh-token') ||
+				req.path.includes('/meta')
 			) {
 				return next();
 			}
