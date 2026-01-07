@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { injectable } from 'inversify';
 import NodeCache from 'node-cache';
 import { HTTPError } from '../errors/http-error.class';
@@ -54,7 +53,7 @@ export class BaseService {
 	}
 
 	protected handleError(error: unknown): HTTPError {
-		if (error instanceof PrismaClientKnownRequestError) {
+		if (error instanceof Prisma.PrismaClientKnownRequestError) {
 			const baseMessage = 'Database operation failed';
 			switch (error.code) {
 				case 'P2002':

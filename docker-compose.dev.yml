@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: servemate-service-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app              # Синхронизируем весь код
+      - /app/node_modules   # НО node_modules не синхронизируем!
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - servemate-network
+
+networks:
+  servemate-network:
+    driver: bridge

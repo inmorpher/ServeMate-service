@@ -1,4 +1,4 @@
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
 import { BaseService } from '../../../common/base.service';
@@ -10,7 +10,7 @@ class TestBaseService extends BaseService {
 
 describe('BaseService', () => {
 	let testService: TestBaseService;
-
+	
 	beforeEach(() => {
 		testService = new TestBaseService();
 	});
@@ -31,7 +31,7 @@ describe('BaseService', () => {
 
 	describe('Error Handling', () => {
 		it('should handle Prisma unique constraint violation (P2002)', () => {
-			const error = new PrismaClientKnownRequestError('Unique constraint failed', {
+			const error = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
 				code: 'P2002',
 				clientVersion: '2.0.0',
 			});
@@ -45,7 +45,7 @@ describe('BaseService', () => {
 		});
 
 		it('should handle Prisma record not found error (P2025)', () => {
-			const error = new PrismaClientKnownRequestError('Record not found', {
+			const error = new Prisma.PrismaClientKnownRequestError('Record not found', {
 				code: 'P2025',
 				clientVersion: '2.0.0',
 			});
@@ -61,7 +61,7 @@ describe('BaseService', () => {
 		it('should handle Prisma invalid input errors (P2014, P2022, P2023)', () => {
 			const errorCodes = ['P2014', 'P2022', 'P2023'];
 			errorCodes.forEach((code) => {
-				const error = new PrismaClientKnownRequestError('Invalid input', {
+				const error = new Prisma.PrismaClientKnownRequestError('Invalid input', {
 					code,
 					clientVersion: '2.0.0',
 				});
@@ -76,7 +76,7 @@ describe('BaseService', () => {
 		});
 
 		it('should handle unknown Prisma errors', () => {
-			const error = new PrismaClientKnownRequestError('Unknown error', {
+			const error = new Prisma.PrismaClientKnownRequestError('Unknown error', {
 				code: 'P9999',
 				clientVersion: '2.0.0',
 			});

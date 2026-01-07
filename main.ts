@@ -1,5 +1,7 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { Container, ContainerModule, interfaces } from 'inversify';
+import { Pool } from 'pg';
 import { App } from './src/app';
 import { BaseService } from './src/common/base.service';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
@@ -52,7 +54,23 @@ export const coreServicesModule = new ContainerModule((bind: interfaces.Bind) =>
 	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter).inSingletonScope();
 	bind<ITokenService>(TYPES.ITokenService).to(TokenService).inSingletonScope();
 	bind<RoleMiddleware>(TYPES.RoleMiddleware).to(RoleMiddleware).inSingletonScope();
-	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(new PrismaClient());
+
+	// Prisma 7 с адаптером PostgreSQL
+	const connectionString = process.env.DATABASE_URL;
+	const pool = new Pool({ connectionString });
+	const adapter = new PrismaPg(pool);
+		
+	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(
+		new PrismaClient({
+			adapter,
+			log: [
+				{
+					emit: 'stdout',
+					level: 'info',
+				},
+			],
+		})
+	);
 });
 
 /**

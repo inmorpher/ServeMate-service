@@ -1,5 +1,4 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
 import { inject, injectable } from 'inversify';
 import { BaseService } from '../../common/base.service';
 
@@ -10,7 +9,7 @@ export type FlattenedFoodItem = Prisma.OrderFoodItemCreateManyOrderInput;
 
 export type FlattenedDrinkItem = Prisma.OrderDrinkItemCreateManyOrderInput;
 
-export const ORDER_INCLUDE: Prisma.OrderInclude<DefaultArgs> = {
+export const ORDER_INCLUDE: Prisma.OrderInclude = {
 	server: {
 		select: { name: true, id: true },
 	},

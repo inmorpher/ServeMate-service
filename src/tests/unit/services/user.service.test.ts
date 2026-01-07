@@ -123,6 +123,10 @@ describe('UserService', () => {
 				name: 'John',
 				role: UserRole.USER,
 				isActive: true,
+				page: 1,
+				pageSize: 10,
+				sortBy: 'name',
+				sortOrder: 'asc',
 			};
 
 			const mockUsers = [
@@ -231,6 +235,10 @@ describe('UserService', () => {
 			const criteria: UserSearchCriteria = {
 				email: 'JOHN@example.com',
 				name: 'doe',
+				page: 1,
+				pageSize: 10,
+				sortBy: 'name',
+				sortOrder: 'asc',
 			};
 
 			const result = await userService.findUsers(criteria);

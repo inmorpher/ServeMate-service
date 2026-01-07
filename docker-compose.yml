@@ -1,36 +1,18 @@
-version: '3'
-
 services:
-  servemate-service:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: servemate-service
     ports:
-      - '3000:3000'
-    restart: unless-stopped
-    env_file: .env
-    depends_on:
-      - postgres
-    networks:
-      - servemate-network
-
-  postgres:
-    image: postgres:14-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "3000:3000"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-servemate}
-    ports:
-      - '5432:5432'
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    restart: always
     networks:
       - servemate-network
-    restart: unless-stopped
 
 networks:
   servemate-network:
     driver: bridge
-
-volumes:
-  postgres_data:

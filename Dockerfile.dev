@@ -1,0 +1,24 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Копируем package files
+COPY package.json package-lock.json ./
+COPY tsconfig.json ./
+COPY dto-package ./dto-package
+COPY prisma ./prisma
+
+# Устанавливаем ALL зависимости (включая devDependencies для разработки)
+RUN npm ci
+
+# Копируем весь исходный код
+COPY . .
+
+# Генерируем Prisma клиент
+RUN npx prisma generate
+
+# Открываем порт
+EXPOSE 3000
+
+# Запускаем dev сервер с nodemon (будет смотреть за изменениями)
+CMD ["npm", "run", "dev"]

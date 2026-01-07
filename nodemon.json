@@ -1,0 +1,21 @@
+{
+  "watch": [
+    "src",
+    "main.ts"
+  ],
+  "ext": "ts",
+  "ignore": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "dist/**"
+  ],
+  "exec": "ts-node -O '{\"module\": \"commonjs\"}' --transpile-only",
+  "execMap": {
+    "ts": "ts-node -O '{\"module\": \"commonjs\"}' --transpile-only"
+  },
+  "delay": 1000,
+  "polling": 1000,
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

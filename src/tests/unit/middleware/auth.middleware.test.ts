@@ -6,17 +6,22 @@ import { ITokenService } from '../../../services/tokens/token.service.interface'
 import { UserService } from '../../../services/users/user.service';
 
 describe('AuthMiddleware', () => {
-	let prismaClient: PrismaClient;
+	let mockPrismaClient: jest.Mocked<PrismaClient>;
 	let authMiddleware: AuthMiddleware;
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
 	let nextFunction: NextFunction;
 	let userService: UserService;
 	let tokenService: ITokenService;
-
+	
 	beforeEach(() => {
-		prismaClient = new PrismaClient();
-		userService = new UserService(prismaClient);
+		mockPrismaClient = {
+			user: {
+				findUnique: jest.fn(),
+			},
+		} as unknown as jest.Mocked<PrismaClient>;
+
+		userService = new UserService(mockPrismaClient);
 		tokenService = new TokenService();
 
 		// Создаем моки для методов tokenService

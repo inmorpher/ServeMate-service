@@ -1,40 +1,37 @@
-FROM node:20-alpine
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies including OpenSSL
-RUN apk add --no-cache python3 make g++ openssl
+COPY package.json package-lock.json ./
+COPY tsconfig.json ./
+COPY dto-package ./dto-package
+COPY prisma ./prisma
 
-# Install PM2 globally
-RUN npm install -g pm2
+RUN npm ci
 
-# Install dependencies first (for better caching)
-COPY package*.json ./
-RUN npm install
-
-COPY ecosystem.config.js .
-# Copy prisma schema
-COPY prisma ./prisma/
-
-# Remove the custom generator from schema.prisma during build
-RUN sed -i '/^generator enums {/,/^}/d' ./prisma/schema.prisma
-
-# Generate Prisma client with a dummy DATABASE_URL
-ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
-RUN npx prisma generate
-
-# Copy the rest of the app source
 COPY . .
 
-# Build the app
+# Генерируем Prisma клиент
+RUN npx prisma generate
+
+# Собираем TypeScript в JavaScript
 RUN npm run build
 
-# Set environment variables for runtime
-ENV NODE_ENV=production
-ENV PORT=3002
+# ===== Production stage =====
+FROM node:22-alpine
 
-# Expose the port the app will run on
-EXPOSE 3002
+WORKDIR /app
 
-# Start the app
-CMD ["pm2-runtime", "ecosystem.config.js"]
+# Копируем только production dependencies
+COPY package.json package-lock.json ./
+
+RUN npm ci --only=production
+
+# Копируем собранный dist из builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+EXPOSE 3000
+
+# Запускаем собранное приложение
+CMD ["node", "dist/main.js"]

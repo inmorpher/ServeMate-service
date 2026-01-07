@@ -3,13 +3,12 @@ generator client {
 }
 
 generator enums {
-  provider = "ts-node /home/inmo/ServeMate-service/src/scripts/generateDto.ts"
+  provider = "ts-node ./src/scripts/generateDto.ts"
 }
 
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 //Models
