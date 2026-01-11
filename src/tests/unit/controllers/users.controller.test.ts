@@ -167,7 +167,18 @@ describe('UserController', () => {
 
 			await userController.getUsers(req, res as Response, next);
 
-			expect(userService.findUsers).toHaveBeenCalledWith({}, 1, 10, 'name', 'asc');
+			expect(userService.findUsers).toHaveBeenCalledWith(
+				{
+					page: 1,
+					pageSize: 10,
+					sortBy: 'name',
+					sortOrder: 'asc',
+				},
+				1,
+				10,
+				'name',
+				'asc'
+			);
 			expect(okSpy).toHaveBeenCalledWith(res, mockResult);
 		});
 	});

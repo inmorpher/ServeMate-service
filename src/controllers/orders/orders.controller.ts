@@ -59,8 +59,12 @@ export class OrdersController extends BaseController {
 	): Promise<void> {
 		try {
 			const orders = await this.ordersService.findOrders(req.query);
-
-			this.ok(res, orders);
+		
+			
+			// If meta flag is true, include metadata
+		
+				this.ok(res, orders);
+			
 		} catch (error) {
 			next(error);
 		}

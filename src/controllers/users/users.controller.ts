@@ -77,23 +77,24 @@ export class UserController extends BaseController implements IUserController {
 				createdBefore,
 			} = req.query;
 
-			const queryParams: UserSearchCriteria = {
-				...(id && { id: Number(id) }),
-				...(email && { email: email as string }),
-				...(name && { name: name as string }),
-				...(role && { role: role as UserRole }),
-				...(isActive !== undefined && { isActive: isActive === true }),
-				...(createdAfter && { createdAfter: createdAfter as string }),
-				...(createdBefore && { createdBefore: createdBefore as string }),
-				...(page && { page: Number(page) }),
-				...(pageSize && { pageSize: Number(pageSize) }),
-				...(sortBy && { sortBy: sortBy as UserSortColumn }),
-				...(sortOrder && { sortOrder: sortOrder as 'asc' | 'desc' }),
-			};
-			const pageNum = Number(page) || 1;
-			const pageSizeNum = Number(pageSize) || 10;
-			const sortByStr = (sortBy as string) || 'name';
-			const sortOrderStr = (sortOrder as 'asc' | 'desc') || 'asc';
+const pageNum = Number(page) || 1;
+		const pageSizeNum = Number(pageSize) || 10;
+		const sortByStr = (sortBy as string) || 'name';
+		const sortOrderStr = (sortOrder as 'asc' | 'desc') || 'asc';
+
+		const queryParams: UserSearchCriteria = {
+			...(id && { id: Number(id) }),
+			...(email && { email: email as string }),
+			...(name && { name: name as string }),
+			...(role && { role: role as UserRole }),
+			...(isActive !== undefined && { isActive: isActive === true }),
+			...(createdAfter && { createdAfter: createdAfter as string }),
+			...(createdBefore && { createdBefore: createdBefore as string }),
+			page: pageNum,
+			pageSize: pageSizeNum,
+			sortBy: sortByStr as UserSortColumn,
+			sortOrder: sortOrderStr as 'asc' | 'desc',
+		};
 
 			const result: UserListResult = await this.userService.findUsers(
 				queryParams,
