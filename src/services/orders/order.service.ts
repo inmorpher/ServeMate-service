@@ -31,76 +31,86 @@ export class OrdersService extends AbstractOrderService {
     this.prisma = prisma;
   }
 
+  
   /**
-   * Finds orders based on the provided search criteria.
+   * Builds a Prisma where clause for filtering orders based on search criteria.
    *
-   * @param {OrderSearchCriteria} criteria - The criteria to search for orders.
-   * @param {number} [criteria.id] - The ID of the order.
-   * @param {number} [criteria.server] - The ID of the server.
-   * @param {string} [criteria.status] - The status of the order.
-   * @param {number} [criteria.tableNumber] - The table number associated with the order.
-   * @param {number} [criteria.guestNumber] - The number of guests for the order.
-   * @param {string[]} [criteria.allergies] - The list of allergies associated with the order.
-   * @param {number} [criteria.page] - The page number for pagination.
-   * @param {number} [criteria.pageSize] - The number of orders per page.
-   * @param {string} [criteria.sortBy] - The field to sort the orders by.
-   * @param {string} [criteria.sortOrder] - The order direction (asc/desc) for sorting.
-   * @returns {Promise<any>} A promise that resolves to an object containing the orders, total count, current page, page size, and total pages.
-   * @throws Will throw an error if the operation fails.
+   * @param criteria - The order search criteria containing filters such as server name,
+   *                   table numbers, date range, amount range, and pagination options.
+   *
+   * @returns A Prisma OrderWhereInput object that can be used in database queries to filter orders.
+   *          Supports filtering by:
+   *          - Total amount (min and max range)
+   *          - Table numbers (multiple values)
+   *          - Order time (date range with inclusive bounds)
+   *          - Server name (case-insensitive partial match)
+   *
+   * @private
    */
+  private buildOrderWhereClause(criteria: OrderSearchCriteria): Prisma.OrderWhereInput {
+    const { serverName, tableNumbers, dateFrom, dateTo, minAmount, maxAmount } = criteria;
+
+    // Исключаем поля, которые не маппятся 1:1 на колонки Order
+    const criteriaForBuild = {
+      ...criteria,
+      tableNumbers: undefined,
+      dateFrom: undefined,
+      dateTo: undefined,
+      serverName: undefined,
+      minAmount: undefined,
+      maxAmount: undefined,
+      page: undefined,
+      pageSize: undefined,
+      sortBy: undefined,
+      sortOrder: undefined,
+    };
+
+    const baseWhere = this.buildWhere<
+      Partial<OrderSearchCriteria>,
+      Prisma.OrderWhereInput
+    >(criteriaForBuild);
+
+    return {
+      ...baseWhere,
+      ...(minAmount || maxAmount
+        ? { totalAmount: this.buildRangeWhere(minAmount, maxAmount) }
+        : {}),
+      ...(tableNumbers?.length
+        ? { tableNumber: { in: tableNumbers } }
+        : {}),
+      ...((dateFrom || dateTo) && {
+        orderTime: {
+          ...(dateFrom && { gte: dateFrom }),
+          ...(dateTo && { lte: dateTo }),
+        },
+      }),
+      ...(serverName && {
+        server: {
+          name: {
+            contains: serverName,
+            mode: "insensitive" as const,
+          },
+        },
+      }),
+    };
+  }
 
   @Cache(60)
   async findOrders(
     criteria: OrderSearchCriteria,
   ): Promise<OrderSearchListResult> {
     try {
-      const { page, pageSize, sortBy, sortOrder, serverName, tableNumbers, dateFrom, dateTo } = criteria;
-      console.log('criteria:', criteria);
-   
-      // Исключаем tableNumbers из criteria перед buildWhere
-      const criteriaForBuild = { ...criteria, tableNumbers: undefined, dateFrom: undefined, dateTo: undefined };
+      const { page, pageSize, sortBy, sortOrder } = criteria;
 
-      const where = this.buildWhere<
-        Partial<OrderSearchCriteria>,
-        Prisma.OrderWhereInput
-      >(criteriaForBuild);
+      const where = this.buildOrderWhereClause(criteria);
 
-      console.log('where:', where);
-
-      const tableNumberFilter = tableNumbers && tableNumbers.length > 0
-        ? { in: tableNumbers }
-        : undefined;
-
-      const orderTimeFilter = (dateFrom || dateTo) ? {
-        ...(dateFrom && { gte: dateFrom }),
-        ...(dateTo && { lte: dateTo }),
-      } : undefined;
-
-      const [orders, total, priceStats] = await Promise.all([
+      const [orders, total, stats] = await Promise.all([
         this.prisma.order.findMany({
-          where: {
-            ...where,
-            totalAmount: this.buildRangeWhere(
-              criteria.minAmount,
-              criteria.maxAmount,
-            ),
-            tableNumber: tableNumberFilter,
-             orderTime: orderTimeFilter,
-            server: serverName
-              ? {
-                  name: {
-                    contains: criteria.serverName,
-                    mode: "insensitive",
-                  },
-                }
-              : undefined,
-          },
+          where,
           select: {
             id: true,
             status: true,
-            server: {
-              select: { name: true, id: true },
-            },
+            server: { select: { name: true, id: true } },
             tableNumber: true,
             guestsCount: true,
             orderTime: true,
@@ -113,55 +123,13 @@ export class OrdersService extends AbstractOrderService {
           },
           skip: (page - 1) * pageSize,
           take: pageSize,
-          orderBy: {
-            [sortBy]: sortOrder,
-          },
+          orderBy: { [sortBy]: sortOrder },
         }),
-        this.prisma.order.count({
-          where: {
-            ...where,
-            totalAmount: this.buildRangeWhere(
-              criteria.minAmount,
-              criteria.maxAmount,
-            ),
-            tableNumber: tableNumberFilter,
-             orderTime: orderTimeFilter,
-            server: serverName
-              ? {
-                  name: {
-                    contains: criteria.serverName,
-                    mode: "insensitive",
-                  },
-                }
-              : undefined,
-          },
-        }),
+        this.prisma.order.count({ where }),
         this.prisma.order.aggregate({
-          where: {
-            ...where,
-            totalAmount: this.buildRangeWhere(
-              criteria.minAmount,
-              criteria.maxAmount,
-            ),
-            tableNumber: tableNumberFilter,
-             orderTime: orderTimeFilter,
-            server: serverName
-              ? {
-                  name: {
-                    contains: criteria.serverName,
-                    mode: "insensitive",
-                  },
-                }
-              : undefined,
-          },
-          _min: {
-            totalAmount: true,
-            orderTime: true,
-          },
-          _max: {
-            totalAmount: true,
-            orderTime: true,
-          },
+          where,
+          _min: { totalAmount: true, orderTime: true },
+          _max: { totalAmount: true, orderTime: true },
         }),
       ]);
 
@@ -171,12 +139,12 @@ export class OrdersService extends AbstractOrderService {
           status: order.status as OrderState,
         })),
         priceRange: {
-          min: Math.floor(priceStats._min.totalAmount ?? 0),
-          max: Math.ceil(priceStats._max.totalAmount ?? 0),
+          min: Math.floor(stats._min.totalAmount ?? 0),
+          max: Math.ceil(stats._max.totalAmount ?? 0),
         },
         dateRange: {
-          min: priceStats._min.orderTime?.toISOString() ?? new Date().toISOString(),
-          max: priceStats._max.orderTime?.toISOString() ?? new Date().toISOString(),
+          min: stats._min.orderTime?.toISOString() ?? new Date().toISOString(),
+          max: stats._max.orderTime?.toISOString() ?? new Date().toISOString(),
         },
         totalCount: total,
         page,
@@ -203,11 +171,7 @@ export class OrdersService extends AbstractOrderService {
         include: ORDER_INCLUDE,
       });
 
-
-
-      // If no order found, throw an error
       if (!order) {
-        this.wsService.notifySubscribers(orderId.toString(),  { message: 'Order not found' });
         throw new HTTPError(
           404,
           this.serviceName,
@@ -215,8 +179,6 @@ export class OrdersService extends AbstractOrderService {
           `/orders/${orderId}`,
         );
       }
-
-      this.wsService.notifySubscribers(orderId.toString(), { message: 'Order found', orderId });
 
       return {
         ...order,
@@ -245,18 +207,7 @@ export class OrdersService extends AbstractOrderService {
    */
   async getOrderMeta(criteria: OrderSearchCriteria): Promise<OrderMetaDTO> {
     try {
-      const baseWhere = this.buildWhere<
-        Partial<OrderSearchCriteria>,
-        Prisma.OrderWhereInput
-      >(criteria);
-
-      const where = {
-        ...baseWhere,
-        totalAmount: this.buildRangeWhere(
-          criteria.minAmount,
-          criteria.maxAmount,
-        ),
-      };
+      const where = this.buildOrderWhereClause(criteria);
 
       const [
         unfilteredAggregation,
@@ -302,8 +253,6 @@ export class OrdersService extends AbstractOrderService {
         }),
       ]);
 
-      console.log('Unfiltered Aggregation:');
-      this.wsService.notifySubscribers('1', { message: 'Order metadata retrieved' });
       return {
         statuses: Object.values(OrderState),
         allergies: Object.values(Allergies),
@@ -324,10 +273,8 @@ export class OrdersService extends AbstractOrderService {
         filtered: {
           maxGuests: filteredAggregation._max.guestsCount ?? 0,
           prices: {
-            min:
-              criteria.minAmount ?? unfilteredAggregation._min.totalAmount ?? 0,
-            max:
-              criteria.maxAmount ?? unfilteredAggregation._max.totalAmount ?? 0,
+            min: Math.floor(filteredAggregation._min.totalAmount ?? 0),
+            max: Math.ceil(filteredAggregation._max.totalAmount ?? 0),
           },
           dates: {
             min:
@@ -382,41 +329,35 @@ export class OrdersService extends AbstractOrderService {
   /**
    * Deletes an order and all its associated food and drink items from the database.
    *
-   * @param {number} order - The ID of the order to be deleted.
-   * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion was successful.
+   * @param {number} orderId - The ID of the order to be deleted.
    * @throws Will throw an error if the deletion fails.
    */
   @InvalidateCacheByPrefix(`findOrders_`)
   @InvalidateCacheByPrefix(`getOrderMeta_`)
   @InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
-  async delete(order: number): Promise<void> {
+  async delete(orderId: number): Promise<void> {
     try {
       await this.prisma.$transaction(async (prisma) => {
-        // Check if order exists
         const existingOrder = await prisma.order.findUnique({
-          where: { id: order },
+          where: { id: orderId },
           select: {
             id: true,
-            payments: {
-              select: {
-                id: true,
-              },
+            payments: { select: { id: true } },
+            foodItems: { 
+              select: { 
+                id: true, 
+                printed: true, 
+                fired: true, 
+                paymentStatus: true 
+              } 
             },
-            foodItems: {
-              select: {
-                id: true,
-                printed: true,
-                fired: true,
-                paymentStatus: true,
-              },
-            },
-            drinkItems: {
-              select: {
-                id: true,
-                printed: true,
-                fired: true,
-                paymentStatus: true,
-              },
+            drinkItems: { 
+              select: { 
+                id: true, 
+                printed: true, 
+                fired: true, 
+                paymentStatus: true 
+              } 
             },
           },
         });
@@ -426,83 +367,51 @@ export class OrdersService extends AbstractOrderService {
             404,
             this.serviceName,
             "Order not found",
-            `/orders/${order}`,
+            `/orders/${orderId}`,
           );
         }
 
-        // Check if any payments are associated with this order
         if (existingOrder.payments.length > 0) {
           throw new HTTPError(
             400,
             this.serviceName,
             "Cannot delete order with associated payments",
-            `/orders/${order}`,
+            `/orders/${orderId}`,
           );
         }
 
-        // Check if any food or drink items have been printed or fired
-        const printedFoodItems = existingOrder.foodItems.filter(
-          (item) => item.printed,
-        );
-        const printedDrinkItems = existingOrder.drinkItems.filter(
-          (item) => item.printed,
-        );
-        const firedFoodItems = existingOrder.foodItems.filter(
-          (item) => item.fired,
-        );
-        const firedDrinkItems = existingOrder.drinkItems.filter(
-          (item) => item.fired,
-        );
+        const allItems = [...existingOrder.foodItems, ...existingOrder.drinkItems];
 
-        if (printedFoodItems.length > 0 || printedDrinkItems.length > 0) {
+        if (allItems.some((item) => item.printed)) {
           throw new HTTPError(
             400,
             this.serviceName,
             "Cannot delete order with printed items",
-            `/orders/${order}`,
+            `/orders/${orderId}`,
           );
         }
 
-        if (firedFoodItems.length > 0 || firedDrinkItems.length > 0) {
+        if (allItems.some((item) => item.fired)) {
           throw new HTTPError(
             400,
             this.serviceName,
             "Cannot delete order with fired/called items",
-            `/orders/${order}`,
+            `/orders/${orderId}`,
           );
         }
 
-        // Check if any food or drink items have associated payment status
-        const paidFoodItems = existingOrder.foodItems.filter(
-          (item) => item.paymentStatus !== "NONE",
-        );
-        const paidDrinkItems = existingOrder.drinkItems.filter(
-          (item) => item.paymentStatus !== "NONE",
-        );
-
-        if (paidFoodItems.length > 0 || paidDrinkItems.length > 0) {
+        if (allItems.some((item) => item.paymentStatus !== "NONE")) {
           throw new HTTPError(
             400,
             this.serviceName,
             "Cannot delete order with items that have payment status",
-            `/orders/${order}`,
+            `/orders/${orderId}`,
           );
         }
 
-        // Delete all related food items associated with the order.
-        await prisma.orderFoodItem.deleteMany({
-          where: { orderId: order },
-        });
-
-        // Delete all related drink items associated with the order.
-        await prisma.orderDrinkItem.deleteMany({
-          where: { orderId: order },
-        });
-
-        // Delete the order itself.
-        await prisma.order.delete({
-          where: { id: order },
-        });
+        await prisma.orderFoodItem.deleteMany({ where: { orderId } });
+        await prisma.orderDrinkItem.deleteMany({ where: { orderId } });
+        await prisma.order.delete({ where: { id: orderId } });
       });
     } catch (error) {
       throw this.handleError(error);
@@ -517,71 +426,67 @@ export class OrdersService extends AbstractOrderService {
    * which items have already been printed. If no items have been printed, it updates
    * the `printed` status of the specified order items to `true`.
    *
+   * @param {number} orderId - The ID of the order.
    * @param {number[]} ids - An array of order item IDs to be printed.
-   * @returns {Promise<string>} A promise that resolves to a string indicating the IDs of the printed items.
+   * @returns {Promise<string>} A promise that resolves to a string indicating the items have been printed.
    * @throws {HTTPError} If any of the specified items have already been printed.
    */
   @InvalidateCacheByKeys((orderId: number) => [`findOrderById_[${orderId}]`])
   async printOrderItems(orderId: number, ids: number[]): Promise<string> {
-    return await this.prisma.$transaction(async (prisma) => {
-      try {
-        const drinkItems = await prisma.orderDrinkItem.findMany({
-          where: {
-            id: { in: ids },
-          },
-          select: { id: true, printed: true },
-        });
-
-        const foodItems = await prisma.orderFoodItem.findMany({
-          where: {
-            id: { in: ids },
-          },
-          select: { id: true, printed: true, fired: true },
-        });
+    try {
+      return await this.prisma.$transaction(async (prisma) => {
+        const [drinkItems, foodItems] = await Promise.all([
+          prisma.orderDrinkItem.findMany({
+            where: { id: { in: ids } },
+            select: { id: true, printed: true },
+          }),
+          prisma.orderFoodItem.findMany({
+            where: { id: { in: ids } },
+            select: { id: true, printed: true },
+          }),
+        ]);
 
         const allItems = [...drinkItems, ...foodItems];
-
         const printedItems = allItems.filter((item) => item.printed);
 
-        if (printedItems.length !== 0) {
-          throw new HTTPError(500, "Print", "Items have already been printed");
+        if (printedItems.length > 0) {
+          throw new HTTPError(
+            400,
+            this.serviceName,
+            "Items have already been printed",
+          );
         }
 
-        await prisma.orderFoodItem.updateMany({
-          where: {
-            id: { in: ids },
-          },
-          data: {
-            printed: true,
-          },
-        });
+        await Promise.all([
+          prisma.orderFoodItem.updateMany({
+            where: { id: { in: ids } },
+            data: { printed: true },
+          }),
+          prisma.orderDrinkItem.updateMany({
+            where: { id: { in: ids } },
+            data: { printed: true },
+          }),
+        ]);
 
-        await prisma.orderDrinkItem.updateMany({
-          where: {
-            id: { in: ids },
-          },
-          data: {
-            printed: true,
-          },
-        });
         return `Items have been printed`;
-      } catch (error) {
-        throw this.handleError(error);
-      }
-    });
+      });
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   /**
    * Calls the order items by marking them as fired.
    *
+   * @param {number} orderId - The ID of the order.
    * @param {number[]} ids - The IDs of the order items to be called.
    * @returns {Promise<string>} A promise that resolves to a message indicating the items have been called.
    * @throws {HTTPError} If any of the items have not been printed or have already been fired.
    */
   @InvalidateCacheByKeys((orderId: number) => [`findOrderById_[${orderId}]`])
   async callOrderItems(orderId: number, ids: number[]): Promise<string> {
-    return this.prisma.$transaction(async (prisma) => {
-      try {
+    try {
+      return await this.prisma.$transaction(async (prisma) => {
         const existingOrder = await prisma.order.findUnique({
           where: { id: orderId },
           select: { id: true },
@@ -590,24 +495,22 @@ export class OrdersService extends AbstractOrderService {
         if (!existingOrder) {
           throw new HTTPError(
             404,
-            "Order not found",
+            this.serviceName,
             `Order with ID ${orderId} not found in the database`,
+            `/orders/${orderId}`,
           );
         }
 
-        const foodItems = await prisma.orderFoodItem.findMany({
-          where: {
-            id: { in: ids },
-          },
-          select: { id: true, printed: true, fired: true },
-        });
-
-        const drinkItems = await prisma.orderDrinkItem.findMany({
-          where: {
-            id: { in: ids },
-          },
-          select: { id: true, printed: true, fired: true },
-        });
+        const [foodItems, drinkItems] = await Promise.all([
+          prisma.orderFoodItem.findMany({
+            where: { id: { in: ids } },
+            select: { id: true, printed: true, fired: true },
+          }),
+          prisma.orderDrinkItem.findMany({
+            where: { id: { in: ids } },
+            select: { id: true, printed: true, fired: true },
+          }),
+        ]);
 
         const allItems = [...foodItems, ...drinkItems];
         const notPrintedItems = allItems.filter((item) => !item.printed);
@@ -615,43 +518,36 @@ export class OrdersService extends AbstractOrderService {
 
         if (notPrintedItems.length > 0) {
           throw new HTTPError(
-            500,
-            "Print Items",
-            `Items ${notPrintedItems.map((item) => item.id).join(", ")} have not been printed.`,
+            400,
+            this.serviceName,
+            `Items ${notPrintedItems.map((item) => item.id).join(", ")} have not been printed`,
           );
         }
 
         if (firedItems.length > 0) {
           throw new HTTPError(
-            500,
-            "Print Items",
-            `Items ${firedItems.map((item) => item.id).join(", ")} have been fired.`,
+            400,
+            this.serviceName,
+            `Items ${firedItems.map((item) => item.id).join(", ")} have already been fired`,
           );
         }
 
-        await prisma.orderFoodItem.updateMany({
-          where: {
-            id: { in: ids },
-          },
-          data: {
-            fired: true,
-          },
-        });
+        await Promise.all([
+          prisma.orderFoodItem.updateMany({
+            where: { id: { in: ids } },
+            data: { fired: true },
+          }),
+          prisma.orderDrinkItem.updateMany({
+            where: { id: { in: ids } },
+            data: { fired: true },
+          }),
+        ]);
 
-        await prisma.orderDrinkItem.updateMany({
-          where: {
-            id: { in: ids },
-          },
-          data: {
-            fired: true,
-          },
-        });
-
-        return `items ${[...ids]} have been called.`;
-      } catch (error) {
-        throw this.handleError(error);
-      }
-    });
+        return `Items ${ids.join(", ")} have been called`;
+      });
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   /**
@@ -718,36 +614,31 @@ export class OrdersService extends AbstractOrderService {
   async updateItemsInOrder(
     orderId: number,
     updatedData: Pick<OrderCreateDTO, "foodItems" | "drinkItems">,
-  ) {
+  ): Promise<OrderFullSingleDTO> {
     try {
-      return await this.prisma.$transaction(async (prisma) => {
-        try {
-          const existingOrder = await this.findOrderById(orderId);
+      const existingOrder = await this.findOrderById(orderId);
 
-          const { mergedItems, totalAmount } = await this.prepareOrderItems(
-            existingOrder,
-            updatedData,
-          );
+      const { mergedItems, totalAmount } = await this.prepareOrderItems(
+        existingOrder,
+        updatedData,
+      );
 
-          const formattedNewOrder: {
-            foodItems: Prisma.OrderFoodItemCreateManyOrderInput[];
-            drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
-            totalAmount: number;
-          } = {
-            foodItems: mergedItems.foodItems,
-            drinkItems: mergedItems.drinkItems,
-            totalAmount,
-          };
+      const formattedNewOrder: {
+        foodItems: Prisma.OrderFoodItemCreateManyOrderInput[];
+        drinkItems: Prisma.OrderDrinkItemCreateManyOrderInput[];
+        totalAmount: number;
+      } = {
+        foodItems: mergedItems.foodItems,
+        drinkItems: mergedItems.drinkItems,
+        totalAmount,
+      };
 
-          const updatedOrder = await this.updateOrderItemsInDatabase(
-            orderId,
-            formattedNewOrder,
-          );
-          return this.formatOrder(updatedOrder);
-        } catch (error) {
-          throw this.handleError(error);
-        }
-      });
+      const updatedOrder = await this.updateOrderItemsInDatabase(
+        orderId,
+        formattedNewOrder,
+      );
+
+      return this.formatOrder(updatedOrder);
     } catch (error) {
       throw this.handleError(error);
     }
