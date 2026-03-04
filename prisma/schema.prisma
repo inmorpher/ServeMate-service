@@ -34,7 +34,6 @@ model Order {
   guestsCount    Int
   orderTime      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
-  allergies      Allergy[]           @default([])
   serverId       Int
   totalAmount    Float               @default(0)
   status         OrderState          @default(RECEIVED)
@@ -50,7 +49,6 @@ model Order {
   foodItems      OrderFoodItem[]
   payments       Payment[]
   serverActions  orderServerAction[]
-  reservations   Reservation[]
   @@index([totalAmount], name: "idx_order_total_amount")
   @@index([status], name: "idx_order_status")
   @@index([tableNumber], name: "idx_order_table_number")
@@ -64,7 +62,7 @@ model OrderFoodItem {
   guestNumber   Int
   price         Float
   specialRequest String?
-  allergies     Allergy[]   @default([])
+  allergies     OrderFoodItemAllergy[]
   orderId       Int
   itemId        Int
   discount      Float       @default(0)
@@ -83,7 +81,7 @@ model OrderDrinkItem {
   guestNumber   Int
   price         Float
   specialRequest String?
-  allergies     Allergy[]   @default([])
+  allergies     OrderDrinkItemAllergy[]
   orderId       Int
   itemId        Int
   discount      Float       @default(0)
@@ -103,7 +101,6 @@ model FoodItem {
   price           Float
   type            FoodType        @default(OTHER)
   category        FoodCategory    @default(OTHER)
-  allergies       Allergy[]       @default([])
   ingredients     String[]        @default([])
   description     String          @default("")
   isAvailable     Boolean         @default(true)
@@ -150,7 +147,7 @@ model Table {
   guests             Int              @default(0)
   orders             Order[]
   assignment         TableAssignment[]
-  reservations       Reservation[]
+  reservationTables  ReservationTable[]
 }
 
 model orderServerAction {
@@ -194,6 +191,41 @@ model RefundPayment {
   orderFoodItems OrderFoodItem[]
 }
 
+model OrderFoodItemAllergy {
+  id              Int         @id @default(autoincrement())
+  orderFoodItemId Int
+  allergy         Allergy
+  
+  orderFoodItem   OrderFoodItem @relation(fields: [orderFoodItemId], references: [id], onDelete: Cascade)
+  
+  @@unique([orderFoodItemId, allergy])
+  @@index([orderFoodItemId])
+}
+
+model OrderDrinkItemAllergy {
+  id              Int         @id @default(autoincrement())
+  orderDrinkItemId Int
+  allergy         Allergy
+  
+  orderDrinkItem  OrderDrinkItem @relation(fields: [orderDrinkItemId], references: [id], onDelete: Cascade)
+  
+  @@unique([orderDrinkItemId, allergy])
+  @@index([orderDrinkItemId])
+}
+
+model ReservationTable {
+  id              Int         @id @default(autoincrement())
+  reservationId   Int
+  tableNumber     Int
+  
+  reservation     Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  table           Table       @relation(fields: [tableNumber], references: [tableNumber])
+  
+  @@unique([reservationId, tableNumber])
+  @@index([reservationId])
+  @@index([tableNumber])
+}
+
 model TableAssignment {
   id         Int      @id @default(autoincrement())
   tableId    Int
@@ -214,15 +246,12 @@ model Reservation {
   name       String
   phone      String
   email      String?
-  allergies  Allergy[] @default([])
-  tables     Table[]
+  reservationTables ReservationTable[]
   status     ReservationStatus @default(PENDING)
-  order   Order[]
   comments   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isActive    Boolean  @default(true)
-
 }
 
 //Enums

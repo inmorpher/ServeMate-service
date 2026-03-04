@@ -25,7 +25,7 @@ WORKDIR /app
 # Копируем только production dependencies
 COPY package.json package-lock.json ./
 
-RUN npm ci --only=production
+RUN npm install
 
 # Копируем собранный dist из builder
 COPY --from=builder /app/dist ./dist

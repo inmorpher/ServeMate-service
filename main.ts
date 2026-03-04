@@ -33,6 +33,7 @@ import { TokenService } from './src/services/tokens/token.service';
 import { ITokenService } from './src/services/tokens/token.service.interface';
 import { UserService } from './src/services/users/user.service';
 import { IUserService } from './src/services/users/user.service.interface';
+import { WebSocketService } from './src/services/webSocket/websocket.service';
 import { TYPES } from './src/types';
 
 /**
@@ -54,6 +55,7 @@ export const coreServicesModule = new ContainerModule((bind: interfaces.Bind) =>
 	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter).inSingletonScope();
 	bind<ITokenService>(TYPES.ITokenService).to(TokenService).inSingletonScope();
 	bind<RoleMiddleware>(TYPES.RoleMiddleware).to(RoleMiddleware).inSingletonScope();
+	bind<WebSocketService>(TYPES.WebSocketService).to(WebSocketService).inSingletonScope();
 
 	// Prisma 7 с адаптером PostgreSQL
 	const connectionString = process.env.DATABASE_URL;
@@ -227,6 +229,9 @@ export const drinkItemsModule = new ContainerModule((bind: interfaces.Bind) => {
 		.inSingletonScope();
 	bind<DrinkItemsService>(TYPES.DrinkItemsService).to(DrinkItemsService).inSingletonScope();
 });
+
+
+
 
 /**
  * An array of application modules to be bound to the application.

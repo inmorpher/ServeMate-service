@@ -1,8 +1,15 @@
 import { faker } from '@faker-js/faker';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { TableCondition } from '@servemate/dto';
+import 'dotenv/config';
+import { Pool } from 'pg';
 
-const prisma = new PrismaClient();
+const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 interface MockTable {
 	tableNumber: number;

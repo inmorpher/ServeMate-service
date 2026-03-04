@@ -61,14 +61,15 @@ export class AuthenticationController extends BaseController {
 	@Validate(UserLoginSchema, 'body')
 	@Post('/login')
 	async login(req: TypedRequest<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
-		const startTime = performance.now();
+		console.log('Login request received with body:', req.body);
+		
 		try {
 			const { email, password } = req.body;
 
-			const validateStart = performance.now();
+			
 			const user = await this.userService.validateUser({ email, password });
-			const validateTime = performance.now() - validateStart;
-
+		
+			console.log('Authenticated user:', user);
 			if (!user) {
 				this.loggerService.warn(`Failed login attempt for email: ${email}`);
 				return this.badRequest(res, ERROR_MESSAGES.INVALID_CREDENTIALS);
@@ -90,10 +91,8 @@ export class AuthenticationController extends BaseController {
 
 			const tokenTime = performance.now() - tokenStart;
 			// this.userService.updateUser(user.id, { lastLogin: new Date() });
-			const totalTime = performance.now() - startTime;
-			this.loggerService.log(
-				`Login performance: total=${totalTime.toFixed(2)}ms, validate=${validateTime.toFixed(2)}ms, tokens=${tokenTime.toFixed(2)}ms`
-			);
+		
+		
 			this.ok(res, {
 				user,
 				accessToken: accessTokenData.accessToken,

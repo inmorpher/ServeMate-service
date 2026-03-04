@@ -1,7 +1,14 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { FoodCategory, FoodType, Prisma, PrismaClient } from '@prisma/client';
 import { DrinkCategory } from '@servemate/dto';
+import 'dotenv/config';
+import { Pool } from 'pg';
 
-const prisma = new PrismaClient();
+const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function seedMenuItems() {
 	try {
@@ -15,7 +22,6 @@ async function seedMenuItems() {
 				type: FoodType.APPETIZER,
 				isAvailable: true,
 				ingredients: ['Croutons', 'Parmesan cheese', 'Tomatoes', 'Onions'],
-				allergies: ['GLUTEN', 'DAIRY'],
 				isVegetarian: true,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -29,7 +35,6 @@ async function seedMenuItems() {
 				category: FoodCategory.FISH,
 				type: FoodType.MAIN_COURSE,
 				ingredients: ['Salmon fillet', 'Garlic', 'Olive oil', 'Onions'],
-				allergies: ['GLUTEN', 'FISH'],
 				isVegetarian: false,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -45,7 +50,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Chocolate', 'Milk'],
-				allergies: ['GLUTEN', 'DAIRY'],
 				isVegetarian: true,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -61,7 +65,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Tomato sauce', 'Mozzarella cheese', 'Basil'],
-				allergies: ['GLUTEN', 'DAIRY'],
 				isVegetarian: true,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -77,7 +80,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Beef patty', 'Lettuce', 'Tomato', 'Cheese', 'Brioche bun'],
-				allergies: ['GLUTEN', 'DAIRY'],
 				isVegetarian: false,
 				isVegan: false,
 				spicyLevel: 'MILD',
@@ -93,7 +95,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Mixed vegetables', 'Soy sauce', 'Garlic', 'Ginger'],
-				allergies: ['SOY'],
 				isVegetarian: true,
 				isVegan: true,
 				spicyLevel: 'MEDIUM',
@@ -109,7 +110,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Chicken wings', 'Flour', 'Spices'],
-				allergies: ['GLUTEN'],
 				isVegetarian: false,
 				isVegan: false,
 				spicyLevel: 'HOT',
@@ -125,7 +125,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Lettuce', 'Feta cheese', 'Olives', 'Cucumber', 'Tomatoes'],
-				allergies: ['DAIRY'],
 				isVegetarian: true,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -141,7 +140,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Spaghetti', 'Eggs', 'Parmesan cheese', 'Pancetta'],
-				allergies: ['GLUTEN', 'DAIRY', 'EGG'],
 				isVegetarian: false,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -157,7 +155,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Pastry', 'Custard', 'Assorted fruits'],
-				allergies: ['GLUTEN', 'DAIRY', 'EGG'],
 				isVegetarian: true,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -173,7 +170,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Arborio rice', 'Mushrooms', 'Parmesan cheese', 'White wine'],
-				allergies: ['DAIRY'],
 				isVegetarian: true,
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
@@ -189,7 +185,6 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Tortillas', 'Ground beef', 'Lettuce', 'Cheese', 'Tomatoes'],
-				allergies: ['GLUTEN', 'DAIRY'],
 				isVegetarian: false,
 				isVegan: false,
 				spicyLevel: 'MEDIUM',
@@ -205,8 +200,7 @@ async function seedMenuItems() {
 				isAvailable: true,
 
 				ingredients: ['Mozzarella', 'Tomatoes', 'Basil', 'Balsamic glaze'],
-				allergies: ['DAIRY'],
-				isVegetarian: true,
+
 				isVegan: false,
 				spicyLevel: 'NOT_SPICY',
 				preparationTime: 10,

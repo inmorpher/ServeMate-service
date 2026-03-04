@@ -36,6 +36,8 @@ export const TYPES = {
 	// Base
 	BaseService: Symbol.for('BaseService'),
 	OrderItemsService: Symbol.for('OrderItemsService'),
+	// WebSocket
+	WebSocketService: Symbol.for('WebSocketService'),
 };
 
 declare global {

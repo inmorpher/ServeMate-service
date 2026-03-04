@@ -46,11 +46,12 @@ export class UserService extends BaseService implements IUserService {
 	 * @throws {HTTPError} If the user is not found (404) or the password is invalid (401).
 	 */
 	async validateUser(user: UserCredentials): Promise<ValidatedUserData> {
+	
 		const { email, password } = user;
-
+		console.log(`Validating user with email: ${email}`);
 		// Генерируем ключ кэша на основе email и password
 		const cacheKey = crypto.createHash('sha256').update(`${email}:${password}`).digest('hex');
-
+		console.log(`Generated cache key: ${cacheKey}`);
 		// Проверяем кэш перед обращением к базе данных
 		const cachedUser = this.authCache.get<ValidatedUserData>(cacheKey);
 		if (cachedUser) {

@@ -19,13 +19,14 @@ import { OrderMetaDTO } from "@servemate/dto/src";
 import "reflect-metadata";
 import { HTTPError } from "../../errors/http-error.class";
 import { TYPES } from "../../types";
+import { WebSocketService } from "../webSocket/websocket.service";
 import { AbstractOrderService, ORDER_INCLUDE } from "./abstract-order.service";
 
 @injectable()
 export class OrdersService extends AbstractOrderService {
   protected serviceName = "OrdersService";
 
-  constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient) {
+  constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient, @inject(TYPES.WebSocketService) private wsService: WebSocketService) {
     super(prisma);
     this.prisma = prisma;
   }
@@ -53,11 +54,11 @@ export class OrdersService extends AbstractOrderService {
     criteria: OrderSearchCriteria,
   ): Promise<OrderSearchListResult> {
     try {
-      const { page, pageSize, sortBy, sortOrder, serverName, tableNumbers } = criteria;
+      const { page, pageSize, sortBy, sortOrder, serverName, tableNumbers, dateFrom, dateTo } = criteria;
       console.log('criteria:', criteria);
-
+   
       // Исключаем tableNumbers из criteria перед buildWhere
-      const criteriaForBuild = { ...criteria, tableNumbers: undefined };
+      const criteriaForBuild = { ...criteria, tableNumbers: undefined, dateFrom: undefined, dateTo: undefined };
 
       const where = this.buildWhere<
         Partial<OrderSearchCriteria>,
@@ -70,6 +71,11 @@ export class OrdersService extends AbstractOrderService {
         ? { in: tableNumbers }
         : undefined;
 
+      const orderTimeFilter = (dateFrom || dateTo) ? {
+        ...(dateFrom && { gte: dateFrom }),
+        ...(dateTo && { lte: dateTo }),
+      } : undefined;
+
       const [orders, total, priceStats] = await Promise.all([
         this.prisma.order.findMany({
           where: {
@@ -79,6 +85,7 @@ export class OrdersService extends AbstractOrderService {
               criteria.maxAmount,
             ),
             tableNumber: tableNumberFilter,
+             orderTime: orderTimeFilter,
             server: serverName
               ? {
                   name: {
@@ -99,7 +106,6 @@ export class OrdersService extends AbstractOrderService {
             orderTime: true,
             completionTime: true,
             updatedAt: true,
-            allergies: true,
             comments: true,
             totalAmount: true,
             discount: true,
@@ -119,6 +125,7 @@ export class OrdersService extends AbstractOrderService {
               criteria.maxAmount,
             ),
             tableNumber: tableNumberFilter,
+             orderTime: orderTimeFilter,
             server: serverName
               ? {
                   name: {
@@ -137,6 +144,7 @@ export class OrdersService extends AbstractOrderService {
               criteria.maxAmount,
             ),
             tableNumber: tableNumberFilter,
+             orderTime: orderTimeFilter,
             server: serverName
               ? {
                   name: {
@@ -148,9 +156,11 @@ export class OrdersService extends AbstractOrderService {
           },
           _min: {
             totalAmount: true,
+            orderTime: true,
           },
           _max: {
             totalAmount: true,
+            orderTime: true,
           },
         }),
       ]);
@@ -163,6 +173,10 @@ export class OrdersService extends AbstractOrderService {
         priceRange: {
           min: Math.floor(priceStats._min.totalAmount ?? 0),
           max: Math.ceil(priceStats._max.totalAmount ?? 0),
+        },
+        dateRange: {
+          min: priceStats._min.orderTime?.toISOString() ?? new Date().toISOString(),
+          max: priceStats._max.orderTime?.toISOString() ?? new Date().toISOString(),
         },
         totalCount: total,
         page,
@@ -189,8 +203,11 @@ export class OrdersService extends AbstractOrderService {
         include: ORDER_INCLUDE,
       });
 
+
+
       // If no order found, throw an error
       if (!order) {
+        this.wsService.notifySubscribers(orderId.toString(),  { message: 'Order not found' });
         throw new HTTPError(
           404,
           this.serviceName,
@@ -198,6 +215,8 @@ export class OrdersService extends AbstractOrderService {
           `/orders/${orderId}`,
         );
       }
+
+      this.wsService.notifySubscribers(orderId.toString(), { message: 'Order found', orderId });
 
       return {
         ...order,
@@ -283,8 +302,8 @@ export class OrdersService extends AbstractOrderService {
         }),
       ]);
 
-      console.log("filteredPriceStats", filteredAggregation);
-
+      console.log('Unfiltered Aggregation:');
+      this.wsService.notifySubscribers('1', { message: 'Order metadata retrieved' });
       return {
         statuses: Object.values(OrderState),
         allergies: Object.values(Allergies),
