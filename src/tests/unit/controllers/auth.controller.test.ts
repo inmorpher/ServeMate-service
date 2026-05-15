@@ -30,6 +30,7 @@ describe('AuthenticationController', () => {
 			generateRefreshToken: jest.fn(),
 			refreshToken: jest.fn(),
 			verifyToken: jest.fn(),
+			revokeToken: jest.fn(),
 		} as any;
 
 		mockLoggerService = {
@@ -59,6 +60,7 @@ describe('AuthenticationController', () => {
 			status: jest.fn().mockReturnThis(),
 			json: jest.fn(),
 			cookie: jest.fn(),
+			clearCookie: jest.fn().mockReturnThis(),
 			type: jest.fn().mockReturnThis(),
 		};
 
@@ -188,26 +190,30 @@ describe('AuthenticationController', () => {
 		});
 	});
 
-	it('should respond with 200 on successful logout without clearing cookies', async () => {
-		mockResponse.status = jest.fn().mockReturnThis();
-		mockResponse.json = jest.fn();
+	it('should revoke tokens, clear cookies and respond with 200 on logout', async () => {
+		mockRequest.headers = { authorization: 'Bearer access-token' };
+		(mockRequest as any).cookies = { refreshToken: 'refresh-token' };
 
 		await authController.logout(mockRequest as Request, mockResponse as Response, mockNext);
 
 		expect(mockResponse.status).toHaveBeenCalledWith(200);
 		expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Logged out successfully' });
+		expect(mockResponse.clearCookie).toHaveBeenCalledWith('accessToken');
+		expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken');
+		expect(mockTokenService.revokeToken).toHaveBeenCalledWith('access-token');
+		expect(mockTokenService.revokeToken).toHaveBeenCalledWith('refresh-token');
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
 	it('should respond with 500 and call next with error when an error occurs during logout', async () => {
 		const error = new Error('Logout error');
-		mockResponse.status = jest.fn(() => {
+		mockResponse.clearCookie = jest.fn(() => {
 			throw error;
 		});
 
 		await authController.logout(mockRequest as Request, mockResponse as Response, mockNext);
 
-		expect(mockResponse.status).toHaveBeenCalledWith(200);
+		expect(mockResponse.status).not.toHaveBeenCalled();
 		expect(mockResponse.json).not.toHaveBeenCalled();
 		expect(mockNext).toHaveBeenCalledWith(error);
 	});

@@ -20,13 +20,15 @@ import {
 @injectable()
 export class TokenService implements ITokenService {
 	private tokenCache: NodeCache;
+	private revokedTokens: NodeCache;
 
 	constructor() {
-		this.tokenCache = new NodeCache({ stdTTL: Math.max(1, Math.floor(ENV.TOKEN_CACHE_TTL / 1000)) });
+		const ttlSeconds = Math.max(1, Math.floor(ENV.TOKEN_CACHE_TTL / 1000));
+		this.tokenCache = new NodeCache({ stdTTL: ttlSeconds });
+		this.revokedTokens = new NodeCache({ stdTTL: ttlSeconds });
 	}
 
 	async authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
-	
 		const authHeader = req.headers.authorization;
 		if (!authHeader) {
 			return next(new HTTPError(401, 'Header', 'No authorization header provided'));
@@ -39,11 +41,17 @@ export class TokenService implements ITokenService {
 		}
 
 		try {
-			const decoded = await this.verifyToken(token, ENV.JWT_SECRET);
+			if (this.isTokenRevoked(token)) {
+				return next(new HTTPError(401, 'Token', 'Token has been revoked'));
+			}
 
+			const decoded = await this.verifyToken(token, ENV.JWT_SECRET);
 			(req as any).user = decoded;
 			next();
 		} catch (error) {
+			if (error instanceof HTTPError) {
+				return next(error);
+			}
 			this.handleAuthError(error, next);
 		}
 	}
@@ -63,9 +71,17 @@ export class TokenService implements ITokenService {
 		return this.generateToken(user, true);
 	}
 
+	revokeToken(token: string): void {
+		this.revokedTokens.set(token, true, this.getTokenTtlSeconds(token));
+		this.tokenCache.del(token);
+	}
+
 	async refreshToken(refreshToken: string, userService: IUserService): Promise<IRefreshToken> {
-	
 		try {
+			if (this.isTokenRevoked(refreshToken)) {
+				throw new HTTPError(401, 'Token', 'Invalid refresh token');
+			}
+
 			const decoded = (await this.verifyToken(refreshToken, ENV.JWT_REFRESH, true)) as DecodedUser;
 
 			const currentUser = await userService.findUserById(decoded.id);
@@ -74,7 +90,6 @@ export class TokenService implements ITokenService {
 			}
 
 			const user = { id: currentUser.id, email: currentUser.email, role: currentUser.role };
-
 			const { accessToken, expiresIn } = await this.generateAccessToken(user);
 			const newRefreshToken = await this.generateRefreshToken(user);
 
@@ -110,6 +125,7 @@ export class TokenService implements ITokenService {
 		const expiresIn = isRefreshToken
 			? parseExpiresIn(ENV.JWT_REFRESH_EXPIRES_IN, false)
 			: parseExpiresIn(ENV.JWT_EXPIRES_IN, false);
+
 		return new Promise((resolve, reject) => {
 			jwt.sign(payload, secret, { expiresIn, algorithm: 'HS256' }, (err, token) => {
 				if (err) reject(err);
@@ -118,43 +134,40 @@ export class TokenService implements ITokenService {
 		});
 	}
 
+	private isTokenRevoked(token: string): boolean {
+		return Boolean(this.revokedTokens.get(token));
+	}
+
+	private getTokenTtlSeconds(token: string, isRefreshToken = false): number {
+		const decodedToken = jwt.decode(token) as { exp?: number } | null;
+		if (decodedToken?.exp) {
+			const ttlMs = decodedToken.exp * 1000 - Date.now();
+			return Math.max(1, Math.ceil(ttlMs / 1000));
+		}
+
+		const fallbackExpiresIn = isRefreshToken ? ENV.JWT_REFRESH_EXPIRES_IN : ENV.JWT_EXPIRES_IN;
+		return Math.max(1, Math.ceil(parseExpiresIn(fallbackExpiresIn, true) / 1000));
+	}
+
 	private async verifyToken(
 		token: string,
 		secret: string,
 		isRefreshToken = false
 	): Promise<DecodedUser> {
-		const startTime = performance.now();
-		let cacheTime = 0;
-		let decodeTime = 0;
-		let verifyTime = 0;
-
 		try {
-			// Проверка кэша
 			if (!isRefreshToken) {
-				const cacheStartTime = performance.now();
 				const cachedUser = this.tokenCache.get<DecodedUser>(token);
-				cacheTime = performance.now() - cacheStartTime;
-
 				if (cachedUser) {
-					const totalTime = performance.now() - startTime;
-				
 					return cachedUser;
 				}
 
-				// Проверка expiration
-
-				const decodedToken = jwt.decode(token) as { exp?: number };
-
+				const decodedToken = jwt.decode(token) as { exp?: number } | null;
 				if (decodedToken?.exp && decodedToken.exp * 1000 < Date.now()) {
 					this.tokenCache.del(token);
 					throw new jwt.TokenExpiredError('jwt expired', new Date(decodedToken.exp * 1000));
 				}
-
-		
 			}
 
-			// JWT верификация
-			const verifyStartTime = performance.now();
 			const validatedToken = await new Promise((resolve, reject): void => {
 				jwt.verify(token, secret, (err, decoded) => {
 					if (err) {
@@ -167,16 +180,9 @@ export class TokenService implements ITokenService {
 					}
 				});
 			});
-			verifyTime = performance.now() - verifyStartTime;
-
-			// Измерение общего времени выполнения
-			const totalTime = performance.now() - startTime;
-		
 
 			return validatedToken as DecodedUser;
 		} catch (error: any) {
-			const totalTime = performance.now() - startTime;
-			console.log(`Token verification failed: ${totalTime.toFixed(2)}ms, error: ${error?.message}`);
 			throw error;
 		}
 	}

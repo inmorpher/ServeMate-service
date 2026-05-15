@@ -60,9 +60,12 @@ describe('TokenService', () => {
 		};
 		nextFunction = jest.fn();
 		mockedUuidV4.mockReturnValue('mocked-uuid');
-		(NodeCache.prototype.get as jest.Mock).mockClear();
-		(NodeCache.prototype.set as jest.Mock).mockClear();
-		(NodeCache.prototype.del as jest.Mock).mockClear();
+		(NodeCache.prototype.get as jest.Mock).mockReset();
+		(NodeCache.prototype.set as jest.Mock).mockReset();
+		(NodeCache.prototype.del as jest.Mock).mockReset();
+		(mockedJwt.verify as jest.Mock).mockReset();
+		(mockedJwt.sign as jest.Mock).mockReset();
+		(mockedJwt.decode as jest.Mock).mockReset();
 		mockedJwt.decode.mockReturnValue({ exp: (Date.now() / 1000) + 3600 }); // Mock decode to return a valid expiration time
 	});
 
@@ -208,11 +211,44 @@ describe('TokenService', () => {
 		});
 	});
 
+		describe('revokeToken', () => {
+			it('should revoke token and remove it from the access cache', () => {
+				const token = 'token-to-revoke';
+
+				tokenService.revokeToken(token);
+
+				expect(NodeCache.prototype.set).toHaveBeenCalledWith(token, true, expect.any(Number));
+				expect(NodeCache.prototype.del).toHaveBeenCalledWith(token);
+			});
+
+			it('should reject revoked access tokens during authenticate', async () => {
+				const token = 'revoked-token';
+				(NodeCache.prototype.get as jest.Mock).mockImplementation((key: string) => key === token);
+				mockRequest.headers = { authorization: `Bearer ${token}` };
+
+				await tokenService.authenticate(mockRequest as Request, mockResponse as Response, nextFunction);
+
+				expect(nextFunction).toHaveBeenCalledWith(new HTTPError(401, 'Token', 'Token has been revoked'));
+				expect(mockedJwt.verify).not.toHaveBeenCalled();
+			});
+
+			it('should reject revoked refresh tokens during refreshToken', async () => {
+				const token = 'revoked-refresh-token';
+				(NodeCache.prototype.get as jest.Mock).mockImplementation((key: string) => key === token);
+
+				await expect(tokenService.refreshToken(token, mockUserService)).rejects.toThrow(
+					new HTTPError(401, 'Token', 'Invalid refresh token')
+				);
+			});
+		});
+
 	describe('verifyToken caching', () => {
 		const token = 'cached-token';
 
 		it('should return a cached user if available', async () => {
-			(NodeCache.prototype.get as jest.Mock).mockReturnValue(user);
+			(NodeCache.prototype.get as jest.Mock)
+				.mockImplementationOnce(() => undefined)
+				.mockImplementationOnce(() => user);
 
 			// We need to call a public method to test the private `verifyToken`
 			mockRequest.headers = { authorization: `Bearer ${token}` };
@@ -225,7 +261,9 @@ describe('TokenService', () => {
 		});
 
 		it('should verify the token and cache it if not in cache', async () => {
-			(NodeCache.prototype.get as jest.Mock).mockReturnValue(undefined);
+			(NodeCache.prototype.get as jest.Mock)
+				.mockImplementationOnce(() => undefined)
+				.mockImplementationOnce(() => undefined);
 			mockedJwt.verify.mockImplementation((token, secret, options, callback) => {
 				const cb = typeof options === 'function' ? options : callback;
 				cb?.(null, user as any);
@@ -244,7 +282,9 @@ describe('TokenService', () => {
 		it('should throw and delete from cache if token is expired (pre-check)', async () => {
 			const expiredToken = 'definitely-expired-token';
 			const expiredTimestamp = Date.now() / 1000 - 60; // 1 minute ago
-			(NodeCache.prototype.get as jest.Mock).mockReturnValue(undefined);
+			(NodeCache.prototype.get as jest.Mock)
+				.mockImplementationOnce(() => undefined)
+				.mockImplementationOnce(() => undefined);
 			mockedJwt.decode.mockReturnValue({ exp: expiredTimestamp });
 
 			mockRequest.headers = { authorization: `Bearer ${expiredToken}` };
