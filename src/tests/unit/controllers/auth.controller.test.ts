@@ -188,14 +188,12 @@ describe('AuthenticationController', () => {
 		});
 	});
 
-	it('should clear refresh token cookie and respond with 200 on successful logout', async () => {
-		mockResponse.clearCookie = jest.fn();
+	it('should respond with 200 on successful logout without clearing cookies', async () => {
 		mockResponse.status = jest.fn().mockReturnThis();
 		mockResponse.json = jest.fn();
 
 		await authController.logout(mockRequest as Request, mockResponse as Response, mockNext);
 
-		expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken');
 		expect(mockResponse.status).toHaveBeenCalledWith(200);
 		expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Logged out successfully' });
 		expect(mockNext).not.toHaveBeenCalled();
@@ -203,13 +201,13 @@ describe('AuthenticationController', () => {
 
 	it('should respond with 500 and call next with error when an error occurs during logout', async () => {
 		const error = new Error('Logout error');
-		mockResponse.clearCookie = jest.fn(() => {
+		mockResponse.status = jest.fn(() => {
 			throw error;
 		});
 
 		await authController.logout(mockRequest as Request, mockResponse as Response, mockNext);
 
-		expect(mockResponse.status).not.toHaveBeenCalled();
+		expect(mockResponse.status).toHaveBeenCalledWith(200);
 		expect(mockResponse.json).not.toHaveBeenCalled();
 		expect(mockNext).toHaveBeenCalledWith(error);
 	});

@@ -61,15 +61,9 @@ export class AuthenticationController extends BaseController {
 	@Validate(UserLoginSchema, 'body')
 	@Post('/login')
 	async login(req: TypedRequest<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
-		console.log('Login request received with body:', req.body);
-		
 		try {
 			const { email, password } = req.body;
-
-			
 			const user = await this.userService.validateUser({ email, password });
-		
-			console.log('Authenticated user:', user);
 			if (!user) {
 				this.loggerService.warn(`Failed login attempt for email: ${email}`);
 				return this.badRequest(res, ERROR_MESSAGES.INVALID_CREDENTIALS);
@@ -90,8 +84,8 @@ export class AuthenticationController extends BaseController {
 
 
 			const tokenTime = performance.now() - tokenStart;
-			// this.userService.updateUser(user.id, { lastLogin: new Date() });
-		
+			void tokenTime;
+			void this.userService.updateUser(user.id, { lastLogin: new Date() });
 		
 			this.ok(res, {
 				user,
@@ -116,7 +110,6 @@ export class AuthenticationController extends BaseController {
 	@Post('/logout')
 	async logout(req: TypedRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
-			res.clearCookie('refreshToken');
 			this.loggerService.log('User logged out');
 			this.ok(res, { message: 'Logged out successfully' });
 		} catch (error) {
@@ -140,12 +133,7 @@ export class AuthenticationController extends BaseController {
 	@Post('/refresh-token')
 	async refreshToken(req: Request, res: Response, next: NextFunction) {
 		try {
-			// const receivedRefreshToken = req.cookies.refreshToken?.replace(/^"|"$/g, '');
 			const { refreshToken: receivedRefreshToken } = req.body;
-
-			// this.loggerService.log(
-			// 	`Попытка обновить токен. Токен существует: ${Boolean(receivedRefreshToken)}`
-			// );
 
 			if (!receivedRefreshToken) {
 				this.loggerService.warn('Токен обновления не предоставлен');
@@ -161,9 +149,6 @@ export class AuthenticationController extends BaseController {
 				return this.unauthorized(res, ERROR_MESSAGES.INVALID_REFRESH_TOKEN);
 			}
 			this.loggerService.log('token refreshed');
-
-		
-			// this.setCookie(res, 'refreshToken', refreshToken, true);
 			this.ok(res, {
 				accessToken,
 				refreshToken,
@@ -243,7 +228,6 @@ export class AuthenticationController extends BaseController {
 			}
 
 			const user = await this.userService.findUserById(userId);
-			console.log(user);
 			if (!user) {
 				this.loggerService.warn(`Пользователь с ID ${userId} не найден`);
 				return this.unauthorized(res, ERROR_MESSAGES.NOT_AUTHENTICATED);

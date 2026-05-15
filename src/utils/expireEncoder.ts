@@ -37,5 +37,5 @@ export const parseExpiresIn = (expiresIn: string | number, toMilliseconds = true
 			seconds = 900; // 15 минут по умолчанию
 	}
 
-	return toMilliseconds ? seconds : seconds;
+	return toMilliseconds ? seconds * 1000 : seconds;
 };

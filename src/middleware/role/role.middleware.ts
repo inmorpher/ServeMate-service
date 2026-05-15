@@ -2,7 +2,6 @@ import { UserRole } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
-import { ENV } from '../../../env';
 import { IMiddleware } from '../../common/middleware.interface';
 
 /**
@@ -30,10 +29,10 @@ export class RoleMiddleware implements IMiddleware {
 	execute(req: Request, res: Response, next: NextFunction): void {
 		const user = req.user;
 
-		if (!ENV.PRODUCTION) {
-			next();
-			return;
-		}
+		// if (!ENV.PRODUCTION) {
+		// 	next();
+		// 	return;
+		// }
 
 		if (!user) {
 			res.status(401).send({ error: 'Unauthorized' });

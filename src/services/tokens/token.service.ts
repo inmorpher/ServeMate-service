@@ -22,7 +22,7 @@ export class TokenService implements ITokenService {
 	private tokenCache: NodeCache;
 
 	constructor() {
-		this.tokenCache = new NodeCache({ stdTTL: ENV.TOKEN_CACHE_TTL }); // Cache expire time.
+		this.tokenCache = new NodeCache({ stdTTL: Math.max(1, Math.floor(ENV.TOKEN_CACHE_TTL / 1000)) });
 	}
 
 	async authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -106,28 +106,10 @@ export class TokenService implements ITokenService {
 			payload = basePayload;
 		}
 
-		const parsedRefreshTokenExpiresIn = parseExpiresIn(ENV.JWT_REFRESH_EXPIRES_IN, true);
-		const parsedAccessTokenExpiresIn = parseExpiresIn(ENV.JWT_EXPIRES_IN, true);
-
-		const now = Date.now();
-
-		const refreshExpiresAt = parsedRefreshTokenExpiresIn + now;
-		const accessExpiresAt = parsedAccessTokenExpiresIn + now;
-
-		// Преобразуем метки времени в удобочитаемый формат
-		const nowDate = new Date(now);
-		const accessExpiresDate = new Date(accessExpiresAt);
-		const refreshExpiresDate = new Date(refreshExpiresAt);
-
-		// Создаем более информативный вывод времен с разницей
-		const accessDiffMinutes = Math.round((accessExpiresAt - now) / 60000);
-		const refreshDiffMinutes = Math.round((refreshExpiresAt - now) / 60000);
-
-
-
-
 		const secret = isRefreshToken ? ENV.JWT_REFRESH : ENV.JWT_SECRET;
-		const expiresIn = isRefreshToken ? parsedRefreshTokenExpiresIn : parsedAccessTokenExpiresIn;
+		const expiresIn = isRefreshToken
+			? parseExpiresIn(ENV.JWT_REFRESH_EXPIRES_IN, false)
+			: parseExpiresIn(ENV.JWT_EXPIRES_IN, false);
 		return new Promise((resolve, reject) => {
 			jwt.sign(payload, secret, { expiresIn, algorithm: 'HS256' }, (err, token) => {
 				if (err) reject(err);

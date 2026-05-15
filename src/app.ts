@@ -98,7 +98,6 @@ export class App {
 
 			if (
 				req.path.startsWith('/auth/login') ||
-				req.path.startsWith('/auth/register') ||
 				req.path.startsWith('/auth/refresh-token') ||
 				req.path.includes('/meta')
 			) {

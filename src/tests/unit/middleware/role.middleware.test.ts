@@ -3,7 +3,15 @@ import { NextFunction, Request, Response } from 'express';
 import 'reflect-metadata';
 import { RoleMiddleware } from '../../../middleware/role/role.middleware';
 
-jest.mock('../../../../env', () => ({ ENV: { PRODUCTION: true } }));
+let mockProduction = true;
+
+jest.mock('../../../../env', () => ({
+	ENV: {
+		get PRODUCTION() {
+			return mockProduction;
+		},
+	},
+}));
 describe('RoleMiddleware', () => {
 	let middleware: RoleMiddleware;
 	let mockRequest: Partial<Request>;
@@ -85,6 +93,19 @@ describe('RoleMiddleware', () => {
 			expect(nextFunction).toHaveBeenCalled();
 			expect(mockResponse.status).not.toHaveBeenCalled();
 			expect(mockResponse.send).not.toHaveBeenCalled();
+		});
+
+		it('should enforce role checks when production is false', () => {
+			mockProduction = false;
+			const roleMiddleware = new RoleMiddleware([UserRole.ADMIN]);
+			mockRequest.user = { id: 1, email: 'test@email.com', role: UserRole.USER };
+
+			roleMiddleware.execute(mockRequest as Request, mockResponse as Response, nextFunction);
+
+			expect(mockResponse.status).toHaveBeenCalledWith(403);
+			expect(mockResponse.send).toHaveBeenCalledWith({ error: 'Forbidden' });
+			expect(nextFunction).not.toHaveBeenCalled();
+			mockProduction = true;
 		});
 
 		it('should not modify the request or response objects for valid users', () => {

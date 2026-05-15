@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import { TokenService } from '../../../services/tokens/token.service';
-import { IUserService } from '../../../services/users/user.service.interface';
-import { DecodedUser, IRefreshToken } from '../../../services/tokens/token.service.interface';
-import { HTTPError } from '../../../errors/http-error.class';
 import jwt from 'jsonwebtoken';
 import NodeCache from 'node-cache';
 import { v4 as uuidv4 } from 'uuid';
 import { ENV } from '../../../../env';
+import { HTTPError } from '../../../errors/http-error.class';
+import { TokenService } from '../../../services/tokens/token.service';
+import { DecodedUser, IRefreshToken } from '../../../services/tokens/token.service.interface';
+import { IUserService } from '../../../services/users/user.service.interface';
 
 // Mock dependencies
 jest.mock('jsonwebtoken');
@@ -25,7 +25,7 @@ jest.mock('../../../utils/expireEncoder', () => ({
 // Mock ENV variables
 jest.mock('../../../../env', () => ({
 	ENV: {
-		TOKEN_CACHE_TTL: 3600,
+		TOKEN_CACHE_TTL: 3600000,
 		JWT_SECRET: 'test-secret',
 		JWT_REFRESH: 'test-refresh-secret',
 		JWT_EXPIRES_IN: '1h',
