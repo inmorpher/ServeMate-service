@@ -158,3 +158,31 @@ In case of an error, the API returns an object with an `error` field:
 ## Conclusion
 
 This documentation covers the basic endpoints of the API. For more details on additional routes or implementation specifics, please refer to the project source code.
+
+## MCP Server
+
+The project also includes an MCP server for read-only access to the database through Claude Desktop or any MCP-compatible client.
+
+### Run in development
+
+```bash
+npm run mcp
+```
+
+### Run in Docker
+
+For a separate container attached to your MCP client, use `run --rm`:
+
+```bash
+docker compose run --rm mcp
+```
+
+For the dev compose file:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm mcp
+```
+
+### Available tools
+
+- `api_catalog` - returns the full catalog of methods with their inputs and outputs.

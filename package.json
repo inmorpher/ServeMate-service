@@ -16,6 +16,8 @@
 		"start": "nodemon dist/main.js",
 		"build": "rimraf dist && tsc",
 		"dev": "nodemon main.ts",
+		"mcp": "ts-node src/mcp/server.ts",
+		"mcp:prod": "node dist/src/mcp/server.js",
 		"start:prod": "pm2 start dist/main.js --name servemate-service",
 		"start:cluster": "pm2 start dist/main.js -i 4 --name servemate-service-cluster",
 		"pm2:monitor": "pm2 monitor",

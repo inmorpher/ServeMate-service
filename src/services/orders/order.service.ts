@@ -135,8 +135,7 @@ export class OrdersService extends AbstractOrderService {
       
       // Используем buildOrderWhereClause для всех фильтров, включая аллергии
       const where = this.buildOrderWhereClause(criteria);
-      console.log('where:', where);
-
+     
       const [orders, total, priceStats] = await Promise.all([
         this.prisma.order.findMany({
           where,

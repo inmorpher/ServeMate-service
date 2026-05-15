@@ -20,6 +20,28 @@ services:
     networks:
       - servemate-network
 
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: servemate-mcp-dev
+    command: ["npm", "run", "mcp"]
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - servemate-network
+
 networks:
   servemate-network:
     external: true
