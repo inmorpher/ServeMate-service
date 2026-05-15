@@ -48,51 +48,81 @@ export class OrdersService extends AbstractOrderService {
    * @private
    */
   private buildOrderWhereClause(criteria: OrderSearchCriteria): Prisma.OrderWhereInput {
-    const { serverName, tableNumbers, dateFrom, dateTo, minAmount, maxAmount } = criteria;
+    const { serverName, tableNumbers, dateFrom, dateTo, minAmount, maxAmount, allergies, status } = criteria;
 
-    // Исключаем поля, которые не маппятся 1:1 на колонки Order
-    const criteriaForBuild = {
-      ...criteria,
-      tableNumbers: undefined,
-      dateFrom: undefined,
-      dateTo: undefined,
-      serverName: undefined,
-      minAmount: undefined,
-      maxAmount: undefined,
-      page: undefined,
-      pageSize: undefined,
-      sortBy: undefined,
-      sortOrder: undefined,
-    };
+    const filters: Prisma.OrderWhereInput[] = [];
 
-    const baseWhere = this.buildWhere<
-      Partial<OrderSearchCriteria>,
-      Prisma.OrderWhereInput
-    >(criteriaForBuild);
+    // Добавляем только фильтры, которые есть в критериях
+    if (minAmount || maxAmount) {
+      filters.push({ totalAmount: this.buildRangeWhere(minAmount, maxAmount) });
+    }
 
-    return {
-      ...baseWhere,
-      ...(minAmount || maxAmount
-        ? { totalAmount: this.buildRangeWhere(minAmount, maxAmount) }
-        : {}),
-      ...(tableNumbers?.length
-        ? { tableNumber: { in: tableNumbers } }
-        : {}),
-      ...((dateFrom || dateTo) && {
+    if (tableNumbers?.length) {
+      filters.push({ tableNumber: { in: tableNumbers } });
+    }
+
+    if (dateFrom || dateTo) {
+      filters.push({
         orderTime: {
           ...(dateFrom && { gte: dateFrom }),
           ...(dateTo && { lte: dateTo }),
         },
-      }),
-      ...(serverName && {
+      });
+    }
+
+    if (serverName) {
+      filters.push({
         server: {
           name: {
             contains: serverName,
             mode: "insensitive" as const,
           },
         },
-      }),
-    };
+      });
+    }
+
+    if(status) {
+      filters.push({ status });
+    }
+
+    // Аллергии обрабатываем отдельно  
+    if (allergies?.length) {
+      filters.push({
+        OR: [
+          {
+            foodItems: {
+              some: {
+                allergies: {
+                  some: {
+                    allergy: { in: allergies },
+                  },
+                },
+              },
+            },
+          },
+          {
+            drinkItems: {
+              some: {
+                allergies: {
+                  some: {
+                    allergy: { in: allergies },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      });
+    }
+
+    // Возвращаем результат
+    if (filters.length === 0) {
+      return {};
+    }
+    if (filters.length === 1) {
+      return filters[0];
+    }
+    return { AND: filters };
   }
 
   @Cache(60)
@@ -101,16 +131,21 @@ export class OrdersService extends AbstractOrderService {
   ): Promise<OrderSearchListResult> {
     try {
       const { page, pageSize, sortBy, sortOrder } = criteria;
-
+      console.log('criteria:', criteria);
+      
+      // Используем buildOrderWhereClause для всех фильтров, включая аллергии
       const where = this.buildOrderWhereClause(criteria);
+      console.log('where:', where);
 
-      const [orders, total, stats] = await Promise.all([
+      const [orders, total, priceStats] = await Promise.all([
         this.prisma.order.findMany({
           where,
           select: {
             id: true,
             status: true,
-            server: { select: { name: true, id: true } },
+            server: {
+              select: { name: true, id: true },
+            },
             tableNumber: true,
             guestsCount: true,
             orderTime: true,
@@ -123,13 +158,23 @@ export class OrdersService extends AbstractOrderService {
           },
           skip: (page - 1) * pageSize,
           take: pageSize,
-          orderBy: { [sortBy]: sortOrder },
+          orderBy: {
+            [sortBy]: sortOrder,
+          },
         }),
-        this.prisma.order.count({ where }),
+        this.prisma.order.count({
+          where,
+        }),
         this.prisma.order.aggregate({
           where,
-          _min: { totalAmount: true, orderTime: true },
-          _max: { totalAmount: true, orderTime: true },
+          _min: {
+            totalAmount: true,
+            orderTime: true,
+          },
+          _max: {
+            totalAmount: true,
+            orderTime: true,
+          },
         }),
       ]);
 
@@ -139,12 +184,12 @@ export class OrdersService extends AbstractOrderService {
           status: order.status as OrderState,
         })),
         priceRange: {
-          min: Math.floor(stats._min.totalAmount ?? 0),
-          max: Math.ceil(stats._max.totalAmount ?? 0),
+          min: Math.floor(priceStats._min.totalAmount ?? 0),
+          max: Math.ceil(priceStats._max.totalAmount ?? 0),
         },
         dateRange: {
-          min: stats._min.orderTime?.toISOString() ?? new Date().toISOString(),
-          max: stats._max.orderTime?.toISOString() ?? new Date().toISOString(),
+          min: priceStats._min.orderTime?.toISOString() ?? new Date().toISOString(),
+          max: priceStats._max.orderTime?.toISOString() ?? new Date().toISOString(),
         },
         totalCount: total,
         page,
@@ -184,6 +229,7 @@ export class OrdersService extends AbstractOrderService {
         ...order,
         foodItems: this.groupItems(order.foodItems),
         drinkItems: this.groupItems(order.drinkItems),
+       
       };
     } catch (error) {
       throw this.handleError(error);
@@ -252,6 +298,8 @@ export class OrdersService extends AbstractOrderService {
           distinct: ["tableNumber"],
         }),
       ]);
+
+      
 
       return {
         statuses: Object.values(OrderState),
@@ -613,7 +661,7 @@ export class OrdersService extends AbstractOrderService {
   @InvalidateCacheByKeys((orderId) => [`findOrderById_[${orderId}]`])
   async updateItemsInOrder(
     orderId: number,
-    updatedData: Pick<OrderCreateDTO, "foodItems" | "drinkItems">,
+    updatedData: Pick<OrderCreateDTO, "foodItems" | "drinkItems">
   ): Promise<OrderFullSingleDTO> {
     try {
       const existingOrder = await this.findOrderById(orderId);

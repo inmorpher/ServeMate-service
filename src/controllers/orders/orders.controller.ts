@@ -66,6 +66,7 @@ export class OrdersController extends BaseController {
 				this.ok(res, orders);
 			
 		} catch (error) {
+			console.error('Error fetching orders:', error);
 			next(error);
 		}
 	}

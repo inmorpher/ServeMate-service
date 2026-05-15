@@ -128,6 +128,7 @@ export class BaseService {
 			'serverName',
 			'maxAmount',
 			'minAmount',
+			'allergies',
 		] as const;
 
 		const res = Object.entries(criteria).reduce((acc, [key, value]) => {
