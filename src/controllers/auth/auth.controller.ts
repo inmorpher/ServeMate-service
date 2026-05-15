@@ -110,6 +110,22 @@ export class AuthenticationController extends BaseController {
 	@Post('/logout')
 	async logout(req: TypedRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
+			const authorizationHeader = req.headers?.authorization;
+			const bearerToken = authorizationHeader?.startsWith('Bearer ')
+				? authorizationHeader.slice('Bearer '.length)
+				: null;
+
+			if (bearerToken) {
+				this.tokenService.revokeToken(bearerToken);
+			}
+
+			const refreshToken = (req as Request & { cookies?: { refreshToken?: string } }).cookies?.refreshToken;
+			if (refreshToken) {
+				this.tokenService.revokeToken(refreshToken);
+			}
+
+			res.clearCookie('accessToken');
+			res.clearCookie('refreshToken');
 			this.loggerService.log('User logged out');
 			this.ok(res, { message: 'Logged out successfully' });
 		} catch (error) {
