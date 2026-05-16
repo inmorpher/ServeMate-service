@@ -86,7 +86,15 @@ describe('OrdersController', () => {
 
 	describe('getOrders', () => {
 		it('should return a list of orders successfully', async () => {
-			const mockOrders = { orders: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 1, priceRange: { min: 0, max: 0 },};
+			const mockOrders = { 
+				orders: [], 
+				totalCount: 0, 
+				page: 1, 
+				pageSize: 10, 
+				totalPages: 1, 
+				priceRange: { min: 0, max: 0 },
+				dateRange: { min: new Date().toISOString(), max: new Date().toISOString() },
+			};
 			const req = mockRequest({}, { page: 1, pageSize: 10 }) as TypedRequest<
 				{},
 				OrderSearchCriteria,
@@ -110,6 +118,62 @@ describe('OrdersController', () => {
 			await ordersController.getOrders(req, res as Response, next);
 
 			expect(next).toHaveBeenCalledWith(error);
+		});
+
+		it('should support sorting by totalAmount ascending', async () => {
+			const mockOrders = { 
+				orders: [
+					{ ...mockOrder, id: 1, totalAmount: 50 },
+					{ ...mockOrder, id: 2, totalAmount: 100 },
+					{ ...mockOrder, id: 3, totalAmount: 150 },
+				], 
+				totalCount: 3, 
+				page: 1, 
+				pageSize: 10, 
+				totalPages: 1, 
+				priceRange: { min: 50, max: 150 },
+				dateRange: { min: new Date().toISOString(), max: new Date().toISOString() },
+			};
+			const req = mockRequest({}, { sortBy: 'totalAmount', sortOrder: 'asc' }) as TypedRequest<
+				{},
+				OrderSearchCriteria,
+				{}
+			>;
+
+			ordersService.findOrders.mockResolvedValue(mockOrders);
+
+			await ordersController.getOrders(req, res as Response, next);
+
+			expect(ordersService.findOrders).toHaveBeenCalledWith(req.query);
+			expect(ordersController['ok']).toHaveBeenCalledWith(res, mockOrders);
+		});
+
+		it('should support sorting by totalAmount descending', async () => {
+			const mockOrders = { 
+				orders: [
+					{ ...mockOrder, id: 3, totalAmount: 150 },
+					{ ...mockOrder, id: 2, totalAmount: 100 },
+					{ ...mockOrder, id: 1, totalAmount: 50 },
+				], 
+				totalCount: 3, 
+				page: 1, 
+				pageSize: 10, 
+				totalPages: 1, 
+				priceRange: { min: 50, max: 150 },
+				dateRange: { min: new Date().toISOString(), max: new Date().toISOString() },
+			};
+			const req = mockRequest({}, { sortBy: 'totalAmount', sortOrder: 'desc' }) as TypedRequest<
+				{},
+				OrderSearchCriteria,
+				{}
+			>;
+
+			ordersService.findOrders.mockResolvedValue(mockOrders);
+
+			await ordersController.getOrders(req, res as Response, next);
+
+			expect(ordersService.findOrders).toHaveBeenCalledWith(req.query);
+			expect(ordersController['ok']).toHaveBeenCalledWith(res, mockOrders);
 		});
 	});
 

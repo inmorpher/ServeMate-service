@@ -44,7 +44,7 @@
 		"@prisma/adapter-pg": "^7.2.0",
 		"@prisma/client": "^7.4.1",
 		"@prisma/generator-helper": "^7.0.0",
-		"@servemate/dto": "workspace:*",
+		"@servemate/dto": "^1.1.7",
 		"axios": "^1.7.7",
 		"bcrypt": "^5.1.1",
 		"cookie-parser": "^1.4.7",
