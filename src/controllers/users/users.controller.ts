@@ -8,7 +8,9 @@ import {
 	UserRole,
 	UserSearchCriteria,
 	UserSortColumn,
-} from '@servemate/dto';
+} from '../../dto-package';
+
+
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
@@ -62,6 +64,7 @@ export class UserController extends BaseController implements IUserController {
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
+		console.log('Received getUsers request with query:', req.query);
 		try {
 			const {
 				id,
@@ -88,8 +91,8 @@ const pageNum = Number(page) || 1;
 			...(name && { name: name as string }),
 			...(role && { role: role as UserRole }),
 			...(isActive !== undefined && { isActive: isActive === true }),
-			...(createdAfter && { createdAfter: createdAfter as string }),
-			...(createdBefore && { createdBefore: createdBefore as string }),
+			...(createdAfter && { createdAfter: createdAfter}),
+			...(createdBefore && { createdBefore: createdBefore  }),
 			page: pageNum,
 			pageSize: pageSizeNum,
 			sortBy: sortByStr as UserSortColumn,

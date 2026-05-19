@@ -1,19 +1,23 @@
 import {
 	OrderCreateDTO,
 	OrderCreateSchema,
-	OrderIds,
-	OrderSearchCriteria,
-	OrderSearchSchema,
+	OrderItemIdsSchema,
+	OrderSearchCriteria, OrderSearchSchema,
+
 	OrderUpdateItems,
 	OrderUpdateItemsSchema,
 	OrderUpdateProps,
-} from '@servemate/dto';
+} from '../../dto-package';
+
+import { getValidatedBody, getValidatedParams, getValidatedQuery } from '../../common/request-validation.helper';
+
 import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
+
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
@@ -58,11 +62,7 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const orders = await this.ordersService.findOrders(req.query);
-		
-		
-			// If meta flag is true, include metadata
-		
+			const orders = await this.ordersService.findOrders(getValidatedQuery(req));
 				this.ok(res, orders);
 			
 		} catch (error) {
@@ -91,7 +91,7 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const meta = await this.ordersService.getOrderMeta(req.query);
+			const meta = await this.ordersService.getOrderMeta(getValidatedQuery(req));
 			this.ok(res, meta);
 		} catch (error) {
 			next(error);
@@ -116,7 +116,7 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const order = await this.ordersService.findOrderById(Number(req.params.id));
+			const order = await this.ordersService.findOrderById(Number(getValidatedParams(req).id));
 			this.ok(res, order);
 		} catch (error) {
 			next(error);
@@ -131,9 +131,9 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			await this.ordersService.createOrder(req.body);
+			await this.ordersService.createOrder(getValidatedBody(req));
 
-			const message = `Order for table ${req.body.tableNumber} created successfully`;
+			const message = `Order for table ${getValidatedBody(req).tableNumber} created successfully`;
 			this.loggerService.log(message);
 			this.noContent(res);
 		} catch (error) {
@@ -161,7 +161,7 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			await this.ordersService.updateItemsInOrder(Number(req.params.id), req.body);
+			await this.ordersService.updateItemsInOrder(Number(getValidatedParams(req).id), getValidatedBody(req));
 			this.noContent(res);
 		} catch (error) {
 			next(error);
@@ -189,8 +189,8 @@ export class OrdersController extends BaseController {
 	) {
 		try {
 			const updatedOrder = await this.ordersService.updateOrderProperties(
-				Number(req.params.id),
-				req.body
+				Number(getValidatedParams(req).id),
+				getValidatedBody(req)
 			);
 			this.noContent(res);
 		} catch (error) {
@@ -208,16 +208,16 @@ export class OrdersController extends BaseController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
-	@Validate(OrderIds, 'body')
+	@Validate(OrderItemIdsSchema, 'body')
 	@Post('/:id/print')
 	async orderItemsPrint(
-		req: TypedRequest<{}, {}, { ids: number[] }>,
+		req: TypedRequest<{ id: number }, {}, { ids: number[]; orderItemsIds?: number[] }>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const orderId = Number(req.params.id);
-			const orderItemsIds = req.body.ids;
+			const orderId = Number(getValidatedParams(req).id);
+			const orderItemsIds = getValidatedBody(req).ids ?? getValidatedBody(req).orderItemsIds;
 			await this.ordersService.printOrderItems(orderId, orderItemsIds);
 
 			this.noContent(res);
@@ -236,16 +236,16 @@ export class OrdersController extends BaseController {
 	 *
 	 * @throws Will pass any errors to the next middleware function.
 	 */
-	@Validate(OrderIds, 'body')
+	@Validate(OrderItemIdsSchema, 'body')
 	@Post('/:id/call')
 	async orderItemsCall(
-		req: TypedRequest<{}, {}, { orderItemsIds: number[] }>,
+		req: TypedRequest<{ id: number }, {}, { ids: number[]; orderItemsIds?: number[] }>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const orderId = Number(req.params.id);
-			const orderItemsIds = req.body.orderItemsIds;
+			const orderId = Number(getValidatedParams(req).id);
+			const orderItemsIds = getValidatedBody(req).ids ?? getValidatedBody(req).orderItemsIds;
 			await this.ordersService.callOrderItems(orderId, orderItemsIds);
 
 			this.noContent(res);
@@ -272,7 +272,7 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			await this.ordersService.delete(Number(req.params.id));
+			await this.ordersService.delete(Number(getValidatedParams(req).id));
 			this.noContent(res);
 		} catch (error) {
 			next(error);

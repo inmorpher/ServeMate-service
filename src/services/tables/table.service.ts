@@ -1,4 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import {
 	PaymentState,
 	ReservationStatus,
@@ -8,10 +11,7 @@ import {
 	TableSearchCriteria,
 	TableSeatingDTO,
 	TableUpdate,
-} from '@servemate/dto';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
+} from "../../dto-package";
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { ITableService } from './table.service.interface';
@@ -325,9 +325,6 @@ export class TableService extends ITableService {
 				// Find the table
 				const table = await prisma.table.findUnique({
 					where: { id: tableId },
-					include: {
-						reservations: true,
-					},
 				});
 
 				// Check if the table exists

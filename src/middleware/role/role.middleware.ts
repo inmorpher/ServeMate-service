@@ -1,8 +1,8 @@
-import { UserRole } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { IMiddleware } from '../../common/middleware.interface';
+import { UserRole } from '../../dto-package';
 
 /**
  * Middleware for role-based access control.

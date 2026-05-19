@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { OrderState, PaymentSearchCriteria, PaymentState, RefundState } from '@servemate/dto';
 import { HTTPError } from '../../../errors/http-error.class';
 import { PaymentService } from '../../../services/payment/payment.service';
+import { OrderState, PaymentSearchCriteria, PaymentState, RefundState } from '../../dto-package';
 
 jest.mock('@opentelemetry/api', () => ({
 	trace: {

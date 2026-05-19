@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Allergy, PrismaClient } from '@prisma/client';
-import { OrderState } from '@servemate/dto';
 import 'dotenv/config';
 import { Pool } from 'pg';
+import { OrderState } from '../../dto-package';
 
 const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 

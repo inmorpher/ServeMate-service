@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-import { TableCondition } from '@servemate/dto';
 import 'dotenv/config';
 import { Pool } from 'pg';
+import { TableCondition } from '../../dto-package';
 
 const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 

@@ -1,3 +1,9 @@
+import { NextFunction, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { BaseController } from '../../common/base.controller';
+import { TypedRequest } from '../../common/route.interface';
+import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
 import {
 	CreateFoodItemDTO,
 	createFoodItemSchema,
@@ -5,13 +11,7 @@ import {
 	SearchFoodItemsDTO,
 	searchFoodItemsSchema,
 	updateFoodItemSchema,
-} from '@servemate/dto';
-import { NextFunction, Response } from 'express';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { BaseController } from '../../common/base.controller';
-import { TypedRequest } from '../../common/route.interface';
-import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
+} from '../../dto-package';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { FoodItemsService } from '../../services/food/food-items.service';
 import { ILogger } from '../../services/logger/logger.service.interface';

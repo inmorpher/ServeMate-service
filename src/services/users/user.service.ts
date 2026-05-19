@@ -1,4 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import { compare } from 'bcrypt';
+import crypto from 'crypto';
+import { inject, injectable } from 'inversify';
+import NodeCache from 'node-cache';
+import 'reflect-metadata';
+import { BaseService } from '../../common/base.service';
 import {
 	CreatedUserData,
 	CreateUser,
@@ -9,13 +15,7 @@ import {
 	UserRole,
 	UserSearchCriteria,
 	ValidatedUserData
-} from '@servemate/dto';
-import { compare } from 'bcrypt';
-import crypto from 'crypto';
-import { inject, injectable } from 'inversify';
-import NodeCache from 'node-cache';
-import 'reflect-metadata';
-import { BaseService } from '../../common/base.service';
+} from '../../dto-package';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { hashPassword } from '../../utils/password';
@@ -114,6 +114,7 @@ export class UserService extends BaseService implements IUserService {
 		sortOrder: 'asc' | 'desc' = 'asc'
 	): Promise<UserListResult> {
 		try {
+			console.log('Finding users with criteria:', criteria, { page, pageSize, sortBy, sortOrder });
 			const { id, email, name, role, isActive, createdAfter, createdBefore } = criteria;
 
 			const where = {

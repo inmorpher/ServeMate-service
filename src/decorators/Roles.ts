@@ -1,4 +1,4 @@
-import { UserRole } from '@servemate/dto';
+import { UserRole } from '../../dto-package';
 import { IMiddleware } from '../common/middleware.interface';
 import { RoleMiddleware } from '../middleware/role/role.middleware';
 

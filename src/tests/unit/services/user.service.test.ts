@@ -1,5 +1,4 @@
 import { PrismaClient, UserRole } from '@prisma/client';
-import { CreateUser, UpdateUserDto, UserCredentials, UserSearchCriteria } from '@servemate/dto';
 import bcrypt from 'bcrypt';
 import { Container } from 'inversify';
 import 'reflect-metadata';
@@ -7,6 +6,7 @@ import { HTTPError } from '../../../errors/http-error.class';
 import { UserService } from '../../../services/users/user.service';
 import { IUserService } from '../../../services/users/user.service.interface';
 import { TYPES } from '../../../types';
+import { CreateUser, UpdateUserDto, UserCredentials, UserSearchCriteria } from '../../dto-package';
 
 describe('UserService', () => {
 	let container: Container;

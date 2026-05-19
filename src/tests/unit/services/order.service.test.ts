@@ -1,11 +1,11 @@
 import { OrderState, PaymentState, PrismaClient } from '@prisma/client';
-import { OrderCreateDTO, OrderSearchCriteria, OrderUpdateProps } from '@servemate/dto';
 import { Container } from 'inversify';
 import 'reflect-metadata';
 import { HTTPError } from '../../../errors/http-error.class';
 import { ORDER_INCLUDE } from '../../../services/orders/abstract-order.service';
 import { OrdersService } from '../../../services/orders/order.service';
 import { TYPES } from '../../../types';
+import { OrderCreateDTO, OrderSearchCriteria, OrderUpdateProps } from '../../dto-package';
 
 describe('OrderService', () => {
 	let container: Container;

@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import {
-	Allergies,
 	CreateReservationDTO,
 	ListReturnType,
 	ReservationDetailedDTO,
@@ -8,11 +10,8 @@ import {
 	ReservationSearchCriteriaDTO,
 	ReservationStatus,
 	ReservationWithTablesDTO,
-	UpdateReservationDTO,
-} from '@servemate/dto';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
+	UpdateReservationDTO
+} from '../../dto-package';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { AbstractReservationService } from './abstract-reservation.service';
@@ -33,27 +32,32 @@ export class ReservationService extends AbstractReservationService {
 				// Check if tables are available, if not it will show a warning with response
 				const conflict = await this.checkTimeConflicts(reservation.tables, reservation.time);
 				// If there are conflicts, throw an error
+				const { tables, ...reservationData } = reservation;
+
 				const newReservation = await this.prisma.reservation.create({
 					data: {
-						...reservation,
-						tables: {
-							connect: reservation.tables.map((tableId) => ({ id: tableId })),
+						...reservationData,
+						reservationTables: {
+							connect: tables.map((tableId) => ({ id: tableId })),
 						},
 					},
 					include: {
-						tables: {
+						reservationTables: {
 							select: {
 								id: true,
 								tableNumber: true,
 							},
 						},
 					},
-				});
+});
 
-				return {
-					reservation: newReservation,
-					conflict,
-				};
+return {
+  reservation: {
+    ...newReservation,
+    tables: newReservation.reservationTables,
+  },
+  conflict,
+};
 			});
 		} catch (error) {
 			throw this.handleError(error);
@@ -79,7 +83,7 @@ export class ReservationService extends AbstractReservationService {
 					id: id,
 				},
 				include: {
-					tables: {
+					reservationTables: {
 						select: {
 							id: true,
 							tableNumber: true,
@@ -93,7 +97,10 @@ export class ReservationService extends AbstractReservationService {
 				throw new HTTPError(404, 'Reservation service', 'Reservation not found');
 			}
 
-			return reservation;
+			return {
+				...reservation,
+				tables: reservation.reservationTables,
+			};
 		} catch (error) {
 			throw this.handleError(error);
 		}
@@ -110,7 +117,7 @@ export class ReservationService extends AbstractReservationService {
 				this.prisma.reservation.findMany({
 					where,
 					include: {
-						tables: {
+						reservationTables: {
 							select: {
 								id: true,
 								tableNumber: true,
@@ -127,7 +134,10 @@ export class ReservationService extends AbstractReservationService {
 			]);
 
 			return {
-				list: reservations,
+				list: reservations.map((reservation) => ({
+					...reservation,
+					tables: reservation.reservationTables,
+				})),
 				totalCount,
 				page,
 				pageSize,
@@ -271,23 +281,7 @@ export class ReservationService extends AbstractReservationService {
 		return this.performUpdate(reservationId, { comments });
 	}
 
-	/**
-	 * Updates the allergies information for a specific reservation.
-	 *
-	 * @param reservationId - The unique identifier of the reservation to update.
-	 * @param allergies - An array of allergies to be associated with the reservation.
-	 * @returns A promise that resolves to a detailed reservation DTO with updated allergies.
-	 */
-
-	@InvalidateCacheByKeys((reservationID) => [`getReservationById_[${reservationID}]`])
-	@InvalidateCacheByPrefix('getReservationsByCriteria')
-	@Cache(60, (reservationId) => `getReservationById_[${reservationId}]`)
-	async updateReservationAllergies(
-		reservationId: number,
-		allergies: Allergies[]
-	): Promise<ReservationDetailedDTO> {
-		return this.performUpdate(reservationId, { allergies });
-	}
+	
 	/**
 	 * Deletes a reservation by its ID.
 	 *

@@ -11,11 +11,12 @@ import {
   Allergies,
   OrderCreateDTO,
   OrderFullSingleDTO,
+  OrderMetaDTO,
   OrderSearchCriteria,
   OrderSearchListResult,
-  OrderUpdateProps,
-} from "@servemate/dto";
-import { OrderMetaDTO } from "@servemate/dto/src";
+  OrderUpdateProps
+} from "../../dto-package";
+
 import "reflect-metadata";
 import { HTTPError } from "../../errors/http-error.class";
 import { TYPES } from "../../types";

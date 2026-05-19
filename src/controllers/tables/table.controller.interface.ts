@@ -1,13 +1,13 @@
-import {
-	TableAssignment,
-	TableCreate,
-	TableId,
-	TableSearchCriteria,
-	TableUpdate,
-} from '@servemate/dto';
 import { NextFunction, Response } from 'express';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
+import {
+    TableAssignment,
+    TableCreate,
+    TableId,
+    TableSearchCriteria,
+    TableUpdate,
+} from '../../dto-package';
 
 export abstract class ITableController extends BaseController {
 	/**

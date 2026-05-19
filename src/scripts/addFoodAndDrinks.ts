@@ -1,8 +1,8 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { FoodCategory, FoodType, Prisma, PrismaClient } from '@prisma/client';
-import { DrinkCategory } from '@servemate/dto';
 import 'dotenv/config';
 import { Pool } from 'pg';
+import { DrinkCategory } from '../../dto-package';
 
 const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 

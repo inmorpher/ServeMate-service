@@ -1,5 +1,4 @@
 import { UserRole } from '@prisma/client';
-import { ValidatedUserData } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
 import { AuthenticationController } from '../../../controllers/auth/auth.controller';
@@ -7,6 +6,7 @@ import { ILogger } from '../../../services/logger/logger.service.interface';
 import { ITokenService } from '../../../services/tokens/token.service.interface';
 import { UserService } from '../../../services/users/user.service';
 import { TYPES } from '../../../types';
+import { ValidatedUserData } from '../../dto-package';
 
 describe('AuthenticationController', () => {
 	let authController: AuthenticationController;

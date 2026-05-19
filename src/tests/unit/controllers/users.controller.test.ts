@@ -4,16 +4,16 @@ import 'reflect-metadata';
 import { TypedRequest } from '../../../common/route.interface';
 import { UserController } from '../../../controllers/users/users.controller';
 
-import {
-	CreateUser,
-	UpdateUserDto,
-	UserListResult,
-	UserRole,
-	UserSearchCriteria,
-} from '@servemate/dto';
 import { ILogger } from '../../../services/logger/logger.service.interface';
 import { UserService } from '../../../services/users/user.service';
 import { TYPES } from '../../../types';
+import {
+    CreateUser,
+    UpdateUserDto,
+    UserListResult,
+    UserRole,
+    UserSearchCriteria,
+} from '../../dto-package';
 
 describe('UserController', () => {
 	let userController: UserController;

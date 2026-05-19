@@ -1,10 +1,4 @@
 import { TableAssignment } from '@prisma/client';
-import {
-	TableCreate,
-	TableSearchCriteria,
-	TableSearchCriteriaSchema,
-	TableUpdate,
-} from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
 import 'reflect-metadata';
@@ -13,6 +7,12 @@ import { TableController } from '../../../controllers/tables/table.controller';
 import { ILogger } from '../../../services/logger/logger.service.interface';
 import { TableService } from '../../../services/tables/table.service';
 import { TYPES } from '../../../types';
+import {
+    TableCreate,
+    TableSearchCriteria,
+    TableSearchCriteriaSchema,
+    TableUpdate,
+} from '../../dto-package';
 
 describe('TableController', () => {
 	let tableController: TableController;

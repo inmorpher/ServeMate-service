@@ -1,11 +1,11 @@
+import { BaseService } from '../../common/base.service';
 import {
 	OrderItemDTO,
 	PaymentDTO,
 	PaymentListDTO,
 	PaymentSearchCriteria,
 	PaymentStatus,
-} from '@servemate/dto';
-import { BaseService } from '../../common/base.service';
+} from '../../dto-package';
 import { HTTPError } from '../../errors/http-error.class';
 
 export abstract class AbstractPaymentService extends BaseService {

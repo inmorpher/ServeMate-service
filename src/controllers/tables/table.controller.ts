@@ -4,6 +4,8 @@ import 'reflect-metadata';
 
 import { TypedRequest } from '../../common/route.interface';
 
+import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
+import { Roles } from '../../decorators/Roles';
 import {
 	TableAssignment,
 	TableAssignmentSchema,
@@ -18,9 +20,7 @@ import {
 	TableUpdate,
 	TableUpdatesSchema,
 	UserRole,
-} from '@servemate/dto';
-import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
-import { Roles } from '../../decorators/Roles';
+} from '../../dto-package';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { TableService } from '../../services/tables/table.service';
@@ -54,7 +54,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const queryParams: TableSearchCriteria = req.query;
+			const queryParams: TableSearchCriteria = req.validated?.query || req.query;
 			const result = await this.tableService.findTables(queryParams);
 			this.ok(res, result);
 		} catch (error) {
@@ -76,7 +76,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.params.id;
+			const tableId = req.validated?.params?.id || req.params.id;
 			const table = await this.tableService.findTableById(tableId);
 			this.ok(res, table);
 		} catch (error) {
@@ -123,7 +123,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.params.id;
+			const tableId = req.validated?.params?.id || req.params.id;
 			await this.tableService.deleteTable(tableId);
 
 			const message = `Table ${tableId} deleted successfully`;
@@ -150,8 +150,8 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.params.id;
-			const updateData = req.body;
+			const tableId = req.validated?.params?.id || req.params.id;
+			const updateData = req.validated?.body || req.body;
 
 			await this.tableService.updateTable(tableId, updateData);
 
@@ -175,7 +175,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.params.id;
+			const tableId = req.validated?.params?.id || req.params.id;
 			await this.tableService.clearTable(tableId);
 
 			const message = `Table ${tableId} cleared successfully`;
@@ -201,7 +201,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const { serverId, assignedTables } = req.body;
+			const { serverId, assignedTables } = req.validated?.body ||	 req.body;
 			await this.tableService.assignTables(assignedTables, serverId);
 			const message = `Tables ${assignedTables.join(
 				', '

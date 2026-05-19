@@ -1,10 +1,10 @@
-import { PaymentMethod, PaymentSearchCriteria, PaymentState, RefundDTO } from '@servemate/dto';
 import { NextFunction, Response } from 'express';
 import 'reflect-metadata';
 import { TypedRequest } from '../../../common/route.interface';
 import { PaymentController } from '../../../controllers/payments/payment.controller';
 import { ILogger } from '../../../services/logger/logger.service.interface';
 import { PaymentService } from '../../../services/payment/payment.service';
+import { PaymentMethod, PaymentSearchCriteria, PaymentState, RefundDTO } from '../../dto-package';
 
 describe('PaymentController', () => {
 	let paymentController: PaymentController;

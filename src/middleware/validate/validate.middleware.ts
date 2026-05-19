@@ -28,11 +28,14 @@ export class ValidateMiddleware implements IMiddleware {
 	 * @returns void
 	 */
 	execute(req: Request, res: Response, next: NextFunction): void {
-		const dataToValidate = this.getDataToValidate(req);
+	const dataToValidate = this.getDataToValidate(req);
 		try {
 			const validatedData = this.schema.parse(dataToValidate);
 
-			req[this.type] = validatedData;
+			if (!(req as any).validated) {
+				(req as any).validated = {};
+			}
+			(req as any).validated[this.type] = validatedData;
 			next();
 		} catch (error) {
 			if (error instanceof z.ZodError) {

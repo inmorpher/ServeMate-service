@@ -1,4 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
+import { BaseService, PrismaTransaction } from '../../common/base.service';
 import {
 	CreateReservationDTO,
 	ListReturnType,
@@ -10,9 +12,7 @@ import {
 	ReservationStatus,
 	ReservationWithTablesDTO,
 	UpdateReservationDTO,
-} from '@servemate/dto';
-import { inject, injectable } from 'inversify';
-import { BaseService, PrismaTransaction } from '../../common/base.service';
+} from '../../dto-package';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 
@@ -77,7 +77,6 @@ export abstract class AbstractReservationService extends BaseService {
 	 * - `phone` (optional): Filters reservations by phone, case insensitive.
 	 * - `status` (optional): Filters reservations by status.
 	 * - `guestsCount` (optional): Filters reservations by the exact number of guests.
-	 * - `allergies` (optional): Filters reservations that have any of the specified allergies.
 	 * - `guestsCountMin` (optional): Filters reservations with a minimum number of guests.
 	 * - `guestsCountMax` (optional): Filters reservations with a maximum number of guests.
 	 * - `timeStart` (optional): Filters reservations with a start time greater than or equal to the specified time.
@@ -110,19 +109,12 @@ export abstract class AbstractReservationService extends BaseService {
 
 			...(criteria.tables &&
 				criteria.tables.length > 0 && {
-					tables: {
+					reservationTables: {
 						some: {
 							id: {
 								in: criteria.tables,
 							},
 						},
-					},
-				}),
-
-			...(criteria.allergies &&
-				criteria.allergies.length > 0 && {
-					allergies: {
-						hasSome: criteria.allergies,
 					},
 				}),
 		};
@@ -186,7 +178,7 @@ export abstract class AbstractReservationService extends BaseService {
 		const conflictingReservations = await prisma.reservation.findMany({
 			where: {
 				...(reservationId !== undefined ? { id: { not: reservationId } } : {}),
-				tables: {
+				reservationTables: {
 					some: {
 						id: {
 							in: tableIds,
@@ -211,7 +203,7 @@ export abstract class AbstractReservationService extends BaseService {
 			},
 			select: {
 				id: true,
-				tables: {
+				reservationTables: {
 					select: {
 						id: true,
 						tableNumber: true,
@@ -224,7 +216,7 @@ export abstract class AbstractReservationService extends BaseService {
 		const result = conflictingReservations.flatMap((reservation) => ({
 			reservationId: reservation.id,
 			time: reservation.time,
-			tables: reservation.tables,
+			tables: reservation.reservationTables,
 		}));
 
 		return result;
@@ -257,12 +249,12 @@ export abstract class AbstractReservationService extends BaseService {
 						...(({ tables, ...rest }) => rest)(data),
 						// If tables are provided, set them
 						...(data.tables !== undefined
-							? { tables: { set: data.tables.map((tableId) => ({ id: tableId })) } }
+							? { reservationTables: { set: data.tables.map((tableId) => ({ id: tableId })) } }
 							: {}),
 					},
 					// Include the tables in the response
 					include: {
-						tables: {
+						reservationTables: {
 							select: {
 								id: true,
 								tableNumber: true,
@@ -277,7 +269,7 @@ export abstract class AbstractReservationService extends BaseService {
 				// If tables are provided, validate them and check for conflicts
 				if (checkConflicts && data.tables) {
 					conflict = await this.checkTimeConflicts(
-						updatedReservation.tables.map((table) => table.id),
+						updatedReservation.reservationTables.map((table) => table.id),
 						updatedReservation.time,
 						updatedReservation.id,
 						prisma
@@ -286,7 +278,10 @@ export abstract class AbstractReservationService extends BaseService {
 
 				// Return the updated reservation and any conflicts
 				return {
-					reservation: updatedReservation,
+					reservation: {
+						...updatedReservation,
+						tables: updatedReservation.reservationTables
+					},
 					conflict,
 				};
 			});

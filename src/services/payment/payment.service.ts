@@ -1,5 +1,8 @@
 import { trace } from '@opentelemetry/api';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import {
 	OrderState,
 	PaymentDTO,
@@ -7,10 +10,7 @@ import {
 	PaymentSearchCriteria,
 	PaymentState,
 	RefundState,
-} from '@servemate/dto';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
+} from '../../dto-package';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 import { AbstractPaymentService } from './abstract-payment.service';

@@ -1,16 +1,16 @@
 import { OrderState } from '@prisma/client';
-import {
-	OrderCreateDTO,
-	OrderSearchCriteria,
-	OrderUpdateItems,
-	OrderUpdateProps,
-} from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import 'reflect-metadata';
 import { TypedRequest } from '../../../common/route.interface';
 import { OrdersController } from '../../../controllers/orders/orders.controller';
 import { ILogger } from '../../../services/logger/logger.service.interface';
 import { OrdersService } from '../../../services/orders/order.service';
+import {
+    OrderCreateDTO,
+    OrderSearchCriteria,
+    OrderUpdateItems,
+    OrderUpdateProps,
+} from '../../dto-package';
 
 describe('OrdersController', () => {
 	let ordersController: OrdersController;

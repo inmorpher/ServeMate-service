@@ -1,21 +1,21 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { BaseService } from '../../common/base.service';
+import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
 import {
 	CreateFoodItemDTO,
 	FoodItemDTO,
 	FoodItemsListDTO,
 	SearchFoodItemsDTO,
 	UpdateFoodItemDTO,
-} from '@servemate/dto';
-import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { BaseService } from '../../common/base.service';
-import { Cache, InvalidateCacheByKeys, InvalidateCacheByPrefix } from '../../decorators/Cache';
+} from '../../dto-package';
 import { HTTPError } from '../../errors/http-error.class';
 import { TYPES } from '../../types';
 
 @injectable()
 export class FoodItemsService extends BaseService {
-	protected serviceName = 'OrderItemsService';
+	protected serviceName = 'FoodItemsService';
 	private prisma: PrismaClient;
 	constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient) {
 		super();

@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { Allergy, ReservationStatus } from '@servemate/dto';
 import { Container } from 'inversify';
 import 'reflect-metadata';
 import { HTTPError } from '../../../errors/http-error.class';
 import { ReservationService } from '../../../services/reservations/reservation.service';
 import { TYPES } from '../../../types';
+import { Allergy, ReservationStatus } from '../../dto-package';
 
 // Отключаем кеширование для тестов
 jest.mock('../../../decorators/Cache', () => ({

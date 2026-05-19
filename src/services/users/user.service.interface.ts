@@ -1,14 +1,14 @@
-import {
-	CreatedUserData,
-	CreateUser,
-	UpdateUserDto,
-	UserCredentials,
-	UserListItem,
-	UserListResult,
-	UserSearchCriteria,
-	ValidatedUserData,
-} from '@servemate/dto';
 import { BaseService } from '../../common/base.service';
+import {
+    CreatedUserData,
+    CreateUser,
+    UpdateUserDto,
+    UserCredentials,
+    UserListItem,
+    UserListResult,
+    UserSearchCriteria,
+    ValidatedUserData,
+} from '../../dto-package';
 
 export interface IUserService extends BaseService {
 	/**

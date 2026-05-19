@@ -1,4 +1,3 @@
-import { UserCredentials, UserLoginSchema } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
@@ -6,6 +5,7 @@ import { ENV } from '../../../env';
 import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Get, Post } from '../../decorators/httpDecorators';
+import { UserCredentials, UserLoginSchema } from '../../dto-package';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { ITokenService } from '../../services/tokens/token.service.interface';

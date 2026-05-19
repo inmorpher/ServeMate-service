@@ -1,5 +1,5 @@
-import { UserDto } from '@servemate/dto';
 import { NextFunction, Request, Response } from 'express';
+import { UserDto } from '../../dto-package';
 import { IUserService } from '../users/user.service.interface';
 
 /**

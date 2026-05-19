@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-import { Container, ContainerModule, interfaces } from 'inversify';
-import { Pool } from 'pg';
+import { Container, ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
+import 'reflect-metadata';
 import { App } from './src/app';
 import { BaseService } from './src/common/base.service';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
@@ -18,7 +18,6 @@ import { UserController } from './src/controllers/users/users.controller';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
-import { RoleMiddleware } from './src/middleware/role/role.middleware';
 import { DrinkItemsService } from './src/services/drinks/drink-items.service';
 import { FoodItemsService } from './src/services/food/food-items.service';
 import { LoggerService } from './src/services/logger/logger.service';
@@ -47,20 +46,17 @@ import { TYPES } from './src/types';
  * - ILogger to LoggerService
  * - IExceptionFilter to ExceptionFilter
  * - ITokenService to TokenService
- * - RoleMiddleware to RoleMiddleware
  * - PrismaClient to a constant value of a new PrismaClient instance
  */
-export const coreServicesModule = new ContainerModule((bind: interfaces.Bind) => {
+export const coreServicesModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope();
 	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter).inSingletonScope();
 	bind<ITokenService>(TYPES.ITokenService).to(TokenService).inSingletonScope();
-	bind<RoleMiddleware>(TYPES.RoleMiddleware).to(RoleMiddleware).inSingletonScope();
 	bind<WebSocketService>(TYPES.WebSocketService).to(WebSocketService).inSingletonScope();
 
 	// Prisma 7 с адаптером PostgreSQL
 	const connectionString = process.env.DATABASE_URL;
-	const pool = new Pool({ connectionString });
-	const adapter = new PrismaPg(pool);
+	const adapter = new PrismaPg(connectionString ?? '');
 		
 	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(
 		new PrismaClient({
@@ -84,7 +80,7 @@ export const coreServicesModule = new ContainerModule((bind: interfaces.Bind) =>
  * @module authModule
  * @param bind - The bind function used to bind types to implementations.
  */
-export const authModule = new ContainerModule((bind: interfaces.Bind) => {
+export const authModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope();
 	bind<AuthenticationController>(TYPES.AuthenticationController)
 		.to(AuthenticationController)
@@ -100,7 +96,7 @@ export const authModule = new ContainerModule((bind: interfaces.Bind) => {
  * @module userModule
  * @param bind - The bind function used to bind interfaces to implementations.
  */
-export const userModule = new ContainerModule((bind: interfaces.Bind) => {
+export const userModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<IUserService>(TYPES.UserService).to(UserService).inSingletonScope();
 	bind<IUserController>(TYPES.UserController).to(UserController).inSingletonScope();
 });
@@ -115,7 +111,7 @@ export const userModule = new ContainerModule((bind: interfaces.Bind) => {
  * @module appModule
  * @param bind - The bind function used to bind types to implementations.
  */
-export const appModule = new ContainerModule((bind: interfaces.Bind) => {
+export const appModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<App>(TYPES.Application).to(App).inSingletonScope();
 });
 
@@ -126,7 +122,7 @@ export const appModule = new ContainerModule((bind: interfaces.Bind) => {
  *
  * @param bind - The bind function used to bind the service to the identifier.
  */
-export const baseModules = new ContainerModule((bind: interfaces.Bind) => {
+export const baseModules = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<BaseService>(TYPES.BaseService).to(BaseService).inSingletonScope();
 });
 
@@ -140,7 +136,7 @@ export const baseModules = new ContainerModule((bind: interfaces.Bind) => {
  * @module tablesModule
  * @param bind - The bind function used to bind interfaces to implementations.
  */
-export const tablesModule = new ContainerModule((bind: interfaces.Bind) => {
+export const tablesModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<ITableService>(TYPES.TableService).to(TableService).inSingletonScope();
 	bind<ITableController>(TYPES.TableController).to(TableController).inSingletonScope();
 });
@@ -154,7 +150,7 @@ export const tablesModule = new ContainerModule((bind: interfaces.Bind) => {
  * @module ordersModule
  * @param bind - The bind function used to bind types to implementations in the IoC container.
  */
-export const ordersModule = new ContainerModule((bind: interfaces.Bind) => {
+export const ordersModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<OrdersService>(TYPES.OrdersService).to(OrdersService).inSingletonScope();
 	bind<OrdersController>(TYPES.OrdersController).to(OrdersController).inSingletonScope();
 });
@@ -181,7 +177,7 @@ export const ordersModule = new ContainerModule((bind: interfaces.Bind) => {
  * const paymentController = container.get<AbstractPaymentController>(TYPES.PaymentController);
  * ```
  */
-export const paymentModule = new ContainerModule((bind: interfaces.Bind) => {
+export const paymentModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<AbstractPaymentService>(TYPES.PaymentService).to(PaymentService).inSingletonScope();
 	bind<AbstractPaymentController>(TYPES.PaymentController).to(PaymentController).inSingletonScope();
 });
@@ -201,7 +197,7 @@ export const paymentModule = new ContainerModule((bind: interfaces.Bind) => {
  * @remarks
  * This module leverages InversifyJS for managing dependencies, enabling modular and testable architecture.
  */
-export const reservationsModule = new ContainerModule((bind: interfaces.Bind) => {
+export const reservationsModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<ReservationService>(TYPES.ReservationService).to(ReservationService).inSingletonScope();
 	bind<ReservationController>(TYPES.ReservationController)
 		.to(ReservationController)
@@ -218,12 +214,12 @@ export const reservationsModule = new ContainerModule((bind: interfaces.Bind) =>
  * @module foodItemsModule
  * @param bind - The InversifyJS bind function used to bind types to implementations.
  */
-export const foodItemsModule = new ContainerModule((bind: interfaces.Bind) => {
+export const foodItemsModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<FoodItemsController>(TYPES.FoodItemsController).to(FoodItemsController).inSingletonScope();
 	bind<FoodItemsService>(TYPES.FoodItemsService).to(FoodItemsService).inSingletonScope();
 });
 
-export const drinkItemsModule = new ContainerModule((bind: interfaces.Bind) => {
+export const drinkItemsModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
 	bind<DrinkItemsController>(TYPES.DrinkItemsController)
 		.to(DrinkItemsController)
 		.inSingletonScope();

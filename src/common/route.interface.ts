@@ -25,6 +25,11 @@ export interface TypedRequest<TParams = unknown, TQuery = unknown, TBody = unkno
 	query: TQuery & ParsedQs;
 	/** The typed route parameters, merged with ParamsDictionary for compatibility with Express */
 	params: TParams & ParamsDictionary;
+	validated?: {
+		query?: TQuery;
+		body?: TBody;
+		params?: TParams;
+	}
 }
 
 /**
