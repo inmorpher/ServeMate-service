@@ -111,8 +111,10 @@ export abstract class AbstractReservationService extends BaseService {
 				criteria.tables.length > 0 && {
 					reservationTables: {
 						some: {
-							id: {
+							table: {
+								id: {
 								in: criteria.tables,
+								},
 							},
 						},
 					},
@@ -180,8 +182,10 @@ export abstract class AbstractReservationService extends BaseService {
 				...(reservationId !== undefined ? { id: { not: reservationId } } : {}),
 				reservationTables: {
 					some: {
-						id: {
+						table: {
+							id: {
 							in: tableIds,
+								},
 						},
 					},
 				},
@@ -238,6 +242,10 @@ export abstract class AbstractReservationService extends BaseService {
 	): Promise<ReservationDetailedDTO> {
 		try {
 			return this.prisma.$transaction(async (prisma) => {
+				if (data.tables !== undefined) {
+					await this.validateReservationTables(data.tables, prisma);
+				}
+
 				// Check if tables are provided and validate them
 				const updatedReservation = await prisma.reservation.update({
 					where: {
@@ -249,7 +257,16 @@ export abstract class AbstractReservationService extends BaseService {
 						...(({ tables, ...rest }) => rest)(data),
 						// If tables are provided, set them
 						...(data.tables !== undefined
-							? { reservationTables: { set: data.tables.map((tableId) => ({ id: tableId })) } }
+							? {
+								reservationTables: {
+									deleteMany: {},
+									create: data.tables.map((tableId) => ({
+										table: {
+											connect: { id: tableId },
+										},
+									})),
+								},
+							}
 							: {}),
 					},
 					// Include the tables in the response

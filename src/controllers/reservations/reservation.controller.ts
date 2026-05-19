@@ -2,6 +2,7 @@ import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
+import { getValidatedBody, getValidatedParams, getValidatedQuery } from '../../common/request-validation.helper';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
 import {
@@ -53,7 +54,7 @@ export class ReservationController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const reservation = await this.reservationService.createReservation(req.validated?.body || req.body);
+			const reservation = await this.reservationService.createReservation(getValidatedBody(req));
 			reservation ? this.ok(res, reservation) : this.created(res);
 		} catch (error) {
 			next(error);
@@ -97,8 +98,7 @@ export class ReservationController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const reservations = await this.reservationService.getReservationsByCriteria(req.validated?.query || req.query);
-			console.log(reservations, 'reservations');
+			const reservations = await this.reservationService.getReservationsByCriteria(getValidatedQuery(req));
 			this.ok(res, reservations);
 		} catch (error) {
 			next(error);
@@ -127,8 +127,8 @@ export class ReservationController extends BaseController {
 	): Promise<void> {
 		try {
 			const updatedReservation = await this.reservationService.updateReservation(
-				Number(req.validated?.params?.id || req.params.id),
-				req.body
+				Number(getValidatedParams(req).id),
+				getValidatedBody(req)
 			);
 			this.ok(res, updatedReservation);
 		} catch (error) {
@@ -156,8 +156,8 @@ export class ReservationController extends BaseController {
 	): Promise<void> {
 		try {
 			const updatedReservation = await this.reservationService.updateReservationStatus(
-				Number(req.validated?.params?.id || req.params.id),
-				req.body.status
+				Number(getValidatedParams(req).id),
+				getValidatedBody(req).status
 			);
 			this.ok(res, updatedReservation);
 		} catch (error) {
@@ -185,8 +185,8 @@ export class ReservationController extends BaseController {
 	): Promise<void> {
 		try {
 			const updatedReservation = await this.reservationService.updateReservationTime(
-				Number(req.validated?.params?.id || req.params.id),
-				new Date(req.body.time)
+				Number(getValidatedParams(req).id),
+				new Date(getValidatedBody(req).time)
 			);
 			this.ok(res, updatedReservation);
 		} catch (error) {
@@ -204,8 +204,8 @@ export class ReservationController extends BaseController {
 	): Promise<void> {
 		try {
 			const updatedReservation = await this.reservationService.updateReservationTables(
-				Number(req.validated?.params?.id || req.params.id),
-				req.body.tables
+				Number(getValidatedParams(req).id),
+				getValidatedBody(req).tables
 			);
 			this.ok(res, updatedReservation);
 		} catch (error) {
@@ -223,8 +223,8 @@ export class ReservationController extends BaseController {
 	): Promise<void> {
 		try {
 			const updatedReservation = await this.reservationService.updateReservationGuestInfo(
-				Number(req.validated?.params?.id || req.params.id),
-				req.body.guestInfo
+				Number(getValidatedParams(req).id),
+				getValidatedBody(req).guestInfo
 			);
 			this.ok(res, updatedReservation);
 		} catch (error) {
@@ -242,8 +242,8 @@ export class ReservationController extends BaseController {
 	): Promise<void> {
 		try {
 			const updatedReservation = await this.reservationService.updateReservationComment(
-				Number(req.validated?.params?.id || req.params.id),
-				req.body.comments
+				Number(getValidatedParams(req).id),
+				getValidatedBody(req).comments
 			);
 			this.ok(res, updatedReservation);
 		} catch (error) {
@@ -261,7 +261,7 @@ export class ReservationController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			await this.reservationService.deleteReservation(Number(req.validated?.params?.id || req.params.id));
+			await this.reservationService.deleteReservation(Number(getValidatedParams(req).id));
 			this.ok(res, { message: 'Reservation deleted successfully' });
 		} catch (error) {
 			next(error);

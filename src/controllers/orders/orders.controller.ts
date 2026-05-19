@@ -2,7 +2,8 @@ import {
 	OrderCreateDTO,
 	OrderCreateSchema,
 	OrderItemIdsSchema,
-	OrderSearchCriteria, OrderSearchSchema,
+	OrderSearchCriteria,
+	OrderSearchSchema,
 
 	OrderUpdateItems,
 	OrderUpdateItemsSchema,
@@ -63,8 +64,7 @@ export class OrdersController extends BaseController {
 	): Promise<void> {
 		try {
 			const orders = await this.ordersService.findOrders(getValidatedQuery(req));
-				this.ok(res, orders);
-			
+			this.ok(res, orders);
 		} catch (error) {
 			console.error('Error fetching orders:', error);
 			next(error);
@@ -111,12 +111,13 @@ export class OrdersController extends BaseController {
 	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
 	@Get('/:id')
 	async getOrderById(
-		req: TypedRequest<{ id: number }, {}, {}>,
+		req: TypedRequest<{ id: string }, {}, {}>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const order = await this.ordersService.findOrderById(Number(getValidatedParams(req).id));
+			const orderId = Number(getValidatedParams(req).id);
+			const order = await this.ordersService.findOrderById(orderId);
 			this.ok(res, order);
 		} catch (error) {
 			next(error);
@@ -131,9 +132,10 @@ export class OrdersController extends BaseController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			await this.ordersService.createOrder(getValidatedBody(req));
+			const orderData = getValidatedBody(req);
+			await this.ordersService.createOrder(orderData);
 
-			const message = `Order for table ${getValidatedBody(req).tableNumber} created successfully`;
+			const message = `Order for table ${orderData.tableNumber} created successfully`;
 			this.loggerService.log(message);
 			this.noContent(res);
 		} catch (error) {
@@ -156,12 +158,14 @@ export class OrdersController extends BaseController {
 	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
 	@Patch('/:id/items')
 	async updateOrderItems(
-		req: TypedRequest<{ id: number }, {}, OrderUpdateItems>,
+		req: TypedRequest<{ id: string }, {}, OrderUpdateItems>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
-			await this.ordersService.updateItemsInOrder(Number(getValidatedParams(req).id), getValidatedBody(req));
+			const orderId = Number(getValidatedParams(req).id);
+			const items = getValidatedBody(req);
+			await this.ordersService.updateItemsInOrder(orderId, items);
 			this.noContent(res);
 		} catch (error) {
 			next(error);
@@ -183,15 +187,14 @@ export class OrdersController extends BaseController {
 	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
 	@Patch('/:id')
 	async updateOrderProperties(
-		req: TypedRequest<{ id: number }, {}, OrderUpdateProps>,
+		req: TypedRequest<{ id: string }, {}, OrderUpdateProps>,
 		res: Response,
 		next: NextFunction
 	) {
 		try {
-			const updatedOrder = await this.ordersService.updateOrderProperties(
-				Number(getValidatedParams(req).id),
-				getValidatedBody(req)
-			);
+			const orderId = Number(getValidatedParams(req).id);
+			const updateData = getValidatedBody(req);
+			const updatedOrder = await this.ordersService.updateOrderProperties(orderId, updateData);
 			this.noContent(res);
 		} catch (error) {
 			next(error);
@@ -211,13 +214,14 @@ export class OrdersController extends BaseController {
 	@Validate(OrderItemIdsSchema, 'body')
 	@Post('/:id/print')
 	async orderItemsPrint(
-		req: TypedRequest<{ id: number }, {}, { ids: number[]; orderItemsIds?: number[] }>,
+		req: TypedRequest<{ id: string }, {}, { ids: number[]; orderItemsIds?: number[] }>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
 			const orderId = Number(getValidatedParams(req).id);
-			const orderItemsIds = getValidatedBody(req).ids ?? getValidatedBody(req).orderItemsIds;
+			const orderItems = getValidatedBody(req);
+			const orderItemsIds = orderItems.ids ?? orderItems.orderItemsIds;
 			await this.ordersService.printOrderItems(orderId, orderItemsIds);
 
 			this.noContent(res);
@@ -239,13 +243,14 @@ export class OrdersController extends BaseController {
 	@Validate(OrderItemIdsSchema, 'body')
 	@Post('/:id/call')
 	async orderItemsCall(
-		req: TypedRequest<{ id: number }, {}, { ids: number[]; orderItemsIds?: number[] }>,
+		req: TypedRequest<{ id: string }, {}, { ids: number[]; orderItemsIds?: number[] }>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		try {
 			const orderId = Number(getValidatedParams(req).id);
-			const orderItemsIds = getValidatedBody(req).ids ?? getValidatedBody(req).orderItemsIds;
+			const orderItems = getValidatedBody(req);
+			const orderItemsIds = orderItems.ids ?? orderItems.orderItemsIds;
 			await this.ordersService.callOrderItems(orderId, orderItemsIds);
 
 			this.noContent(res);
@@ -267,7 +272,7 @@ export class OrdersController extends BaseController {
 	@Validate(OrderSearchSchema.pick({ id: true }), 'params')
 	@Delete('/:id')
 	async deleteOrder(
-		req: TypedRequest<{ id: number }, {}, {}>,
+		req: TypedRequest<{ id: string }, {}, {}>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {

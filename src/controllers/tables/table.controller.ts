@@ -2,6 +2,7 @@ import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 
+import { getValidatedBody, getValidatedParams, getValidatedQuery } from '../../common/request-validation.helper';
 import { TypedRequest } from '../../common/route.interface';
 
 import { Controller, Delete, Get, Patch, Post, Put } from '../../decorators/httpDecorators';
@@ -54,7 +55,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const queryParams: TableSearchCriteria = req.validated?.query || req.query;
+			const queryParams: TableSearchCriteria = getValidatedQuery(req);
 			const result = await this.tableService.findTables(queryParams);
 			this.ok(res, result);
 		} catch (error) {
@@ -76,7 +77,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.validated?.params?.id || req.params.id;
+			const tableId = getValidatedParams(req).id;
 			const table = await this.tableService.findTableById(tableId);
 			this.ok(res, table);
 		} catch (error) {
@@ -123,7 +124,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.validated?.params?.id || req.params.id;
+			const tableId = getValidatedParams(req).id;
 			await this.tableService.deleteTable(tableId);
 
 			const message = `Table ${tableId} deleted successfully`;
@@ -150,8 +151,8 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.validated?.params?.id || req.params.id;
-			const updateData = req.validated?.body || req.body;
+			const tableId = getValidatedParams(req).id;
+			const updateData = getValidatedBody(req);
 
 			await this.tableService.updateTable(tableId, updateData);
 
@@ -175,7 +176,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const tableId = req.validated?.params?.id || req.params.id;
+			const tableId = getValidatedParams(req).id;
 			await this.tableService.clearTable(tableId);
 
 			const message = `Table ${tableId} cleared successfully`;
@@ -201,7 +202,7 @@ export class TableController extends ITableController {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const { serverId, assignedTables } = req.validated?.body ||	 req.body;
+			const { serverId, assignedTables } = getValidatedBody(req);
 			await this.tableService.assignTables(assignedTables, serverId);
 			const message = `Tables ${assignedTables.join(
 				', '

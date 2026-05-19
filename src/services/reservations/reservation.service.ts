@@ -30,15 +30,19 @@ export class ReservationService extends AbstractReservationService {
 				// Check if tables are provided and validate them
 				await this.validateReservationTables(reservation.tables, prisma);
 				// Check if tables are available, if not it will show a warning with response
-				const conflict = await this.checkTimeConflicts(reservation.tables, reservation.time);
+				const conflict = await this.checkTimeConflicts(reservation.tables, reservation.time, undefined, prisma);
 				// If there are conflicts, throw an error
 				const { tables, ...reservationData } = reservation;
 
-				const newReservation = await this.prisma.reservation.create({
+				const newReservation = await prisma.reservation.create({
 					data: {
 						...reservationData,
 						reservationTables: {
-							connect: tables.map((tableId) => ({ id: tableId })),
+							create: tables.map((tableId) => ({
+								table: {
+									connect: { id: tableId },
+								},
+							})),
 						},
 					},
 					include: {
