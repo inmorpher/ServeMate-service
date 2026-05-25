@@ -145,8 +145,44 @@ export class PaymentService extends AbstractPaymentService {
 					select: {
 						id: true,
 						status: true,
-						foodItems: true,
-						drinkItems: true,
+						 foodItems: {
+      select: {
+        id: true,
+        price: true,
+        discount: true,
+        itemId: true,
+        finalPrice: true,
+        specialRequest: true,
+        allergies: {
+          select: {
+            allergy: true,
+          },
+        },
+        printed: true,
+        fired: true,
+        guestNumber: true,
+        paymentStatus: true,
+      },
+    },
+						 drinkItems: {
+      select: {
+        id: true,
+        price: true,
+        discount: true,
+        itemId: true,
+        finalPrice: true,
+        specialRequest: true,
+        allergies: {
+          select: {
+            allergy: true,
+          },
+        },
+        printed: true,
+        fired: true,
+        guestNumber: true,
+        paymentStatus: true,
+      },
+    },
 					},
 				});
 
@@ -159,11 +195,22 @@ export class PaymentService extends AbstractPaymentService {
 					throw new HTTPError(400, 'Payment ', 'Order already completed');
 				}
 
-				const { selectedDrinks, selectedFoods } = this.validateItems(
-					orderDrinkItems,
-					orderFoodItems,
-					order
-				);
+				const transformedOrder = {
+  foodItems: order.foodItems.map(item => ({
+    ...item,
+    allergies: item.allergies.map(a => a.allergy),
+  })),
+  drinkItems: order.drinkItems.map(item => ({
+    ...item,
+    allergies: item.allergies.map(a => a.allergy),
+  })),
+};
+
+const { selectedDrinks, selectedFoods } = this.validateItems(
+  orderDrinkItems,
+  orderFoodItems,
+  transformedOrder
+);
 
 				const subtotal = this.calculatePaymentAmount([...selectedDrinks, ...selectedFoods]);
 				const { tax, serviceCharge, total } = this.calculateTaxAndCharges(subtotal);
