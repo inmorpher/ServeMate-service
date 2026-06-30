@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY tsconfig.json ./
-COPY dto-package ./dto-package
+COPY src/dto-package ./src/dto-package
 COPY prisma ./prisma
 
 RUN npm ci
@@ -22,12 +22,8 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-# Копируем только production dependencies
-COPY package.json package-lock.json ./
-
-RUN npm install
-
-# Копируем собранный dist из builder
+# Копируем собранный app вместе с уже сгенерированным Prisma client и зависимостями.
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 

@@ -93,6 +93,17 @@ describe('UserService', () => {
 		});
 	});
 
+	it('rejects malformed login payloads before hitting prisma', async () => {
+		const prisma = createPrismaMock();
+		const service = new UserService(prisma);
+
+		await expect(service.validateUser({ email: '', password: 'secret' } as any)).rejects.toMatchObject({
+			statusCode: 400,
+			message: 'Email and password are required',
+		});
+		expect(prisma.user.findUnique).not.toHaveBeenCalled();
+	});
+
 	it('creates a user after hashing the password', async () => {
 		const prisma = createPrismaMock();
 		const service = new UserService(prisma);

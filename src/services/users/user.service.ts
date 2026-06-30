@@ -48,6 +48,7 @@ export class UserService extends BaseService implements IUserService {
 	async validateUser(user: UserCredentials): Promise<ValidatedUserData> {
 	
 		const { email, password } = user;
+		
 		// Генерируем ключ кэша на основе email и password
 		const cacheKey = crypto.createHash('sha256').update(`${email}:${password}`).digest('hex');
 		// Проверяем кэш перед обращением к базе данных
@@ -216,13 +217,25 @@ export class UserService extends BaseService implements IUserService {
 	 * @throws {HTTPError} If the user with the given ID is not found.
 	 */
 	async deleteUser(id: number): Promise<void> {
+
+		
 		try {
+			console.log(`Deleting user with ID: ${id}`);
+			const activeOrders=await this.prisma.order.count({
+				where: {serverId: id}
+			})
+
+			if(activeOrders>0) {
+				throw new HTTPError(400, 'UserService', `Cannot delete user with ID ${id} because they have active orders`);
+			}
+
 			await this.prisma.user.delete({
 				where: {
 					id,
 				},
 			});
 		} catch (error) {
+			console.error(`Error deleting user with ID ${id}:`, error);
 			throw this.handleError(error);
 		}
 	}

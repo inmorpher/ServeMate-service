@@ -38,6 +38,8 @@ export const TYPES = {
 	OrderItemsService: Symbol.for('OrderItemsService'),
 	// WebSocket
 	WebSocketService: Symbol.for('WebSocketService'),
+	// Database
+	DatabaseProvider: Symbol.for('DatabaseProvider'),
 };
 
 declare global {

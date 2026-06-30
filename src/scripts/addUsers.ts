@@ -3,14 +3,14 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
-import { Pool } from 'pg';
-import { CreateUser, UserRole } from '../../dto-package';
+
+
+import { CreateUser, UserRole } from '../dto-package/dist';
 import { hashPassword } from '../utils/password';
 
 const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
 async function generateUsers(count: number) {

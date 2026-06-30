@@ -1,23 +1,15 @@
-import {
-	CreateUser,
-	CreateUserSchema,
-	UpdateUserDto,
-	UpdateUserSchema,
-	UserListResult,
-	UserParamSchema,
-	UserRole,
-	UserSearchCriteria,
-	UserSortColumn,
-} from '../../dto-package';
+
 
 
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../../common/base.controller';
+import { getValidatedParams } from '../../common/request-validation.helper';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Post, Put } from '../../decorators/httpDecorators';
 import { Roles } from '../../decorators/Roles';
+import { CreateUser, CreateUserSchema, UpdateUserDto, UpdateUserSchema, UserListResult, UserParamSchema, UserRole, UserSearchCriteria, UserSortColumn } from '../../dto-package';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
 import { UserService } from '../../services/users/user.service';
@@ -165,10 +157,11 @@ const pageNum = Number(page) || 1;
 	@Delete('/:id')
 	@Roles([UserRole.ADMIN, UserRole.MANAGER])
 	async deleteUser(req: TypedRequest<{ id: string | number }>, res: Response, next: NextFunction) {
-		const userId = typeof req.params.id === 'string' ? parseInt(req.params.id, 10) : req.params.id;
-
+		const userId = getValidatedParams(req).id;
+		console.log(`Received deleteUser request for user ID: ${userId}`);
+		console.log('type of userId:', typeof userId);
 		try {
-			await this.userService.deleteUser(userId);
+			await this.userService.deleteUser(Number(userId));
 			this.ok(res, `User with ID ${userId} deleted successfully`);
 		} catch (error) {
 			next(error);

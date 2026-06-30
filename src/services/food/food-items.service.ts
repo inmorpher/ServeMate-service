@@ -22,6 +22,13 @@ export class FoodItemsService extends BaseService {
 		this.prisma = prisma;
 	}
 
+	private withDefaultAllergies(foodItem: Prisma.FoodItemGetPayload<{}>): FoodItemDTO {
+		return {
+			...foodItem,
+			allergies: [],
+		};
+	}
+
 	@InvalidateCacheByPrefix('getFoodItems_')
 	@InvalidateCacheByKeys((foodItem) => [`getFoodItemById_${foodItem.id}`])
 	async createFoodItem(data: CreateFoodItemDTO): Promise<FoodItemDTO> {
@@ -29,7 +36,7 @@ export class FoodItemsService extends BaseService {
 			const newFoodItem = await this.prisma.foodItem.create({
 				data,
 			});
-			return newFoodItem;
+			return this.withDefaultAllergies(newFoodItem);
 		} catch (error) {
 			throw this.handleError(error);
 		}
@@ -46,7 +53,7 @@ export class FoodItemsService extends BaseService {
 				throw new HTTPError(404, 'Food Items', 'Food Item not found');
 			}
 
-			return foodItem;
+			return this.withDefaultAllergies(foodItem);
 		} catch (error) {
 			throw this.handleError(error);
 		}
@@ -78,7 +85,7 @@ export class FoodItemsService extends BaseService {
 			]);
 
 			return {
-				items: foodItems,
+				items: foodItems.map((foodItem) => this.withDefaultAllergies(foodItem)),
 				totalCount: total,
 				page,
 				pageSize,
@@ -121,7 +128,7 @@ export class FoodItemsService extends BaseService {
 				throw new HTTPError(404, 'Food Items', 'Food Item not found');
 			}
 
-			return foodItem;
+			return this.withDefaultAllergies(foodItem);
 		} catch (error) {
 			throw this.handleError(error);
 		}

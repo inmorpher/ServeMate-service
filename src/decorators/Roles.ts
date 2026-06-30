@@ -1,5 +1,6 @@
-import { UserRole } from '../../dto-package';
+
 import { IMiddleware } from '../common/middleware.interface';
+import { UserRole } from '../dto-package/';
 import { RoleMiddleware } from '../middleware/role/role.middleware';
 
 /**

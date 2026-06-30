@@ -2,13 +2,12 @@ import { faker } from '@faker-js/faker';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Allergy, PrismaClient } from '@prisma/client';
 import 'dotenv/config';
-import { Pool } from 'pg';
-import { OrderState } from '../../dto-package';
+import { OrderState } from '../dto-package/dist';
+
 
 const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
 interface MockOrder {

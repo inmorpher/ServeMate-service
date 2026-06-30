@@ -1,9 +1,9 @@
-import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { Container, ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
 import 'reflect-metadata';
 import { App } from './src/app';
 import { BaseService } from './src/common/base.service';
+import { DatabaseProvider } from './src/common/database.provider';
 import { AuthenticationController } from './src/controllers/auth/auth.controller';
 import { DrinkItemsController } from './src/controllers/drinkItems/drink-items.controller';
 import { FoodItemsController } from './src/controllers/foodItems/food-items.controller';
@@ -55,20 +55,13 @@ export const coreServicesModule = new ContainerModule(({ bind }: ContainerModule
 	bind<WebSocketService>(TYPES.WebSocketService).to(WebSocketService).inSingletonScope();
 
 	// Prisma 7 с адаптером PostgreSQL
-	const connectionString = process.env.DATABASE_URL;
-	const adapter = new PrismaPg(connectionString ?? '');
-		
-	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(
-		new PrismaClient({
-			adapter,
-			log: [
-				{
-					emit: 'stdout',
-					level: 'info',
-				},
-			],
-		})
-	);
+	
+});
+
+export const databaseModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
+	bind<PrismaClient>(TYPES.PrismaClient).toDynamicValue(() => {
+		return DatabaseProvider.getInstance();
+	}).inSingletonScope();
 });
 
 /**
@@ -243,6 +236,7 @@ export const drinkItemsModule = new ContainerModule(({ bind }: ContainerModuleLo
  */
 export const appBindings = [
 	coreServicesModule,
+	databaseModule,
 	authModule,
 	userModule,
 	tablesModule,
@@ -262,12 +256,30 @@ export const appBindings = [
  * @returns An object containing the initialized application instance and the IoC container.
  */
 const bootstrap = () => {
-	const appContainer = new Container();
-	appContainer.load(...appBindings);
-	const app = appContainer.get<App>(TYPES.Application);
-	app.init();
+    const appContainer = new Container();
+    appContainer.load(...appBindings);
 
-	return { app, appContainer };
+    return DatabaseProvider.connect().then(() => {
+        const app = appContainer.get<App>(TYPES.Application);
+        app.init();
+
+        // На graceful shutdown отключаюсь от БД
+        process.on('SIGINT', async () => {
+            console.log('\nShutting down gracefully...');
+            await DatabaseProvider.disconnect();
+            process.exit(0);
+        });
+
+        process.on('SIGTERM', async () => {
+            await DatabaseProvider.disconnect();
+            process.exit(0);
+        });
+
+        return { app, appContainer };
+    }).catch((error) => {
+        console.error('\x1b[31m✗ Failed to bootstrap application:\x1b[0m', error);
+        process.exit(1);
+    });
 };
 
-export const { app, appContainer } = bootstrap();
+bootstrap();

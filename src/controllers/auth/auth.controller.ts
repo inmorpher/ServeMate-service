@@ -62,8 +62,10 @@ export class AuthenticationController extends BaseController {
 	@Post('/login')
 	async login(req: TypedRequest<{}, {}, UserCredentials>, res: Response, next: NextFunction) {
 		try {
-			const { email, password } = req.body;
+			const { email, password } = req.validated?.body || req.body;
+			console.log(`Attempting login for email: ${email}`);
 			const user = await this.userService.validateUser({ email, password });
+			console.log('user', user);
 			if (!user) {
 				this.loggerService.warn(`Failed login attempt for email: ${email}`);
 				return this.badRequest(res, ERROR_MESSAGES.INVALID_CREDENTIALS);

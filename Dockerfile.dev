@@ -5,7 +5,7 @@ WORKDIR /app
 # Копируем package files
 COPY package.json package-lock.json ./
 COPY tsconfig.json ./
-COPY dto-package ./dto-package
+COPY src/dto-package ./src/dto-package
 COPY prisma ./prisma
 
 # Устанавливаем ALL зависимости (включая devDependencies для разработки)

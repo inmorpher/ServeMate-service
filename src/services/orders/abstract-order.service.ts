@@ -2,8 +2,34 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import { BaseService } from '../../common/base.service';
 
-import { GuestItemsDTO, OrderCreateDTO, OrderFullSingleDTO, OrderItemExt } from '../../dto-package';
+import {
+	GuestItemsDTO,
+	OrderCreateDTO,
+	OrderFullSingleDTO,
+} from '../../dto-package';
 import { TYPES } from '../../types';
+
+type GroupableOrderItem = {
+	id: number;
+	price: number;
+	discount: number;
+	itemId: number;
+	finalPrice: number;
+	specialRequest: string | null;
+	allergies?: Array<{ allergy: string }>;
+	printed: boolean;
+	fired: boolean;
+	guestNumber: number;
+	paymentStatus: string;
+	foodItem?: {
+		name: string;
+		id: number;
+	};
+	drinkItem?: {
+		name: string;
+		id: number;
+	};
+};
 
 export type FlattenedFoodItem = Prisma.OrderFoodItemCreateManyOrderInput;
 
@@ -66,7 +92,11 @@ export abstract class AbstractOrderService extends BaseService {
 	 *
 	 * @returns {number} The total amount of the order after applying the discount, rounded to two decimal places.
 	 */
-	protected calculateTotalAmount(order: OrderCreateDTO): number {
+	protected calculateTotalAmount(order: {
+		foodItems: GuestItemsDTO[];
+		drinkItems: GuestItemsDTO[];
+		discount: number;
+	}): number {
 		// Calculate the total amount for food items.
 		const foodTotal = order.foodItems.reduce(
 			(sum, guest) => sum + guest.items.reduce((itemSum, item) => itemSum + item.finalPrice, 0),
@@ -304,20 +334,22 @@ export abstract class AbstractOrderService extends BaseService {
 	 *                            The returned structure makes it easy to see all items
 	 *                            ordered by each guest.
 	 */
-	protected groupItems<T extends OrderItemExt>(items: T[]): GuestItemsDTO[] {
+	protected groupItems<T extends GroupableOrderItem>(items: T[]): GuestItemsDTO[] {
 		const groupedItems = items.reduce((acc, item) => {
 			if (!acc[item.guestNumber]) {
 				acc[item.guestNumber] = [];
 			}
+			const allergies = item.allergies ?? [];
 			acc[item.guestNumber].push({
 				id: item.id,
 				name: item.foodItem?.name || item.drinkItem?.name,
-				allergies: item.allergies,
+				allergies,
 				price: item.price,
 				discount: item.discount,
 				finalPrice: item.finalPrice,
 				printed: item.printed,
 				fired: item.fired,
+				paymentStatus: item.paymentStatus,
 				itemId: item.foodItem?.id || item.drinkItem?.id,
 				guest: item.guestNumber,
 			});

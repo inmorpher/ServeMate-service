@@ -1,13 +1,13 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { FoodCategory, FoodType, Prisma, PrismaClient } from '@prisma/client';
+import { DrinkCategory, FoodCategory, FoodType, Prisma, PrismaClient } from '@prisma/client';
 import 'dotenv/config';
-import { Pool } from 'pg';
-import { DrinkCategory } from '../../dto-package';
+
+
+
 
 const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
 async function seedMenuItems() {
