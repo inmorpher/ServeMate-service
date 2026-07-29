@@ -26,7 +26,7 @@ import { AbstractOrderService, ORDER_INCLUDE } from "./abstract-order.service";
 @injectable()
 export class OrdersService extends AbstractOrderService {
   protected serviceName = "OrdersService";
-
+  ;
   constructor(@inject(TYPES.PrismaClient) prisma: PrismaClient, @inject(TYPES.WebSocketService) private wsService: WebSocketService) {
     super(prisma);
     this.prisma = prisma;
@@ -131,7 +131,8 @@ export class OrdersService extends AbstractOrderService {
     criteria: OrderSearchCriteria,
   ): Promise<OrderSearchListResult> {
     try {
-      
+
+     
       const { page, pageSize, sortBy, sortOrder } = criteria;
       console.log('criteria:', criteria);
       

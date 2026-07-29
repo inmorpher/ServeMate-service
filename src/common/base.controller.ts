@@ -5,6 +5,7 @@ import 'reflect-metadata';
 import { RouteDefinition } from '../decorators/httpDecorators';
 import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
+import { TypedRequest } from './route.interface';
 
 @injectable()
 export abstract class BaseController {
@@ -151,4 +152,45 @@ export abstract class BaseController {
 			}
 		});
 	}
+
+	protected getValidated<
+    TParams = unknown,
+    TQuery = unknown,
+    TBody = unknown
+>(
+    req: TypedRequest<TParams, TQuery, TBody>,
+    part: 'query'
+): TQuery;
+protected getValidated<
+    TParams = unknown,
+    TQuery = unknown,
+    TBody = unknown
+>(
+    req: TypedRequest<TParams, TQuery, TBody>,
+    part: 'body'
+): TBody;
+protected getValidated<
+    TParams = unknown,
+    TQuery = unknown,
+    TBody = unknown
+>(
+    req: TypedRequest<TParams, TQuery, TBody>,
+    part: 'params'
+): TParams;
+protected getValidated<
+    TParams = unknown,
+    TQuery = unknown,
+    TBody = unknown
+>(
+    req: TypedRequest<TParams, TQuery, TBody>,
+    part: 'query' | 'body' | 'params'
+): TParams | TQuery | TBody {
+    const validatedData = req.validated[part];
+
+    if (validatedData === undefined) {
+        throw new Error(`Request ${part} was not validated`);
+    }
+
+    return validatedData;
+}
 }

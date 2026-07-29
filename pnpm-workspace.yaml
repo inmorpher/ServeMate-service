@@ -1,0 +1,2 @@
+allowBuilds:
+  prisma: set this to true or false

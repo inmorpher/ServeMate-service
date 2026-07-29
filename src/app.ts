@@ -15,199 +15,231 @@ import { OrdersController } from './controllers/orders/orders.controller';
 import { PaymentController } from './controllers/payments/payment.controller';
 import { ReservationController } from './controllers/reservations/reservation.controller';
 import { ITableController } from './controllers/tables/table.controller.interface';
-import { IUserController } from './controllers/users/user.controller.interface';
 import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
 import { IExceptionFilter } from './errors/exception.filter.interface';
 import { AuthMiddleware } from './middleware/auth/auth.middleware';
+import { openApiRouter } from './openapi/swagger';
 import { ILogger } from './services/logger/logger.service.interface';
 import { WebSocketService } from './services/webSocket/websocket.service';
 import { TYPES } from './types';
+import { IUsersController } from './users/users.controller.interface';
 
 @injectable()
 export class App {
-	app: Express;
-	server: Server | null = null;
-	wss: WebSocket.Server | null = null;
-	port: string | number;
-	private controllers: BaseController[];
+  app: Express;
+  server: Server | null = null;
+  wss: WebSocket.Server | null = null;
+  port: string | number;
+  private controllers: BaseController[];
 
-	constructor(
-		@inject(TYPES.ILogger) private logger: ILogger,
-		@inject(TYPES.ExceptionFilter) private exceptionFilter: IExceptionFilter,
-		@inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
-		@inject(TYPES.WebSocketService) private wsService: WebSocketService,
-		@inject(TYPES.AuthenticationController) private authController: AuthenticationController,
-		@inject(TYPES.UserController) private userController: IUserController,
-		@inject(TYPES.TableController) private tableController: ITableController,
-		@inject(TYPES.OrdersController) private ordersController: OrdersController,
-		@inject(TYPES.PaymentController) private paymentController: PaymentController,
-		@inject(TYPES.ReservationController) private reservationController: ReservationController,
-		@inject(TYPES.FoodItemsController) private foodItemsController: FoodItemsController,
-		@inject(TYPES.DrinkItemsController) private drinkItemsController: DrinkItemsController
-	) {
-		this.app = express();
-		this.port = ENV.PORT || 3000;
-		this.controllers = [
-			this.authController,
-			this.userController,
-			this.tableController,
-			this.ordersController,
-			this.paymentController,
-			this.reservationController,
-			this.foodItemsController,
-			this.drinkItemsController,
-		];
-	}
+  constructor(
+    @inject(TYPES.ILogger) private logger: ILogger,
+    @inject(TYPES.ExceptionFilter) private exceptionFilter: IExceptionFilter,
+    @inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
+    @inject(TYPES.WebSocketService) private wsService: WebSocketService,
+    @inject(TYPES.AuthenticationController)
+    private authController: AuthenticationController,
+    @inject(TYPES.UsersController) private usersController: IUsersController,
+    @inject(TYPES.TableController) private tableController: ITableController,
+    @inject(TYPES.OrdersController) private ordersController: OrdersController,
+    @inject(TYPES.PaymentController)
+    private paymentController: PaymentController,
+    @inject(TYPES.ReservationController)
+    private reservationController: ReservationController,
+    @inject(TYPES.FoodItemsController)
+    private foodItemsController: FoodItemsController,
+    @inject(TYPES.DrinkItemsController)
+    private drinkItemsController: DrinkItemsController
+  ) {
+    this.app = express();
+    this.port = ENV.PORT || 3000;
+    this.controllers = [
+      this.authController,
+      this.usersController,
+      this.tableController,
+      this.ordersController,
+      this.paymentController,
+      this.reservationController,
+      this.foodItemsController,
+      this.drinkItemsController,
+    ];
+  }
 
-	private useMiddlewares(): void {
-		this.app.use(json());
-		this.app.use(urlencoded({ extended: true }));
-		this.app.use((req, res, next) => {
-			res.setHeader('Permission-Policy', 'geolocation=(), microphone=(), camera=()');
-			next();
-		});
+  private useMiddlewares(): void {
+    this.app.use(json());
+    this.app.use(urlencoded({ extended: true }));
+    this.app.use((req, res, next) => {
+      res.setHeader(
+        'Permission-Policy',
+        'geolocation=(), microphone=(), camera=()'
+      );
+      next();
+    });
 
-		this.app.use(
-			cors({
-				origin: [
-					'http://localhost:3000',
-					'http://192.168.2.60:3000',
-					'http://192.168.2.60:3002',
-					'http://localhost:3002',
-				],
-				credentials: true,
-				methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-				allowedHeaders: [
-					'Content-Type',
-					'Authorization',
-					'X-Requested-With',
-					'Accept',
-					'Origin',
-					'Access-Control-Allow-Headers',
-				],
-				exposedHeaders: ['X-Access-Token', 'X-Refresh-Token', 'Set-Cookie'],
-			})
-		);
+    this.app.use(
+      cors({
+        origin: [
+          'http://localhost:3000',
+          'http://192.168.2.60:3000',
+          'http://192.168.2.60:3002',
+          'http://localhost:3002',
+        ],
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: [
+          'Content-Type',
+          'Authorization',
+          'X-Requested-With',
+          'Accept',
+          'Origin',
+          'Access-Control-Allow-Headers',
+        ],
+        exposedHeaders: ['X-Access-Token', 'X-Refresh-Token', 'Set-Cookie'],
+      })
+    );
 
-		this.app.use(cookieParser());
+    this.app.use(cookieParser());
 
-		this.app.use('/api', (req, res, next) => {
-			if (req.method === 'OPTIONS') {
-				return next();
-			}
+    this.app.use('/api', (req, res, next) => {
+      if (req.method === 'OPTIONS') {
+        return next();
+      }
 
-			if (
-				req.path.startsWith('/auth/login') ||
-				req.path.startsWith('/auth/refresh-token') ||
-				req.path.includes('/meta')
-			) {
-				return next();
-			}
+      if (
+        req.path.startsWith('/auth/login') ||
+        req.path.startsWith('/auth/refresh-token') ||
+        req.path.includes('/meta')
+      ) {
+        return next();
+      }
 
-			this.authMiddleware.execute(req, res, next);
-		});
-	}
+      this.authMiddleware.execute(req, res, next);
+    });
+  }
 
-	private useRoutes(): void {
-		const apiRouter = Router();
+  private useRoutes(): void {
+    const apiRouter = Router();
 
-		this.controllers.forEach((controller) => {
-			const prefix = Reflect.getMetadata(METADATA_KEYS.PREFIX, controller.constructor);
-			const routes = Reflect.getMetadata(METADATA_KEYS.ROUTES, controller.constructor);
-			const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(controller));
+    this.controllers.forEach(controller => {
+      const prefix = Reflect.getMetadata(
+        METADATA_KEYS.PREFIX,
+        controller.constructor
+      );
+      const routes = Reflect.getMetadata(
+        METADATA_KEYS.ROUTES,
+        controller.constructor
+      );
+      const methods = Object.getOwnPropertyNames(
+        Object.getPrototypeOf(controller)
+      );
 
-			if (!prefix) {
-				this.logger.warn(`No prefix found for ${controller.constructor.name}`);
-				return;
-			}
+      if (!prefix) {
+        this.logger.warn(`No prefix found for ${controller.constructor.name}`);
+        return;
+      }
 
-			if (!controller.router) {
-				this.logger.warn(`No router found for ${controller.constructor.name}`);
-				return;
-			}
+      if (!controller.router) {
+        this.logger.warn(`No router found for ${controller.constructor.name}`);
+        return;
+      }
 
-			if (routes) {
-				this.logger.log(
-					`\x1b[33m...\x1b[0m Controller ${controller.constructor.name} is mounting at /api${prefix}`
-				);
-				routes.forEach((route: RouteDefinition) => {
-					const handler = (controller as any)[route.handlerName].bind(controller);
-					if (route.middlewares && route.middlewares.length > 0) {
-						const middlewares = route.middlewares.map((m: IMiddleware) => m.execute.bind(m));
-						apiRouter[route.method](prefix + route.path, ...middlewares, handler);
-					} else {
-						apiRouter[route.method](prefix + route.path, handler);
-					}
-					this.logger.log(
-						`\t\x1b[32m + \x1b[0m Route: [${route.method.toUpperCase()}] ${prefix}${
-							route.path
-						} bounded successfully`
-					);
-				});
-			} else {
-				this.logger.warn(`No routes found for ${controller.constructor.name}`);
-			}
+      if (routes) {
+        this.logger.log(
+          `\x1b[33m...\x1b[0m Controller ${controller.constructor.name} is mounting at /api${prefix}`
+        );
+        routes.forEach((route: RouteDefinition) => {
+          const handler = (controller as any)[route.handlerName].bind(
+            controller
+          );
+          if (route.middlewares && route.middlewares.length > 0) {
+            const middlewares = route.middlewares.map((m: IMiddleware) =>
+              m.execute.bind(m)
+            );
+            apiRouter[route.method](
+              prefix + route.path,
+              ...middlewares,
+              handler
+            );
+          } else {
+            apiRouter[route.method](prefix + route.path, handler);
+          }
+          this.logger.log(
+            `\t\x1b[32m + \x1b[0m Route: [${route.method.toUpperCase()}] ${prefix}${
+              route.path
+            } bounded successfully`
+          );
+        });
+      } else {
+        this.logger.warn(`No routes found for ${controller.constructor.name}`);
+      }
 
-			this.logger.log(
-				`\x1b[32m✓\x1b[0m Controller ${controller.constructor.name} mounted at /api${prefix}`
-			);
-		});
+      this.logger.log(
+        `\x1b[32m✓\x1b[0m Controller ${controller.constructor.name} mounted at /api${prefix}`
+      );
+    });
 
-		this.app.use('/api', apiRouter);
-	}
+    this.app.use('/api', apiRouter);
+    this.app.use('/docs', openApiRouter);
+  }
 
-	private initializeWebSocket(): void {
-		if (!this.server) {
-			this.logger.error('HTTP Server not initialized');
-			return;
-		}
+  private initializeWebSocket(): void {
+    if (!this.server) {
+      this.logger.error('HTTP Server not initialized');
+      return;
+    }
 
-		this.wss = new WebSocket.Server({ server: this.server });
+    this.wss = new WebSocket.Server({ server: this.server });
 
-		this.wss.on('connection', (ws: WebSocket, req) => {
-			this.logger.log(`WebSocket client connected from ${req.socket.remoteAddress}`);
+    this.wss.on('connection', (ws: WebSocket, req) => {
+      this.logger.log(
+        `WebSocket client connected from ${req.socket.remoteAddress}`
+      );
 
-			const url = new URL(req.url || '', `http://${req.headers.host}`);
-			const orderId = url.searchParams.get('orderId');
-			const userId = url.searchParams.get('userId');
+      const url = new URL(req.url || '', `http://${req.headers.host}`);
+      const orderId = url.searchParams.get('orderId');
+      const userId = url.searchParams.get('userId');
 
-			if (!orderId || !userId) {
-				this.logger.warn('WebSocket connection rejected: Missing orderId or userId');
-				ws.close(1008, 'Missing orderId or userId');
-				return;
-			}
+      if (!orderId || !userId) {
+        this.logger.warn(
+          'WebSocket connection rejected: Missing orderId or userId'
+        );
+        ws.close(1008, 'Missing orderId or userId');
+        return;
+      }
 
-			this.wsService.subscribe(orderId, userId, ws);
+      this.wsService.subscribe(orderId, userId, ws);
 
-			ws.on('message', (message: string) => {
-				try {
-					const data = JSON.parse(message);
-					this.logger.log(`WebSocket message from ${userId}:`, data);
-					// Обработка сообщений от клиента если нужно
-				} catch (error) {
-					this.logger.error('Invalid WebSocket message:', error);
-					ws.send(JSON.stringify({ type: 'error', data: 'Invalid message format' }));
-				}
-			});
+      ws.on('message', (message: string) => {
+        try {
+          const data = JSON.parse(message);
+          this.logger.log(`WebSocket message from ${userId}:`, data);
+          // Обработка сообщений от клиента если нужно
+        } catch (error) {
+          this.logger.error('Invalid WebSocket message:', error);
+          ws.send(
+            JSON.stringify({ type: 'error', data: 'Invalid message format' })
+          );
+        }
+      });
 
-			ws.on('error', (error) => {
-				this.logger.error(`WebSocket error for user ${userId}:`, error);
-			});
-		});
+      ws.on('error', error => {
+        this.logger.error(`WebSocket error for user ${userId}:`, error);
+      });
+    });
 
-		this.logger.log(`\x1b[36m✓\x1b[0m WebSocket Server initialized`);
-	}
+    this.logger.log(`\x1b[36m✓\x1b[0m WebSocket Server initialized`);
+  }
 
-	private useExceptionFilters(): void {
-		this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
-	}
+  private useExceptionFilters(): void {
+    this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
+  }
 
-	public async init() {
-		this.useMiddlewares();
-		this.useRoutes();
-		this.useExceptionFilters();
-		this.server = this.app.listen(this.port);
-		this.initializeWebSocket();
-		this.logger.log(`Server is running on port ${this.port}`);
-	}
+  public async init() {
+    this.useMiddlewares();
+    this.useRoutes();
+    this.useExceptionFilters();
+    this.server = this.app.listen(this.port);
+    this.initializeWebSocket();
+    this.logger.log(`Server is running on port ${this.port}`);
+  }
 }

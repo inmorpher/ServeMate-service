@@ -2,12 +2,12 @@ import {
 	OrderCreateDTO,
 	OrderCreateSchema,
 	OrderItemIdsSchema,
+	OrderMeta,
 	OrderSearchCriteria,
 	OrderSearchSchema,
-
 	OrderUpdateItems,
 	OrderUpdateItemsSchema,
-	OrderUpdateProps,
+	OrderUpdateProps
 } from '../../dto-package';
 
 import { getValidatedBody, getValidatedParams, getValidatedQuery } from '../../common/request-validation.helper';
@@ -19,6 +19,7 @@ import { BaseController } from '../../common/base.controller';
 import { TypedRequest } from '../../common/route.interface';
 import { Controller, Delete, Get, Patch, Post } from '../../decorators/httpDecorators';
 
+import { ApiResponse } from '../../decorators/response.decorator';
 import { CacheMiddleware } from '../../middleware/cache/cache.middleware';
 import { Validate } from '../../middleware/validate/validate.middleware';
 import { ILogger } from '../../services/logger/logger.service.interface';
@@ -83,6 +84,7 @@ export class OrdersController extends BaseController {
 	 * This method calls the `getOrderMeta` service to fetch metadata related to orders
 	 * and sends it in the response. If an error occurs, it passes the error to the next middleware.
 	 */
+	@ApiResponse(OrderMeta)
 	@Validate(OrderSearchSchema, 'query')
 	@Get('/meta')
 	async getOrderMeta(

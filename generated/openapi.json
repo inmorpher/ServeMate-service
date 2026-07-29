@@ -1,0 +1,1311 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ServeMate API",
+    "version": "1.0.0",
+    "description": "Auto-generated OpenAPI from DTO/Zod schemas"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "summary": "login",
+        "operationId": "AuthenticationController_login",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "logout",
+        "operationId": "AuthenticationController_logout",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "summary": "refreshToken",
+        "operationId": "AuthenticationController_refreshToken",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "me",
+        "operationId": "AuthenticationController_me",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/api/drink-items": {
+      "post": {
+        "summary": "createDrinkItem",
+        "operationId": "DrinkItemsController_createDrinkItem",
+        "tags": [
+          "DrinkItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "getDrinkItems",
+        "operationId": "DrinkItemsController_getDrinkItems",
+        "tags": [
+          "DrinkItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/drink-items/:id": {
+      "get": {
+        "summary": "getDrinkItem",
+        "operationId": "DrinkItemsController_getDrinkItem",
+        "tags": [
+          "DrinkItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "deleteDrinkItem",
+        "operationId": "DrinkItemsController_deleteDrinkItem",
+        "tags": [
+          "DrinkItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "summary": "updateDrinkItem",
+        "operationId": "DrinkItemsController_updateDrinkItem",
+        "tags": [
+          "DrinkItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/food-items": {
+      "post": {
+        "summary": "createFoodItem",
+        "operationId": "FoodItemsController_createFoodItem",
+        "tags": [
+          "FoodItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "getFoodItems",
+        "operationId": "FoodItemsController_getFoodItems",
+        "tags": [
+          "FoodItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/food-items/:id": {
+      "get": {
+        "summary": "getFoodItem",
+        "operationId": "FoodItemsController_getFoodItem",
+        "tags": [
+          "FoodItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "deleteFoodItem",
+        "operationId": "FoodItemsController_deleteFoodItem",
+        "tags": [
+          "FoodItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "summary": "updateFoodItem",
+        "operationId": "FoodItemsController_updateFoodItem",
+        "tags": [
+          "FoodItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "summary": "getOrders",
+        "operationId": "OrdersController_getOrders",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "createOrder",
+        "operationId": "OrdersController_createOrder",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/meta": {
+      "get": {
+        "summary": "getOrderMeta",
+        "operationId": "OrdersController_getOrderMeta",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/orders/:id": {
+      "get": {
+        "summary": "getOrderById",
+        "operationId": "OrdersController_getOrderById",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "summary": "updateOrderProperties",
+        "operationId": "OrdersController_updateOrderProperties",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "deleteOrder",
+        "operationId": "OrdersController_deleteOrder",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/orders/:id/items": {
+      "patch": {
+        "summary": "updateOrderItems",
+        "operationId": "OrdersController_updateOrderItems",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/:id/print": {
+      "post": {
+        "summary": "orderItemsPrint",
+        "operationId": "OrdersController_orderItemsPrint",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/:id/call": {
+      "post": {
+        "summary": "orderItemsCall",
+        "operationId": "OrdersController_orderItemsCall",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments": {
+      "get": {
+        "summary": "getPayments",
+        "operationId": "PaymentController_getPayments",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/:id": {
+      "get": {
+        "summary": "getPayment",
+        "operationId": "PaymentController_getPayment",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/order/:id": {
+      "post": {
+        "summary": "createPayment",
+        "operationId": "PaymentController_createPayment",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/complete/:id": {
+      "post": {
+        "summary": "completePayment",
+        "operationId": "PaymentController_completePayment",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/refund/:id": {
+      "post": {
+        "summary": "refundPayment",
+        "operationId": "PaymentController_refundPayment",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/cancel/:id": {
+      "post": {
+        "summary": "cancelPayment",
+        "operationId": "PaymentController_cancelPayment",
+        "tags": [
+          "Payment"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/reservations": {
+      "post": {
+        "summary": "createReservation",
+        "operationId": "ReservationController_createReservation",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "getAllReservations",
+        "operationId": "ReservationController_getAllReservations",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/reservations/:id": {
+      "get": {
+        "summary": "getReservationById",
+        "operationId": "ReservationController_getReservationById",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "updateReservation",
+        "operationId": "ReservationController_updateReservation",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "deleteReservation",
+        "operationId": "ReservationController_deleteReservation",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/reservations/:id/status": {
+      "patch": {
+        "summary": "updateReservationStatus",
+        "operationId": "ReservationController_updateReservationStatus",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/time": {
+      "patch": {
+        "summary": "updateReservationTime",
+        "operationId": "ReservationController_updateReservationTime",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/tables": {
+      "patch": {
+        "summary": "updateReservationTables",
+        "operationId": "ReservationController_updateReservationTables",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/guest-info": {
+      "patch": {
+        "summary": "updateReservationGuestInfo",
+        "operationId": "ReservationController_updateReservationGuestInfo",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/comment": {
+      "patch": {
+        "summary": "updateReservationComment",
+        "operationId": "ReservationController_updateReservationComment",
+        "tags": [
+          "Reservation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tables": {
+      "get": {
+        "summary": "getTables",
+        "operationId": "TableController_getTables",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "createTable",
+        "operationId": "TableController_createTable",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tables/:id": {
+      "get": {
+        "summary": "getTableById",
+        "operationId": "TableController_getTableById",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "deleteTable",
+        "operationId": "TableController_deleteTable",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "updateTable",
+        "operationId": "TableController_updateTable",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tables/:id/clear": {
+      "patch": {
+        "summary": "clearTable",
+        "operationId": "TableController_clearTable",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/tables/assign": {
+      "post": {
+        "summary": "assignTableToServer",
+        "operationId": "TableController_assignTableToServer",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tables/:id/seat": {
+      "patch": {
+        "summary": "seatGuests",
+        "operationId": "TableController_seatGuests",
+        "tags": [
+          "Table"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "getUsers",
+        "operationId": "UserController_getUsers",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "createUser",
+        "operationId": "UserController_createUser",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/:id": {
+      "delete": {
+        "summary": "deleteUser",
+        "operationId": "UserController_deleteUser",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "updateUser",
+        "operationId": "UserController_updateUser",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserSchema": {
+        "type": "object"
+      },
+      "UserLoginSchema": {
+        "type": "object"
+      },
+      "CreateUserSchema": {
+        "type": "object"
+      },
+      "UpdateUserSchema": {
+        "type": "object"
+      },
+      "UserParamSchema": {
+        "type": "object"
+      },
+      "drinkItemSchema": {
+        "type": "object"
+      },
+      "foodItemSchema": {
+        "type": "object"
+      },
+      "createDrinkItemSchema": {
+        "type": "object"
+      },
+      "createFoodItemSchema": {
+        "type": "object"
+      },
+      "updateDrinkItemSchema": {
+        "type": "object"
+      },
+      "updateFoodItemSchema": {
+        "type": "object"
+      },
+      "searchDrinkItemsSchema": {
+        "type": "object"
+      },
+      "searchFoodItemsSchema": {
+        "type": "object"
+      },
+      "drinkItemsListSchema": {
+        "type": "object"
+      },
+      "foodItemsListSchema": {
+        "type": "object"
+      },
+      "OrderSchema": {
+        "type": "object"
+      },
+      "OrderSearchSchema": {
+        "type": "object"
+      },
+      "OrderCreateSchema": {
+        "type": "object"
+      },
+      "OrderFullSingleSchema": {
+        "type": "object"
+      },
+      "OrderUpdateProps": {
+        "type": "object"
+      },
+      "OrderUpdateItemsSchema": {
+        "type": "object"
+      },
+      "OrderMeta": {
+        "type": "object"
+      },
+      "PaymentSchema": {
+        "type": "object"
+      },
+      "PaymentSearchSchema": {
+        "type": "object"
+      },
+      "RefundSchema": {
+        "type": "object"
+      },
+      "ReservationSchema": {
+        "type": "object"
+      },
+      "CreateReservationSchema": {
+        "type": "object"
+      },
+      "UpdateReservationSchema": {
+        "type": "object"
+      },
+      "ReservationWithTablesSchema": {
+        "type": "object"
+      },
+      "ReservationDetailedSchema": {
+        "type": "object"
+      },
+      "ReservationSearchCriteria": {
+        "type": "object"
+      },
+      "TableBaseTableSchema": {
+        "type": "object"
+      },
+      "TableSchema": {
+        "type": "object"
+      },
+      "TableSearchCriteriaSchema": {
+        "type": "object"
+      },
+      "TableCreateSchema": {
+        "type": "object"
+      },
+      "TableUpdatesSchema": {
+        "type": "object"
+      },
+      "TableIdSchema": {
+        "type": "object"
+      },
+      "TableAssignmentSchema": {
+        "type": "object"
+      },
+      "TableSeatingSchema": {
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

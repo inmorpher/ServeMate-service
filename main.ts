@@ -13,8 +13,6 @@ import { AbstractPaymentController } from './src/controllers/payments/payment.co
 import { ReservationController } from './src/controllers/reservations/reservation.controller';
 import { TableController } from './src/controllers/tables/table.controller';
 import { ITableController } from './src/controllers/tables/table.controller.interface';
-import { IUserController } from './src/controllers/users/user.controller.interface';
-import { UserController } from './src/controllers/users/users.controller';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
@@ -30,11 +28,9 @@ import { TableService } from './src/services/tables/table.service';
 import { ITableService } from './src/services/tables/table.service.interface';
 import { TokenService } from './src/services/tokens/token.service';
 import { ITokenService } from './src/services/tokens/token.service.interface';
-import { UserService } from './src/services/users/user.service';
-import { IUserService } from './src/services/users/user.service.interface';
 import { WebSocketService } from './src/services/webSocket/websocket.service';
 import { TYPES } from './src/types';
-
+import { userContainerModule } from './src/users/users.container';
 /**
  * Module that binds core services to their respective implementations in a singleton scope.
  *
@@ -80,19 +76,7 @@ export const authModule = new ContainerModule(({ bind }: ContainerModuleLoadOpti
 		.inSingletonScope();
 });
 
-/**
- * Container module for user-related services and controllers.
- *
- * This module binds the `IUserService` and `IUserController` interfaces to their
- * respective implementations (`UserService` and `UserController`) in a singleton scope.
- *
- * @module userModule
- * @param bind - The bind function used to bind interfaces to implementations.
- */
-export const userModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<IUserService>(TYPES.UserService).to(UserService).inSingletonScope();
-	bind<IUserController>(TYPES.UserController).to(UserController).inSingletonScope();
-});
+
 
 /**
  * Container module for the application.
@@ -238,7 +222,7 @@ export const appBindings = [
 	coreServicesModule,
 	databaseModule,
 	authModule,
-	userModule,
+	userContainerModule,
 	tablesModule,
 	ordersModule,
 	paymentModule,
