@@ -8,7 +8,7 @@ import WebSocket from 'ws';
 import { ENV } from '../env';
 import { BaseController } from './common/base.controller';
 import { IMiddleware } from './common/middleware.interface';
-import { AuthenticationController } from './controllers/auth/auth.controller';
+
 import { DrinkItemsController } from './controllers/drinkItems/drink-items.controller';
 import { FoodItemsController } from './controllers/foodItems/food-items.controller';
 import { OrdersController } from './controllers/orders/orders.controller';
@@ -17,7 +17,9 @@ import { ReservationController } from './controllers/reservations/reservation.co
 import { ITableController } from './controllers/tables/table.controller.interface';
 import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
 import { IExceptionFilter } from './errors/exception.filter.interface';
-import { AuthMiddleware } from './middleware/auth/auth.middleware';
+
+import { AuthenticationController } from './auth/auth.controller';
+import { AuthMiddleware } from './auth/auth.middleware';
 import { openApiRouter } from './openapi/swagger';
 import { ILogger } from './services/logger/logger.service.interface';
 import { WebSocketService } from './services/webSocket/websocket.service';

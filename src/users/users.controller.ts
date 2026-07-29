@@ -41,8 +41,8 @@ export class UserController extends BaseController implements IUsersController {
   }
 
   @Validate(UserQuerySchema, 'query')
-  @Get('/')
   @Roles([UserRole.ADMIN, UserRole.MANAGER])
+  @Get('/')
   async findAll(
     req: TypedRequest<{}, UserQueryDto, {}>,
     res: Response,
@@ -81,8 +81,8 @@ export class UserController extends BaseController implements IUsersController {
    */
 
   @Validate(UserParamsSchema, 'params')
-  @Get('/:id')
   @Roles([UserRole.ADMIN, UserRole.MANAGER])
+  @Get('/:id')
   async findOne(
     req: TypedRequest<UserParamsDto, {}, {}>,
     res: Response,

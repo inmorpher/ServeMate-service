@@ -1,9 +1,9 @@
 import { Prisma, PrismaClient, UserRole } from '@prisma/client';
+import { compare } from 'bcrypt';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { TYPES } from '../types';
 import { UserFilters, UserListItem, UserSortColumn } from './dto';
-
 export type UserPagination = {
   page: number;
   pageSize: number;
@@ -136,6 +136,38 @@ export class UsersRepository {
     return this.prisma.order.count({
       where: { serverId },
     });
+  }
+
+  async verifyCredentials(
+    email: string,
+    password: string
+  ): Promise<UserListItem> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        password: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        lastLogin: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const isMatch = await compare(password, user.password);
+
+    if (!isMatch) {
+      throw new Error('Invalid password');
+    }
+    const { password: _, ...safeUser } = user;
+    return { ...safeUser, role: user.role as UserRole };
   }
 
   private buildWhere(filters: UserFilters): Prisma.UserWhereInput {

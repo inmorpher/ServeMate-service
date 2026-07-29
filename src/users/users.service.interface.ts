@@ -1,10 +1,12 @@
 import { BaseService } from '../common/base.service';
 import {
+  AuthenticatedUser,
   CreatedUserResponse,
   CreateUserDto,
   UpdateUserDto,
   UserListItem,
   UserListResponse,
+  UserLoginDto,
   UserQueryDto,
 } from './dto';
 
@@ -44,4 +46,8 @@ export interface IUsersService extends BaseService {
    * @returns A promise that resolves to the user data or null if not found.
    */
   findUserById(id: number): Promise<UserListItem | null>;
+
+  validateCredentials(
+    credentials: UserLoginDto
+  ): Promise<AuthenticatedUser | null>;
 }

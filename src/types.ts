@@ -1,4 +1,4 @@
-import { DecodedUser } from './services/tokens/token.service.interface';
+import { DecodedUser } from './auth/token.service.interface';
 
 export const TYPES = {
   Application: Symbol.for('Application'),
@@ -16,6 +16,9 @@ export const TYPES = {
   // Auth
   AuthenticationController: Symbol.for('AuthenticationController'),
   ITokenService: Symbol.for('ITokenService'),
+  AuthRepository: Symbol.for('AuthRepository'),
+  AuthService: Symbol.for('AuthService'),
+  // Auth
   // Tables
   TableService: Symbol.for('ITableService'),
   TableController: Symbol.for('ITableController'),

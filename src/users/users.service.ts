@@ -7,12 +7,14 @@ import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
 import { hashPassword } from '../utils/password';
 import {
+  AuthenticatedUser,
   CreatedUserResponse,
   CreateUserDto,
   UpdateUserDto,
   UserFilters,
   UserListItem,
   UserListResponse,
+  UserLoginDto,
   UserQueryDto,
   UserSortColumn,
 } from './dto';
@@ -188,6 +190,27 @@ export class UserService extends BaseService implements IUsersService {
   async updateUser(id: number, user: UpdateUserDto): Promise<void> {
     try {
       await this.userRepository.update(id, user);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async validateCredentials(
+    credentials: UserLoginDto
+  ): Promise<AuthenticatedUser | null> {
+    try {
+      const user = await this.userRepository.verifyCredentials(
+        credentials.email,
+        credentials.password
+      );
+      if (!user) return null;
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
     } catch (error) {
       throw this.handleError(error);
     }

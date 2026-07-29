@@ -1,10 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import { Container, ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
+import {
+  Container,
+  ContainerModule,
+  type ContainerModuleLoadOptions,
+} from 'inversify';
 import 'reflect-metadata';
 import { App } from './src/app';
+import { authContainerModule } from './src/auth/auth.container';
 import { BaseService } from './src/common/base.service';
 import { DatabaseProvider } from './src/common/database.provider';
-import { AuthenticationController } from './src/controllers/auth/auth.controller';
 import { DrinkItemsController } from './src/controllers/drinkItems/drink-items.controller';
 import { FoodItemsController } from './src/controllers/foodItems/food-items.controller';
 import { OrdersController } from './src/controllers/orders/orders.controller';
@@ -15,7 +19,6 @@ import { TableController } from './src/controllers/tables/table.controller';
 import { ITableController } from './src/controllers/tables/table.controller.interface';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
-import { AuthMiddleware } from './src/middleware/auth/auth.middleware';
 import { DrinkItemsService } from './src/services/drinks/drink-items.service';
 import { FoodItemsService } from './src/services/food/food-items.service';
 import { LoggerService } from './src/services/logger/logger.service';
@@ -26,8 +29,6 @@ import { PaymentService } from './src/services/payment/payment.service';
 import { ReservationService } from './src/services/reservations/reservation.service';
 import { TableService } from './src/services/tables/table.service';
 import { ITableService } from './src/services/tables/table.service.interface';
-import { TokenService } from './src/services/tokens/token.service';
-import { ITokenService } from './src/services/tokens/token.service.interface';
 import { WebSocketService } from './src/services/webSocket/websocket.service';
 import { TYPES } from './src/types';
 import { userContainerModule } from './src/users/users.container';
@@ -44,39 +45,29 @@ import { userContainerModule } from './src/users/users.container';
  * - ITokenService to TokenService
  * - PrismaClient to a constant value of a new PrismaClient instance
  */
-export const coreServicesModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope();
-	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter).inSingletonScope();
-	bind<ITokenService>(TYPES.ITokenService).to(TokenService).inSingletonScope();
-	bind<WebSocketService>(TYPES.WebSocketService).to(WebSocketService).inSingletonScope();
+export const coreServicesModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope();
+    bind<IExceptionFilter>(TYPES.ExceptionFilter)
+      .to(ExceptionFilter)
+      .inSingletonScope();
+    bind<WebSocketService>(TYPES.WebSocketService)
+      .to(WebSocketService)
+      .inSingletonScope();
 
-	// Prisma 7 с адаптером PostgreSQL
-	
-});
+    // Prisma 7 с адаптером PostgreSQL
+  }
+);
 
-export const databaseModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<PrismaClient>(TYPES.PrismaClient).toDynamicValue(() => {
-		return DatabaseProvider.getInstance();
-	}).inSingletonScope();
-});
-
-/**
- * Container module for authentication-related bindings.
- *
- * This module binds the `AuthMiddleware` and `AuthenticationController`
- * to their respective types in singleton scope.
- *
- * @module authModule
- * @param bind - The bind function used to bind types to implementations.
- */
-export const authModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope();
-	bind<AuthenticationController>(TYPES.AuthenticationController)
-		.to(AuthenticationController)
-		.inSingletonScope();
-});
-
-
+export const databaseModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<PrismaClient>(TYPES.PrismaClient)
+      .toDynamicValue(() => {
+        return DatabaseProvider.getInstance();
+      })
+      .inSingletonScope();
+  }
+);
 
 /**
  * Container module for the application.
@@ -88,9 +79,11 @@ export const authModule = new ContainerModule(({ bind }: ContainerModuleLoadOpti
  * @module appModule
  * @param bind - The bind function used to bind types to implementations.
  */
-export const appModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<App>(TYPES.Application).to(App).inSingletonScope();
-});
+export const appModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<App>(TYPES.Application).to(App).inSingletonScope();
+  }
+);
 
 /**
  * Container module that binds the `BaseService` to the `TYPES.BaseService` identifier.
@@ -99,9 +92,11 @@ export const appModule = new ContainerModule(({ bind }: ContainerModuleLoadOptio
  *
  * @param bind - The bind function used to bind the service to the identifier.
  */
-export const baseModules = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<BaseService>(TYPES.BaseService).to(BaseService).inSingletonScope();
-});
+export const baseModules = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<BaseService>(TYPES.BaseService).to(BaseService).inSingletonScope();
+  }
+);
 
 /**
  * Container module for table-related services and controllers.
@@ -113,10 +108,14 @@ export const baseModules = new ContainerModule(({ bind }: ContainerModuleLoadOpt
  * @module tablesModule
  * @param bind - The bind function used to bind interfaces to implementations.
  */
-export const tablesModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<ITableService>(TYPES.TableService).to(TableService).inSingletonScope();
-	bind<ITableController>(TYPES.TableController).to(TableController).inSingletonScope();
-});
+export const tablesModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<ITableService>(TYPES.TableService).to(TableService).inSingletonScope();
+    bind<ITableController>(TYPES.TableController)
+      .to(TableController)
+      .inSingletonScope();
+  }
+);
 
 /**
  * Container module for the Orders feature.
@@ -127,10 +126,16 @@ export const tablesModule = new ContainerModule(({ bind }: ContainerModuleLoadOp
  * @module ordersModule
  * @param bind - The bind function used to bind types to implementations in the IoC container.
  */
-export const ordersModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<OrdersService>(TYPES.OrdersService).to(OrdersService).inSingletonScope();
-	bind<OrdersController>(TYPES.OrdersController).to(OrdersController).inSingletonScope();
-});
+export const ordersModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<OrdersService>(TYPES.OrdersService)
+      .to(OrdersService)
+      .inSingletonScope();
+    bind<OrdersController>(TYPES.OrdersController)
+      .to(OrdersController)
+      .inSingletonScope();
+  }
+);
 
 /**
  * Container module for the payment service and controller.
@@ -154,10 +159,16 @@ export const ordersModule = new ContainerModule(({ bind }: ContainerModuleLoadOp
  * const paymentController = container.get<AbstractPaymentController>(TYPES.PaymentController);
  * ```
  */
-export const paymentModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<AbstractPaymentService>(TYPES.PaymentService).to(PaymentService).inSingletonScope();
-	bind<AbstractPaymentController>(TYPES.PaymentController).to(PaymentController).inSingletonScope();
-});
+export const paymentModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<AbstractPaymentService>(TYPES.PaymentService)
+      .to(PaymentService)
+      .inSingletonScope();
+    bind<AbstractPaymentController>(TYPES.PaymentController)
+      .to(PaymentController)
+      .inSingletonScope();
+  }
+);
 
 /**
  * @module reservationsModule
@@ -174,12 +185,16 @@ export const paymentModule = new ContainerModule(({ bind }: ContainerModuleLoadO
  * @remarks
  * This module leverages InversifyJS for managing dependencies, enabling modular and testable architecture.
  */
-export const reservationsModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<ReservationService>(TYPES.ReservationService).to(ReservationService).inSingletonScope();
-	bind<ReservationController>(TYPES.ReservationController)
-		.to(ReservationController)
-		.inSingletonScope();
-});
+export const reservationsModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<ReservationService>(TYPES.ReservationService)
+      .to(ReservationService)
+      .inSingletonScope();
+    bind<ReservationController>(TYPES.ReservationController)
+      .to(ReservationController)
+      .inSingletonScope();
+  }
+);
 
 /**
  * Module that sets up the bindings for the FoodItems feature.
@@ -191,20 +206,27 @@ export const reservationsModule = new ContainerModule(({ bind }: ContainerModule
  * @module foodItemsModule
  * @param bind - The InversifyJS bind function used to bind types to implementations.
  */
-export const foodItemsModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<FoodItemsController>(TYPES.FoodItemsController).to(FoodItemsController).inSingletonScope();
-	bind<FoodItemsService>(TYPES.FoodItemsService).to(FoodItemsService).inSingletonScope();
-});
+export const foodItemsModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<FoodItemsController>(TYPES.FoodItemsController)
+      .to(FoodItemsController)
+      .inSingletonScope();
+    bind<FoodItemsService>(TYPES.FoodItemsService)
+      .to(FoodItemsService)
+      .inSingletonScope();
+  }
+);
 
-export const drinkItemsModule = new ContainerModule(({ bind }: ContainerModuleLoadOptions) => {
-	bind<DrinkItemsController>(TYPES.DrinkItemsController)
-		.to(DrinkItemsController)
-		.inSingletonScope();
-	bind<DrinkItemsService>(TYPES.DrinkItemsService).to(DrinkItemsService).inSingletonScope();
-});
-
-
-
+export const drinkItemsModule = new ContainerModule(
+  ({ bind }: ContainerModuleLoadOptions) => {
+    bind<DrinkItemsController>(TYPES.DrinkItemsController)
+      .to(DrinkItemsController)
+      .inSingletonScope();
+    bind<DrinkItemsService>(TYPES.DrinkItemsService)
+      .to(DrinkItemsService)
+      .inSingletonScope();
+  }
+);
 
 /**
  * An array of application modules to be bound to the application.
@@ -219,18 +241,18 @@ export const drinkItemsModule = new ContainerModule(({ bind }: ContainerModuleLo
  * - `baseModules`: Base modules required for the application to function.
  */
 export const appBindings = [
-	coreServicesModule,
-	databaseModule,
-	authModule,
-	userContainerModule,
-	tablesModule,
-	ordersModule,
-	paymentModule,
-	reservationsModule,
-	foodItemsModule,
-	drinkItemsModule,
-	appModule,
-	baseModules,
+  coreServicesModule,
+  databaseModule,
+  authContainerModule,
+  userContainerModule,
+  tablesModule,
+  ordersModule,
+  paymentModule,
+  reservationsModule,
+  foodItemsModule,
+  drinkItemsModule,
+  appModule,
+  baseModules,
 ];
 
 /**
@@ -240,29 +262,31 @@ export const appBindings = [
  * @returns An object containing the initialized application instance and the IoC container.
  */
 const bootstrap = () => {
-    const appContainer = new Container();
-    appContainer.load(...appBindings);
+  const appContainer = new Container();
+  appContainer.load(...appBindings);
 
-    return DatabaseProvider.connect().then(() => {
-        const app = appContainer.get<App>(TYPES.Application);
-        app.init();
+  return DatabaseProvider.connect()
+    .then(() => {
+      const app = appContainer.get<App>(TYPES.Application);
+      app.init();
 
-        // На graceful shutdown отключаюсь от БД
-        process.on('SIGINT', async () => {
-            console.log('\nShutting down gracefully...');
-            await DatabaseProvider.disconnect();
-            process.exit(0);
-        });
+      // На graceful shutdown отключаюсь от БД
+      process.on('SIGINT', async () => {
+        console.log('\nShutting down gracefully...');
+        await DatabaseProvider.disconnect();
+        process.exit(0);
+      });
 
-        process.on('SIGTERM', async () => {
-            await DatabaseProvider.disconnect();
-            process.exit(0);
-        });
+      process.on('SIGTERM', async () => {
+        await DatabaseProvider.disconnect();
+        process.exit(0);
+      });
 
-        return { app, appContainer };
-    }).catch((error) => {
-        console.error('\x1b[31m✗ Failed to bootstrap application:\x1b[0m', error);
-        process.exit(1);
+      return { app, appContainer };
+    })
+    .catch(error => {
+      console.error('\x1b[31m✗ Failed to bootstrap application:\x1b[0m', error);
+      process.exit(1);
     });
 };
 

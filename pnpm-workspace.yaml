@@ -1,2 +1,5 @@
 allowBuilds:
+  esbuild: false
   prisma: set this to true or false
+packages:
+  - 'dto-package'
