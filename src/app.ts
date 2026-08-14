@@ -135,7 +135,7 @@ export class App {
       const methods = Object.getOwnPropertyNames(
         Object.getPrototypeOf(controller)
       );
-
+      console.log('this is a test feature');
       if (!prefix) {
         this.logger.warn(`No prefix found for ${controller.constructor.name}`);
         return;
