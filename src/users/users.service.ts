@@ -102,7 +102,11 @@ export class UserService extends BaseService implements IUsersService {
    * @returns {Promise<User | null>} A promise that resolves to the user data if found, or null if not found.
    */
   async findUserById(id: number): Promise<UserListItem | null> {
-    return this.userRepository.findById(id);
+    try {
+      return await this.userRepository.findById(id);
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   /**

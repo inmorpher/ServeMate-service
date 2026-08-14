@@ -146,111 +146,6 @@ export interface paths {
         patch: operations["FoodItemsController_updateFoodItem"];
         trace?: never;
     };
-    "/api/orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** getOrders */
-        get: operations["OrdersController_getOrders"];
-        put?: never;
-        /** createOrder */
-        post: operations["OrdersController_createOrder"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/orders/meta": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** getOrderMeta */
-        get: operations["OrdersController_getOrderMeta"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/orders/:id": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** getOrderById */
-        get: operations["OrdersController_getOrderById"];
-        put?: never;
-        post?: never;
-        /** deleteOrder */
-        delete: operations["OrdersController_deleteOrder"];
-        options?: never;
-        head?: never;
-        /** updateOrderProperties */
-        patch: operations["OrdersController_updateOrderProperties"];
-        trace?: never;
-    };
-    "/api/orders/:id/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** updateOrderItems */
-        patch: operations["OrdersController_updateOrderItems"];
-        trace?: never;
-    };
-    "/api/orders/:id/print": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** orderItemsPrint */
-        post: operations["OrdersController_orderItemsPrint"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/orders/:id/call": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** orderItemsCall */
-        post: operations["OrdersController_orderItemsCall"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/payments": {
         parameters: {
             query?: never;
@@ -475,6 +370,111 @@ export interface paths {
         patch: operations["ReservationController_updateReservationComment"];
         trace?: never;
     };
+    "/api/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** findOrders */
+        get: operations["OrdersController_findOrders"];
+        put?: never;
+        /** createOrder */
+        post: operations["OrdersController_createOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getOrderMeta */
+        get: operations["OrdersController_getOrderMeta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/:id": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** findOrderById */
+        get: operations["OrdersController_findOrderById"];
+        put?: never;
+        post?: never;
+        /** deleteOrder */
+        delete: operations["OrdersController_deleteOrder"];
+        options?: never;
+        head?: never;
+        /** updateOrder */
+        patch: operations["OrdersController_updateOrder"];
+        trace?: never;
+    };
+    "/api/orders/:id/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** updateOrderItems */
+        patch: operations["OrdersController_updateOrderItems"];
+        trace?: never;
+    };
+    "/api/orders/:id/print": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** printOrderItems */
+        post: operations["OrdersController_printOrderItems"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/:id/call": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** callOrderItems */
+        post: operations["OrdersController_callOrderItems"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tables": {
         parameters: {
             query?: never;
@@ -482,11 +482,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** getTables */
-        get: operations["TableController_getTables"];
+        /** findAll */
+        get: operations["TablesController_findAll"];
         put?: never;
-        /** createTable */
-        post: operations["TableController_createTable"];
+        /** create */
+        post: operations["TablesController_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -500,67 +500,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** getTableById */
-        get: operations["TableController_getTableById"];
-        /** updateTable */
-        put: operations["TableController_updateTable"];
+        /** findOne */
+        get: operations["TablesController_findOne"];
+        /** update */
+        put: operations["TablesController_update"];
         post?: never;
-        /** deleteTable */
-        delete: operations["TableController_deleteTable"];
+        /** delete */
+        delete: operations["TablesController_delete"];
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/api/tables/:id/clear": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** clearTable */
-        patch: operations["TableController_clearTable"];
-        trace?: never;
-    };
-    "/api/tables/assign": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** assignTableToServer */
-        post: operations["TableController_assignTableToServer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/tables/:id/seat": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** seatGuests */
-        patch: operations["TableController_seatGuests"];
         trace?: never;
     };
     "/api/users": {
@@ -570,11 +519,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** getUsers */
-        get: operations["UserController_getUsers"];
+        /** findAll */
+        get: operations["UserController_findAll"];
         put?: never;
-        /** createUser */
-        post: operations["UserController_createUser"];
+        /** create */
+        post: operations["UserController_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -588,12 +537,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        /** updateUser */
-        put: operations["UserController_updateUser"];
+        /** findOne */
+        get: operations["UserController_findOne"];
+        /** update */
+        put: operations["UserController_update"];
         post?: never;
-        /** deleteUser */
-        delete: operations["UserController_deleteUser"];
+        /** delete */
+        delete: operations["UserController_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -914,198 +864,6 @@ export interface operations {
         };
     };
     FoodItemsController_updateFoodItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_getOrders: {
-        parameters: {
-            query?: {
-                value?: Record<string, never>;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_createOrder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_getOrderMeta: {
-        parameters: {
-            query?: {
-                value?: Record<string, never>;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    OrdersController_getOrderById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                value: Record<string, never>;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_deleteOrder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                value: Record<string, never>;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_updateOrderProperties: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_updateOrderItems: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_orderItemsPrint: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_orderItemsCall: {
         parameters: {
             query?: never;
             header?: never;
@@ -1463,7 +1221,7 @@ export interface operations {
             };
         };
     };
-    TableController_getTables: {
+    OrdersController_findOrders: {
         parameters: {
             query?: {
                 value?: Record<string, never>;
@@ -1483,7 +1241,7 @@ export interface operations {
             };
         };
     };
-    TableController_createTable: {
+    OrdersController_createOrder: {
         parameters: {
             query?: never;
             header?: never;
@@ -1505,133 +1263,7 @@ export interface operations {
             };
         };
     };
-    TableController_getTableById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                value: Record<string, never>;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TableController_updateTable: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TableController_deleteTable: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                value: Record<string, never>;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TableController_clearTable: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                value: Record<string, never>;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TableController_assignTableToServer: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TableController_seatGuests: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": Record<string, never>;
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getUsers: {
+    OrdersController_getOrderMeta: {
         parameters: {
             query?: {
                 value?: Record<string, never>;
@@ -1651,7 +1283,47 @@ export interface operations {
             };
         };
     };
-    UserController_createUser: {
+    OrdersController_findOrderById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                value: Record<string, never>;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_deleteOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                value: Record<string, never>;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_updateOrder: {
         parameters: {
             query?: never;
             header?: never;
@@ -1673,7 +1345,7 @@ export interface operations {
             };
         };
     };
-    UserController_updateUser: {
+    OrdersController_updateOrderItems: {
         parameters: {
             query?: never;
             header?: never;
@@ -1695,7 +1367,239 @@ export interface operations {
             };
         };
     };
-    UserController_deleteUser: {
+    OrdersController_printOrderItems: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_callOrderItems: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TablesController_findAll: {
+        parameters: {
+            query?: {
+                value?: Record<string, never>;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TablesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TablesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                value: Record<string, never>;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TablesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TablesController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                value: Record<string, never>;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_findAll: {
+        parameters: {
+            query?: {
+                value?: Record<string, never>;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                value: Record<string, never>;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_delete: {
         parameters: {
             query?: never;
             header?: never;

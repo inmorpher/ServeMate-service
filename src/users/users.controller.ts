@@ -28,14 +28,24 @@ import {
   UserSortColumn,
 } from './dto';
 import { IUsersController } from './users.controller.interface';
-import { UserService } from './users.service';
+import { IUsersService } from './users.service.interface';
+
+export type UserControllerService = Pick<
+  IUsersService,
+  | 'findUsers'
+  | 'findUserById'
+  | 'createUser'
+  | 'deleteUser'
+  | 'updateUser'
+  | 'validateCredentials'
+>;
 
 @injectable()
 @Controller('/users')
 export class UserController extends BaseController implements IUsersController {
   constructor(
     @inject(TYPES.ILogger) private loggerService: ILogger,
-    @inject(TYPES.UsersService) private userService: UserService
+    @inject(TYPES.UsersService) private userService: UserControllerService
   ) {
     super(loggerService);
   }
@@ -93,6 +103,7 @@ export class UserController extends BaseController implements IUsersController {
       const user = await this.userService.findUserById(userId);
       if (!user) {
         this.notFound(res, 'User not found');
+        return;
       }
       this.ok(res, user);
     } catch (error) {

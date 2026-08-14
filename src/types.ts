@@ -13,15 +13,16 @@ export const TYPES = {
   UsersService: Symbol.for('UsersService'),
   UsersController: Symbol.for('UsersController'),
   UsersRepository: Symbol.for('UsersRepository'),
+  // Tables
+  TablesService: Symbol.for('TablesService'),
+  TablesController: Symbol.for('TablesController'),
+  TablesRepository: Symbol.for('TablesRepository'),
   // Auth
   AuthenticationController: Symbol.for('AuthenticationController'),
   ITokenService: Symbol.for('ITokenService'),
   AuthRepository: Symbol.for('AuthRepository'),
   AuthService: Symbol.for('AuthService'),
   // Auth
-  // Tables
-  TableService: Symbol.for('ITableService'),
-  TableController: Symbol.for('ITableController'),
   // Orders
   OrdersService: Symbol.for('OrdersService'),
   OrdersController: Symbol.for('OrdersController'),

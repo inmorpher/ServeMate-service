@@ -14,8 +14,6 @@ import { FoodItemsController } from './src/controllers/foodItems/food-items.cont
 import { PaymentController } from './src/controllers/payments/payment.controller';
 import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
 import { ReservationController } from './src/controllers/reservations/reservation.controller';
-import { TableController } from './src/controllers/tables/table.controller';
-import { ITableController } from './src/controllers/tables/table.controller.interface';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { ordersContainerModule } from './src/orders/orders.container';
@@ -26,9 +24,8 @@ import { ILogger } from './src/services/logger/logger.service.interface';
 import { AbstractPaymentService } from './src/services/payment/abstract-payment.service';
 import { PaymentService } from './src/services/payment/payment.service';
 import { ReservationService } from './src/services/reservations/reservation.service';
-import { TableService } from './src/services/tables/table.service';
-import { ITableService } from './src/services/tables/table.service.interface';
 import { WebSocketService } from './src/services/webSocket/websocket.service';
+import { tablesContainerModule } from './src/tables/tables.container';
 import { TYPES } from './src/types';
 import { userContainerModule } from './src/users/users.container';
 /**
@@ -107,15 +104,6 @@ export const baseModules = new ContainerModule(
  * @module tablesModule
  * @param bind - The bind function used to bind interfaces to implementations.
  */
-export const tablesModule = new ContainerModule(
-  ({ bind }: ContainerModuleLoadOptions) => {
-    bind<ITableService>(TYPES.TableService).to(TableService).inSingletonScope();
-    bind<ITableController>(TYPES.TableController)
-      .to(TableController)
-      .inSingletonScope();
-  }
-);
-
 /**
  * Container module for the Orders feature.
  *
@@ -233,7 +221,7 @@ export const appBindings = [
   databaseModule,
   authContainerModule,
   userContainerModule,
-  tablesModule,
+  tablesContainerModule,
   ordersContainerModule,
   paymentModule,
   reservationsModule,

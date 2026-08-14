@@ -9,7 +9,10 @@ import {
 import path from 'path';
 import { z } from 'zod';
 import { METADATA_KEYS, RouteDefinition } from '../decorators/httpDecorators';
-import { RESPONSE_METADATA_KEY, ResponseMetadata } from '../decorators/response.decorator';
+import {
+  RESPONSE_METADATA_KEY,
+  ResponseMetadata,
+} from '../decorators/response.decorator';
 import { zodToOpenApiSchema } from './dto-to-openapi';
 
 function isZodSchema(value: unknown): value is z.ZodTypeAny {
@@ -24,10 +27,13 @@ function isZodSchema(value: unknown): value is z.ZodTypeAny {
 }
 
 function loadDtoSchemas() {
-  const dtoModule = require('../dto-package/src/dto') as Record<string, unknown>;
+  const dtoModule = require('../dto-package/src/dto') as Record<
+    string,
+    unknown
+  >;
 
   return Object.fromEntries(
-    Object.entries(dtoModule).filter(([, value]) => isZodSchema(value)),
+    Object.entries(dtoModule).filter(([, value]) => isZodSchema(value))
   ) as Record<string, z.ZodTypeAny>;
 }
 
@@ -36,17 +42,24 @@ function getControllerFiles(dir: string): string[] {
     return [];
   }
 
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .flatMap((entry) => {
-      const fullPath = path.join(dir, entry.name);
+  if (
+    path.basename(dir) === 'tables' &&
+    path.basename(path.dirname(dir)) === 'controllers'
+  ) {
+    return [];
+  }
 
-      if (entry.isDirectory()) {
-        return getControllerFiles(fullPath);
-      }
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+    const fullPath = path.join(dir, entry.name);
 
-      return entry.isFile() && /\.controller\.(ts|js)$/.test(entry.name) ? [fullPath] : [];
-    });
+    if (entry.isDirectory()) {
+      return getControllerFiles(fullPath);
+    }
+
+    return entry.isFile() && /\.controller\.(ts|js)$/.test(entry.name)
+      ? [fullPath]
+      : [];
+  });
 }
 
 function joinRoutePath(prefix: string, routePath: string): string {
@@ -60,7 +73,10 @@ function joinRoutePath(prefix: string, routePath: string): string {
   return `${normalizedPrefix}${normalizedRoute}` || '/';
 }
 
-function buildParameters(schema: z.ZodTypeAny, location: 'query' | 'params'): ParameterObject[] {
+function buildParameters(
+  schema: z.ZodTypeAny,
+  location: 'query' | 'params'
+): ParameterObject[] {
   const openApiLocation = location === 'params' ? 'path' : 'query';
   const typeName = (schema._def as any).typeName as string;
 
@@ -97,9 +113,13 @@ function buildResponseContent(meta: ResponseMetadata): Record<string, unknown> {
   };
 }
 
-function buildResponses(value: any, handlerName: string): Record<string, unknown> {
+function buildResponses(
+  value: any,
+  handlerName: string
+): Record<string, unknown> {
   const responseMetas: ResponseMetadata[] =
-    Reflect.getMetadata(RESPONSE_METADATA_KEY, value.prototype, handlerName) || [];
+    Reflect.getMetadata(RESPONSE_METADATA_KEY, value.prototype, handlerName) ||
+    [];
 
   if (!responseMetas.length) {
     return {
@@ -110,8 +130,9 @@ function buildResponses(value: any, handlerName: string): Record<string, unknown
   }
 
   const responses: Record<string, unknown> = {};
-  responseMetas.forEach((meta) => {
-    const status = typeof meta.status === 'number' ? String(meta.status) : meta.status;
+  responseMetas.forEach(meta => {
+    const status =
+      typeof meta.status === 'number' ? String(meta.status) : meta.status;
     responses[status] = {
       description: meta.description ?? 'Successful response',
       ...buildResponseContent(meta),
@@ -122,26 +143,27 @@ function buildResponses(value: any, handlerName: string): Record<string, unknown
 }
 
 function loadControllerRoutes(): Record<string, PathItemObject> {
-  const controllersDir = path.resolve(__dirname, '../controllers');
+  const controllersDir = path.resolve(__dirname, '..');
   const controllerFiles = getControllerFiles(controllersDir);
   const paths: Record<string, PathItemObject> = {};
 
-  controllerFiles.forEach((controllerFile) => {
+  controllerFiles.forEach(controllerFile => {
     const controllerModule = require(controllerFile) as Record<string, unknown>;
 
-    Object.values(controllerModule).forEach((value) => {
+    Object.values(controllerModule).forEach(value => {
       if (typeof value !== 'function') {
         return;
       }
 
       const prefix = Reflect.getMetadata(METADATA_KEYS.PREFIX, value);
-      const routes: RouteDefinition[] = Reflect.getMetadata(METADATA_KEYS.ROUTES, value) || [];
+      const routes: RouteDefinition[] =
+        Reflect.getMetadata(METADATA_KEYS.ROUTES, value) || [];
 
       if (!prefix || !routes?.length) {
         return;
       }
 
-      routes.forEach((route) => {
+      routes.forEach(route => {
         const pathKey = `/api${joinRoutePath(prefix, route.path)}`;
         const operation: OperationObject = {
           summary: route.handlerName,
@@ -150,7 +172,11 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
           responses: buildResponses(value, route.handlerName),
         };
 
-        const validationMetadata = Reflect.getMetadata('validate', value.prototype, route.handlerName);
+        const validationMetadata = Reflect.getMetadata(
+          'validate',
+          value.prototype,
+          route.handlerName
+        );
         if (validationMetadata?.schema) {
           if (validationMetadata.property === 'body') {
             operation.requestBody = {
@@ -162,7 +188,10 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
               },
             };
           } else {
-            operation.parameters = buildParameters(validationMetadata.schema, validationMetadata.property);
+            operation.parameters = buildParameters(
+              validationMetadata.schema,
+              validationMetadata.property
+            );
           }
         }
 
@@ -224,7 +253,7 @@ export function buildOpenApiFromDto(): OpenAPIObject {
   const dtoSchemas = loadDtoSchemas();
 
   const schemas: Record<string, unknown> = {};
-  NAMED_SCHEMAS.forEach((name) => {
+  NAMED_SCHEMAS.forEach(name => {
     const schema = dtoSchemas[name];
     if (schema) {
       schemas[name] = zodToOpenApiSchema(schema);
@@ -238,7 +267,9 @@ export function buildOpenApiFromDto(): OpenAPIObject {
       version: '1.0.0',
       description: 'Auto-generated OpenAPI from DTO/Zod schemas',
     },
-    servers: [{ url: 'http://localhost:3000', description: 'Local development server' }],
+    servers: [
+      { url: 'http://localhost:3000', description: 'Local development server' },
+    ],
     paths: loadControllerRoutes(),
     components: {
       schemas,

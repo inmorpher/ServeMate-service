@@ -13,10 +13,10 @@ import { DrinkItemsController } from './controllers/drinkItems/drink-items.contr
 import { FoodItemsController } from './controllers/foodItems/food-items.controller';
 import { PaymentController } from './controllers/payments/payment.controller';
 import { ReservationController } from './controllers/reservations/reservation.controller';
-import { ITableController } from './controllers/tables/table.controller.interface';
 import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
 import { IExceptionFilter } from './errors/exception.filter.interface';
 import { OrdersController } from './orders/orders.controller';
+import { TablesController } from './tables/tables.controller';
 
 import { AuthenticationController } from './auth/auth.controller';
 
@@ -43,7 +43,7 @@ export class App {
     @inject(TYPES.AuthenticationController)
     private authController: AuthenticationController,
     @inject(TYPES.UsersController) private usersController: IUsersController,
-    @inject(TYPES.TableController) private tableController: ITableController,
+    @inject(TYPES.TablesController) private tablesController: TablesController,
     @inject(TYPES.OrdersController) private ordersController: OrdersController,
     @inject(TYPES.PaymentController)
     private paymentController: PaymentController,
@@ -59,7 +59,7 @@ export class App {
     this.controllers = [
       this.authController,
       this.usersController,
-      this.tableController,
+      this.tablesController,
       this.ordersController,
       this.paymentController,
       this.reservationController,

@@ -306,223 +306,6 @@
         }
       }
     },
-    "/api/orders": {
-      "get": {
-        "summary": "getOrders",
-        "operationId": "OrdersController_getOrders",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      },
-      "post": {
-        "summary": "createOrder",
-        "operationId": "OrdersController_createOrder",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orders/meta": {
-      "get": {
-        "summary": "getOrderMeta",
-        "operationId": "OrdersController_getOrderMeta",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/orders/:id": {
-      "get": {
-        "summary": "getOrderById",
-        "operationId": "OrdersController_getOrderById",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      },
-      "patch": {
-        "summary": "updateOrderProperties",
-        "operationId": "OrdersController_updateOrderProperties",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "deleteOrder",
-        "operationId": "OrdersController_deleteOrder",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/orders/:id/items": {
-      "patch": {
-        "summary": "updateOrderItems",
-        "operationId": "OrdersController_updateOrderItems",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orders/:id/print": {
-      "post": {
-        "summary": "orderItemsPrint",
-        "operationId": "OrdersController_orderItemsPrint",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orders/:id/call": {
-      "post": {
-        "summary": "orderItemsCall",
-        "operationId": "OrdersController_orderItemsCall",
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/payments": {
       "get": {
         "summary": "getPayments",
@@ -901,12 +684,12 @@
         }
       }
     },
-    "/api/tables": {
+    "/api/orders": {
       "get": {
-        "summary": "getTables",
-        "operationId": "TableController_getTables",
+        "summary": "findOrders",
+        "operationId": "OrdersController_findOrders",
         "tags": [
-          "Table"
+          "Orders"
         ],
         "responses": {
           "200": {
@@ -925,10 +708,220 @@
         ]
       },
       "post": {
-        "summary": "createTable",
-        "operationId": "TableController_createTable",
+        "summary": "createOrder",
+        "operationId": "OrdersController_createOrder",
         "tags": [
-          "Table"
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/meta": {
+      "get": {
+        "summary": "getOrderMeta",
+        "operationId": "OrdersController_getOrderMeta",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/orders/:id": {
+      "get": {
+        "summary": "findOrderById",
+        "operationId": "OrdersController_findOrderById",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "summary": "updateOrder",
+        "operationId": "OrdersController_updateOrder",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "deleteOrder",
+        "operationId": "OrdersController_deleteOrder",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "/api/orders/:id/items": {
+      "patch": {
+        "summary": "updateOrderItems",
+        "operationId": "OrdersController_updateOrderItems",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/:id/print": {
+      "post": {
+        "summary": "printOrderItems",
+        "operationId": "OrdersController_printOrderItems",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/:id/call": {
+      "post": {
+        "summary": "callOrderItems",
+        "operationId": "OrdersController_callOrderItems",
+        "tags": [
+          "Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tables": {
+      "get": {
+        "summary": "findAll",
+        "operationId": "TablesController_findAll",
+        "tags": [
+          "Tables"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "create",
+        "operationId": "TablesController_create",
+        "tags": [
+          "Tables"
         ],
         "responses": {
           "200": {
@@ -949,32 +942,10 @@
     },
     "/api/tables/:id": {
       "get": {
-        "summary": "getTableById",
-        "operationId": "TableController_getTableById",
+        "summary": "findOne",
+        "operationId": "TablesController_findOne",
         "tags": [
-          "Table"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      },
-      "delete": {
-        "summary": "deleteTable",
-        "operationId": "TableController_deleteTable",
-        "tags": [
-          "Table"
+          "Tables"
         ],
         "responses": {
           "200": {
@@ -993,10 +964,10 @@
         ]
       },
       "put": {
-        "summary": "updateTable",
-        "operationId": "TableController_updateTable",
+        "summary": "update",
+        "operationId": "TablesController_update",
         "tags": [
-          "Table"
+          "Tables"
         ],
         "responses": {
           "200": {
@@ -1013,14 +984,12 @@
             }
           }
         }
-      }
-    },
-    "/api/tables/:id/clear": {
-      "patch": {
-        "summary": "clearTable",
-        "operationId": "TableController_clearTable",
+      },
+      "delete": {
+        "summary": "delete",
+        "operationId": "TablesController_delete",
         "tags": [
-          "Table"
+          "Tables"
         ],
         "responses": {
           "200": {
@@ -1039,58 +1008,10 @@
         ]
       }
     },
-    "/api/tables/assign": {
-      "post": {
-        "summary": "assignTableToServer",
-        "operationId": "TableController_assignTableToServer",
-        "tags": [
-          "Table"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tables/:id/seat": {
-      "patch": {
-        "summary": "seatGuests",
-        "operationId": "TableController_seatGuests",
-        "tags": [
-          "Table"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/users": {
       "get": {
-        "summary": "getUsers",
-        "operationId": "UserController_getUsers",
+        "summary": "findAll",
+        "operationId": "UserController_findAll",
         "tags": [
           "User"
         ],
@@ -1111,8 +1032,8 @@
         ]
       },
       "post": {
-        "summary": "createUser",
-        "operationId": "UserController_createUser",
+        "summary": "create",
+        "operationId": "UserController_create",
         "tags": [
           "User"
         ],
@@ -1134,9 +1055,31 @@
       }
     },
     "/api/users/:id": {
+      "get": {
+        "summary": "findOne",
+        "operationId": "UserController_findOne",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ]
+      },
       "delete": {
-        "summary": "deleteUser",
-        "operationId": "UserController_deleteUser",
+        "summary": "delete",
+        "operationId": "UserController_delete",
         "tags": [
           "User"
         ],
@@ -1157,8 +1100,8 @@
         ]
       },
       "put": {
-        "summary": "updateUser",
-        "operationId": "UserController_updateUser",
+        "summary": "update",
+        "operationId": "UserController_update",
         "tags": [
           "User"
         ],
