@@ -18,6 +18,9 @@ import {
   Put,
 } from '../../decorators/httpDecorators';
 import { Roles } from '../../decorators/Roles';
+import { Validate } from '../../middleware/validate/validate.middleware';
+import { ILogger } from '../../services/logger/logger.service.interface';
+import { TYPES } from '../../types';
 import {
   TableAssignment,
   TableAssignmentSchema,
@@ -32,10 +35,7 @@ import {
   TableUpdate,
   TableUpdatesSchema,
   UserRole,
-} from '../../dto-package/dist';
-import { Validate } from '../../middleware/validate/validate.middleware';
-import { ILogger } from '../../services/logger/logger.service.interface';
-import { TYPES } from '../../types';
+} from '../../щдввещ/dist';
 import { ITableController } from './table.controller.interface';
 import { TableService } from './table.service';
 

@@ -9,27 +9,23 @@ import { App } from './src/app';
 import { authContainerModule } from './src/auth/auth.container';
 import { BaseService } from './src/common/base.service';
 import { DatabaseProvider } from './src/common/database.provider';
-import { DrinkItemsController } from './src/controllers/drinkItems/drink-items.controller';
-import { FoodItemsController } from './src/controllers/foodItems/food-items.controller';
-import { PaymentController } from './src/controllers/payments/payment.controller';
-import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
-import { ReservationController } from './src/controllers/reservations/reservation.controller';
+import { drinkItemsContainerModule } from './src/drink-items/drink-items.container';
+import { DrinkItemsController } from './src/drink-items/old/drink-items.controller';
+import { DrinkItemsService } from './src/drink-items/old/drink-items.service';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
+import { foodItemsContainerModule } from './src/food-items/food-items.container';
+import { FoodItemsController } from './src/food-items/old/food-items.controller';
+import { FoodItemsService } from './src/food-items/old/food-items.service';
 import { ordersContainerModule } from './src/orders/orders.container';
 import { paymentsContainerModule } from './src/payments/payments.container';
 import { reservationsContainerModule } from './src/reservations/reservations.container';
-import { DrinkItemsService } from './src/services/drinks/drink-items.service';
-import { FoodItemsService } from './src/services/food/food-items.service';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
-import { AbstractPaymentService } from './src/services/payment/abstract-payment.service';
-import { PaymentService } from './src/services/payment/payment.service';
-import { ReservationService } from './src/services/reservations/reservation.service';
-import { WebSocketService } from './src/services/webSocket/websocket.service';
 import { tablesContainerModule } from './src/tables/tables.container';
 import { TYPES } from './src/types';
 import { userContainerModule } from './src/users/users.container';
+import { WebSocketService } from './src/websocket/old/websocket.service';
 /**
  * Module that binds core services to their respective implementations in a singleton scope.
  *
@@ -116,65 +112,6 @@ export const baseModules = new ContainerModule(
  * @param bind - The bind function used to bind types to implementations in the IoC container.
  */
 /**
- * Container module for the payment service and controller.
- *
- * This module binds the `PaymentService` and `PaymentController` to their respective
- * abstract types in a singleton scope.
- *
- * @module paymentModule
- *
- * @param bind - The bind function used to bind interfaces to their implementations.
- *
- * @example
- * ```typescript
- * import { paymentModule } from './main';
- * import { Container } from 'inversify';
- *
- * const container = new Container();
- * container.load(paymentModule);
- *
- * const paymentService = container.get<AbstractPaymentService>(TYPES.PaymentService);
- * const paymentController = container.get<AbstractPaymentController>(TYPES.PaymentController);
- * ```
- */
-export const paymentModule = new ContainerModule(
-  ({ bind }: ContainerModuleLoadOptions) => {
-    bind<AbstractPaymentService>(TYPES.PaymentService)
-      .to(PaymentService)
-      .inSingletonScope();
-    bind<AbstractPaymentController>(TYPES.PaymentController)
-      .to(PaymentController)
-      .inSingletonScope();
-  }
-);
-
-/**
- * @module reservationsModule
- *
- * @description This module configures dependency injection for reservation-related components.
- *
- * In particular, it:
- * - Binds the ReservationService to its corresponding DI token (TYPES.ReservationService) in singleton scope.
- * - Binds the ReservationController to its DI token (TYPES.ReservationController) in singleton scope.
- *
- * The use of singleton scope ensures that only one instance of each service is created and reused
- * throughout the application's lifecycle.
- *
- * @remarks
- * This module leverages InversifyJS for managing dependencies, enabling modular and testable architecture.
- */
-export const reservationsModule = new ContainerModule(
-  ({ bind }: ContainerModuleLoadOptions) => {
-    bind<ReservationService>(TYPES.ReservationService)
-      .to(ReservationService)
-      .inSingletonScope();
-    bind<ReservationController>(TYPES.ReservationController)
-      .to(ReservationController)
-      .inSingletonScope();
-  }
-);
-
-/**
  * Module that sets up the bindings for the FoodItems feature.
  *
  * This module binds the `FoodItemsController` and `FoodItemsService` to their respective
@@ -225,12 +162,10 @@ export const appBindings = [
   userContainerModule,
   tablesContainerModule,
   ordersContainerModule,
-  paymentModule,
   paymentsContainerModule,
-  reservationsModule,
   reservationsContainerModule,
-  foodItemsModule,
-  drinkItemsModule,
+  foodItemsContainerModule,
+  drinkItemsContainerModule,
   appModule,
   baseModules,
 ];

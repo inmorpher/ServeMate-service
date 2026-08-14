@@ -9,10 +9,10 @@ import { ENV } from '../env';
 import { BaseController } from './common/base.controller';
 import { IMiddleware } from './common/middleware.interface';
 
-import { DrinkItemsController } from './controllers/drinkItems/drink-items.controller';
-import { FoodItemsController } from './controllers/foodItems/food-items.controller';
 import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
+import { DrinkItemsController } from './drink-items/drink-items.controller';
 import { IExceptionFilter } from './errors/exception.filter.interface';
+import { FoodItemsController } from './food-items/food-items.controller';
 import { OrdersController } from './orders/orders.controller';
 import { PaymentsController } from './payments/payments.controller';
 import { ReservationsController } from './reservations/reservations.controller';
@@ -23,9 +23,9 @@ import { AuthenticationController } from './auth/auth.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { openApiRouter } from './openapi/swagger';
 import { ILogger } from './services/logger/logger.service.interface';
-import { WebSocketService } from './services/webSocket/websocket.service';
 import { TYPES } from './types';
 import { IUsersController } from './users/users.controller.interface';
+import { WebSocketService } from './websocket/old/websocket.service';
 
 @injectable()
 export class App {
@@ -45,9 +45,9 @@ export class App {
     @inject(TYPES.UsersController) private usersController: IUsersController,
     @inject(TYPES.TablesController) private tablesController: TablesController,
     @inject(TYPES.OrdersController) private ordersController: OrdersController,
-    @inject(TYPES.PaymentController)
+    @inject(TYPES.PaymentsController)
     private paymentController: PaymentsController,
-    @inject(TYPES.ReservationController)
+    @inject(TYPES.ReservationsController)
     private reservationController: ReservationsController,
     @inject(TYPES.FoodItemsController)
     private foodItemsController: FoodItemsController,

@@ -6,7 +6,7 @@
 **Framework:** Express.js + Inversify (IoC Container)  
 **Database:** PostgreSQL + Prisma ORM  
 **Version:** 1.0.0  
-**Author:** inmo  
+**Author:** inmo
 
 ---
 
@@ -15,6 +15,7 @@
 ServeMate is a comprehensive restaurant management system backend API built with modern TypeScript and Node.js. It handles orders, payments, tables, reservations, food/drink items, and user management for restaurant operations.
 
 ### Core Responsibilities
+
 - User authentication and authorization (JWT-based)
 - Order management (creation, updates, status tracking)
 - Payment processing and refunds
@@ -28,26 +29,31 @@ ServeMate is a comprehensive restaurant management system backend API built with
 ## 2. TECHNOLOGY STACK
 
 ### Runtime & Framework
+
 - **Node.js** with **TypeScript** (v5.7.2)
 - **Express.js** (v4.21.0) - Web framework
 - **Inversify** (v6.0.2) - IoC/DI container for dependency injection
 
 ### Database
+
 - **PostgreSQL** - Primary database
 - **Prisma Client** (v7.0.0) - ORM for database access
 - **Prisma Adapter PG** (@prisma/adapter-pg) - PostgreSQL adapter
 - **node-cache** (v5.1.2) - In-memory caching
 
 ### Authentication & Security
+
 - **JWT** (jsonwebtoken v9.0.2) - Token-based authentication
 - **bcrypt** (v5.1.1) - Password hashing
 - **cookie-parser** (v1.4.7) - Cookie handling
 
 ### Validation & Type Safety
+
 - **Zod** (v3.23.8) - Schema validation and type inference
 - **@servemate/dto** (workspace package) - Shared DTO types
 
 ### Development & Testing
+
 - **Jest** (v29.7.0) - Testing framework
 - **ts-jest** (v29.2.5) - TypeScript support for Jest
 - **ts-node** (v10.9.2) - Direct TypeScript execution
@@ -56,10 +62,12 @@ ServeMate is a comprehensive restaurant management system backend API built with
 - **ESLint** (v9.21.0) - Linting
 
 ### Monitoring & Observability
+
 - **OpenTelemetry** - Distributed tracing (SDK, API, OTLP HTTP exporter)
 - **@faker-js/faker** (v9.0.3) - Data generation for testing
 
 ### Process Management
+
 - **PM2** - Production process manager (via scripts)
 
 ---
@@ -132,7 +140,6 @@ ServeMate is a comprehensive restaurant management system backend API built with
 │   │   ├── addOrders.ts        # Generate test orders
 │   │   ├── addTables.ts        # Generate test tables
 │   │   ├── addFoodAndDrinks.ts # Generate food/drink items
-│   │   └── generateDto.ts      # Generate DTOs from schema
 │   └── tests/                  # Unit and integration tests
 ├── coverage/                   # Jest coverage reports
 └── logs/                       # Application logs
@@ -145,6 +152,7 @@ ServeMate is a comprehensive restaurant management system backend API built with
 ### Core Models
 
 #### **User**
+
 ```
 - id (Int) - Primary key (auto-increment)
 - name (String) - User name
@@ -161,6 +169,7 @@ ServeMate is a comprehensive restaurant management system backend API built with
 ```
 
 #### **Order**
+
 ```
 - id (Int) - Primary key (auto-increment)
 - tableNumber (Int) - FK to Table
@@ -189,6 +198,7 @@ Indexes:
 ```
 
 #### **OrderFoodItem**
+
 ```
 - id (Int) - Primary key (auto-increment)
 - orderId (Int) - FK to Order
@@ -209,6 +219,7 @@ Indexes:
 ```
 
 #### **OrderDrinkItem**
+
 ```
 Same structure as OrderFoodItem but for beverages
 - id (Int)
@@ -230,6 +241,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **FoodItem**
+
 ```
 - id (Int) - Primary key
 - name (String) - Dish name
@@ -254,6 +266,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **DrinkItem**
+
 ```
 - id (Int) - Primary key
 - name (String) - Drink name
@@ -274,6 +287,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **Table**
+
 ```
 - id (Int) - Primary key
 - tableNumber (Int) - Unique table number
@@ -289,6 +303,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **Payment**
+
 ```
 - id (Int) - Primary key
 - orderId (Int) - FK to Order
@@ -308,6 +323,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **RefundPayment**
+
 ```
 - id (Int) - Primary key
 - paymentId (Int) - FK to Payment
@@ -321,6 +337,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **Reservation**
+
 ```
 - id (Int) - Primary key
 - guestsCount (Int) - Party size
@@ -339,6 +356,7 @@ Same structure as OrderFoodItem but for beverages
 ```
 
 #### **TableAssignment**
+
 ```
 - id (Int) - Primary key
 - tableId (Int) - FK to Table
@@ -353,6 +371,7 @@ Unique constraint: (tableId, serverId)
 ```
 
 #### **orderServerAction**
+
 ```
 - id (Int) - Primary key
 - orderId (Int) - FK to Order
@@ -368,60 +387,127 @@ Unique constraint: (tableId, serverId)
 
 ```typescript
 enum UserRole {
-  ADMIN, USER, HOST, MANAGER
+  ADMIN,
+  USER,
+  HOST,
+  MANAGER,
 }
 
 enum OrderState {
-  AWAITING, RECEIVED, SERVED, CANCELED, DISPUTED, READY_TO_PAY, COMPLETED
+  AWAITING,
+  RECEIVED,
+  SERVED,
+  CANCELED,
+  DISPUTED,
+  READY_TO_PAY,
+  COMPLETED,
 }
 
 enum OrderAction {
-  CREATE, UPDATE, ADD_ITEM, REMOVE_ITEM, CHANGE_STATUS
+  CREATE,
+  UPDATE,
+  ADD_ITEM,
+  REMOVE_ITEM,
+  CHANGE_STATUS,
 }
 
 enum TableCondition {
-  AVAILABLE, OCCUPIED, RESERVED, ORDERING, SERVING, PAYMENT
+  AVAILABLE,
+  OCCUPIED,
+  RESERVED,
+  ORDERING,
+  SERVING,
+  PAYMENT,
 }
 
 enum PaymentState {
-  NONE, PAID, REFUNDED, CANCELLED, PENDING
+  NONE,
+  PAID,
+  REFUNDED,
+  CANCELLED,
+  PENDING,
 }
 
 enum PaymentMethod {
-  CASH, CREDIT_CARD, DEBIT_CARD
+  CASH,
+  CREDIT_CARD,
+  DEBIT_CARD,
 }
 
 enum RefundState {
-  PENDING, COMPLETED, CANCELLED
+  PENDING,
+  COMPLETED,
+  CANCELLED,
 }
 
 enum ReservationStatus {
-  PENDING, CONFIRMED, CANCELLED, COMPLETED, NO_SHOW
+  PENDING,
+  CONFIRMED,
+  CANCELLED,
+  COMPLETED,
+  NO_SHOW,
 }
 
 enum SpiceLevel {
-  NOT_SPICY, MILD, MEDIUM, HOT, EXTRA_HOT
+  NOT_SPICY,
+  MILD,
+  MEDIUM,
+  HOT,
+  EXTRA_HOT,
 }
 
 enum FoodType {
-  APPETIZER, MAIN_COURSE, DESSERT, SIDES, SAUCE, OTHER
+  APPETIZER,
+  MAIN_COURSE,
+  DESSERT,
+  SIDES,
+  SAUCE,
+  OTHER,
 }
 
 enum FoodCategory {
-  SALAD, MEAT, SOUP, FISH, VEGGIES, SEAFOOD, OTHER
+  SALAD,
+  MEAT,
+  SOUP,
+  FISH,
+  VEGGIES,
+  SEAFOOD,
+  OTHER,
 }
 
 enum DrinkCategory {
-  BEER, WINE, SPIRITS, COFFEE, TEA, SODA, ALCOHOLIC, NON_ALCOHOLIC, OTHER
+  BEER,
+  WINE,
+  SPIRITS,
+  COFFEE,
+  TEA,
+  SODA,
+  ALCOHOLIC,
+  NON_ALCOHOLIC,
+  OTHER,
 }
 
 enum DrinkTemp {
-  COLD, ROOM, HOT
+  COLD,
+  ROOM,
+  HOT,
 }
 
 enum Allergy {
-  GLUTEN, DAIRY, EGG, PEANUT, TREENUT, FISH, SHELLFISH, SOY, SESAME, 
-  CELERY, MUSTARD, LUPIN, SULPHITES, MOLLUSCS
+  GLUTEN,
+  DAIRY,
+  EGG,
+  PEANUT,
+  TREENUT,
+  FISH,
+  SHELLFISH,
+  SOY,
+  SESAME,
+  CELERY,
+  MUSTARD,
+  LUPIN,
+  SULPHITES,
+  MOLLUSCS,
 }
 ```
 
@@ -430,7 +516,9 @@ enum Allergy {
 ## 5. ARCHITECTURE PATTERNS
 
 ### Dependency Injection (Inversify)
+
 All major components use IoC container pattern:
+
 ```typescript
 // In main.ts - Container setup
 const container = new Container();
@@ -440,6 +528,7 @@ container.bind(TYPES.UserService).to(UserService).inSingletonScope();
 ```
 
 ### Layer Architecture
+
 ```
 HTTP Request
     ↓
@@ -455,7 +544,9 @@ PostgreSQL Database
 ```
 
 ### Decorator Pattern
+
 Controllers use custom decorators for route definition:
+
 ```typescript
 @Controller('/orders')
 export class OrdersController extends BaseController {
@@ -468,6 +559,7 @@ export class OrdersController extends BaseController {
 ```
 
 ### Middleware Stack
+
 1. **Global Middleware** (app.ts):
    - JSON/URL-encoded parsing
    - CORS configuration
@@ -490,90 +582,90 @@ export class OrdersController extends BaseController {
 
 ### Authentication (`/api/auth`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| POST | `/auth/login` | User login | No |
-| POST | `/auth/register` | New user registration | No |
-| POST | `/auth/refresh-token` | Refresh JWT token | No |
-| GET | `/auth/me` | Get current user info | Yes |
+| Method | Path                  | Description           | Auth Required |
+| ------ | --------------------- | --------------------- | ------------- |
+| POST   | `/auth/login`         | User login            | No            |
+| POST   | `/auth/register`      | New user registration | No            |
+| POST   | `/auth/refresh-token` | Refresh JWT token     | No            |
+| GET    | `/auth/me`            | Get current user info | Yes           |
 
 ### Users (`/api/users`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/users` | List all users | Yes |
-| GET | `/users/:id` | Get user by ID | Yes |
-| POST | `/users` | Create new user | Yes |
-| PUT | `/users/:id` | Update user | Yes |
-| DELETE | `/users/:id` | Delete user | Yes |
+| Method | Path         | Description     | Auth Required |
+| ------ | ------------ | --------------- | ------------- |
+| GET    | `/users`     | List all users  | Yes           |
+| GET    | `/users/:id` | Get user by ID  | Yes           |
+| POST   | `/users`     | Create new user | Yes           |
+| PUT    | `/users/:id` | Update user     | Yes           |
+| DELETE | `/users/:id` | Delete user     | Yes           |
 
 ### Tables (`/api/tables`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/tables` | List all tables | Yes |
-| GET | `/tables/meta` | Table metadata (no auth) | No |
-| GET | `/tables/:id` | Get table by ID | Yes |
-| POST | `/tables` | Create table | Yes |
-| PATCH | `/tables/:id` | Update table | Yes |
-| DELETE | `/tables/:id` | Delete table | Yes |
+| Method | Path           | Description              | Auth Required |
+| ------ | -------------- | ------------------------ | ------------- |
+| GET    | `/tables`      | List all tables          | Yes           |
+| GET    | `/tables/meta` | Table metadata (no auth) | No            |
+| GET    | `/tables/:id`  | Get table by ID          | Yes           |
+| POST   | `/tables`      | Create table             | Yes           |
+| PATCH  | `/tables/:id`  | Update table             | Yes           |
+| DELETE | `/tables/:id`  | Delete table             | Yes           |
 
 ### Orders (`/api/orders`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/orders` | List orders with filters | Yes |
-| GET | `/orders/meta` | Order metadata (no auth) | No |
-| GET | `/orders/:id` | Get order by ID | Yes |
-| POST | `/orders` | Create order | Yes |
-| PATCH | `/orders/:id` | Update order | Yes |
-| DELETE | `/orders/:id` | Delete order | Yes |
-| POST | `/orders/:id/items` | Add items to order | Yes |
-| DELETE | `/orders/:id/items/:itemId` | Remove item from order | Yes |
+| Method | Path                        | Description              | Auth Required |
+| ------ | --------------------------- | ------------------------ | ------------- |
+| GET    | `/orders`                   | List orders with filters | Yes           |
+| GET    | `/orders/meta`              | Order metadata (no auth) | No            |
+| GET    | `/orders/:id`               | Get order by ID          | Yes           |
+| POST   | `/orders`                   | Create order             | Yes           |
+| PATCH  | `/orders/:id`               | Update order             | Yes           |
+| DELETE | `/orders/:id`               | Delete order             | Yes           |
+| POST   | `/orders/:id/items`         | Add items to order       | Yes           |
+| DELETE | `/orders/:id/items/:itemId` | Remove item from order   | Yes           |
 
 ### Payments (`/api/payments`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/payments` | List payments | Yes |
-| GET | `/payments/meta` | Payment metadata (no auth) | No |
-| GET | `/payments/:id` | Get payment by ID | Yes |
-| POST | `/payments` | Create payment | Yes |
-| PATCH | `/payments/:id` | Update payment status | Yes |
-| POST | `/payments/:id/refund` | Create refund | Yes |
+| Method | Path                   | Description                | Auth Required |
+| ------ | ---------------------- | -------------------------- | ------------- |
+| GET    | `/payments`            | List payments              | Yes           |
+| GET    | `/payments/meta`       | Payment metadata (no auth) | No            |
+| GET    | `/payments/:id`        | Get payment by ID          | Yes           |
+| POST   | `/payments`            | Create payment             | Yes           |
+| PATCH  | `/payments/:id`        | Update payment status      | Yes           |
+| POST   | `/payments/:id/refund` | Create refund              | Yes           |
 
 ### Food Items (`/api/food-items`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/food-items` | List food items | Yes |
-| GET | `/food-items/meta` | Food metadata (no auth) | No |
-| GET | `/food-items/:id` | Get food by ID | Yes |
-| POST | `/food-items` | Create food item | Yes |
-| PATCH | `/food-items/:id` | Update food item | Yes |
-| DELETE | `/food-items/:id` | Delete food item | Yes |
+| Method | Path               | Description             | Auth Required |
+| ------ | ------------------ | ----------------------- | ------------- |
+| GET    | `/food-items`      | List food items         | Yes           |
+| GET    | `/food-items/meta` | Food metadata (no auth) | No            |
+| GET    | `/food-items/:id`  | Get food by ID          | Yes           |
+| POST   | `/food-items`      | Create food item        | Yes           |
+| PATCH  | `/food-items/:id`  | Update food item        | Yes           |
+| DELETE | `/food-items/:id`  | Delete food item        | Yes           |
 
 ### Drink Items (`/api/drink-items`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/drink-items` | List drink items | Yes |
-| GET | `/drink-items/meta` | Drink metadata (no auth) | No |
-| GET | `/drink-items/:id` | Get drink by ID | Yes |
-| POST | `/drink-items` | Create drink item | Yes |
-| PATCH | `/drink-items/:id` | Update drink item | Yes |
-| DELETE | `/drink-items/:id` | Delete drink item | Yes |
+| Method | Path                | Description              | Auth Required |
+| ------ | ------------------- | ------------------------ | ------------- |
+| GET    | `/drink-items`      | List drink items         | Yes           |
+| GET    | `/drink-items/meta` | Drink metadata (no auth) | No            |
+| GET    | `/drink-items/:id`  | Get drink by ID          | Yes           |
+| POST   | `/drink-items`      | Create drink item        | Yes           |
+| PATCH  | `/drink-items/:id`  | Update drink item        | Yes           |
+| DELETE | `/drink-items/:id`  | Delete drink item        | Yes           |
 
 ### Reservations (`/api/reservations`)
 
-| Method | Path | Description | Auth Required |
-|--------|------|-------------|-----------------|
-| GET | `/reservations` | List reservations | Yes |
-| GET | `/reservations/meta` | Reservation metadata (no auth) | No |
-| GET | `/reservations/:id` | Get reservation by ID | Yes |
-| POST | `/reservations` | Create reservation | Yes |
-| PATCH | `/reservations/:id` | Update reservation | Yes |
-| DELETE | `/reservations/:id` | Delete reservation | Yes |
+| Method | Path                 | Description                    | Auth Required |
+| ------ | -------------------- | ------------------------------ | ------------- |
+| GET    | `/reservations`      | List reservations              | Yes           |
+| GET    | `/reservations/meta` | Reservation metadata (no auth) | No            |
+| GET    | `/reservations/:id`  | Get reservation by ID          | Yes           |
+| POST   | `/reservations`      | Create reservation             | Yes           |
+| PATCH  | `/reservations/:id`  | Update reservation             | Yes           |
+| DELETE | `/reservations/:id`  | Delete reservation             | Yes           |
 
 ---
 
@@ -605,18 +697,21 @@ LOG_TO_FILE=false
 ## 8. KEY SERVICES
 
 ### AuthenticationController
+
 - Handles login/register routes
 - JWT token generation and validation
 - Password hashing with bcrypt
 - Token refresh logic
 
 ### UserService
+
 - User CRUD operations
 - Password validation and hashing
 - User role management
 - User search and filtering
 
 ### OrdersService
+
 - Order lifecycle management
 - Item addition/removal
 - Status transitions
@@ -624,36 +719,42 @@ LOG_TO_FILE=false
 - Order totals calculation
 
 ### PaymentService
+
 - Payment processing
 - Refund handling
 - Payment status tracking
 - Tax and tip calculations
 
 ### TableService
+
 - Table availability management
 - Table assignment to servers
 - Table capacity management
 - Table status transitions
 
 ### ReservationService
+
 - Reservation creation and management
 - Reservation status updates
 - Guest allocation to tables
 - Availability checking
 
 ### FoodItemsService & DrinkItemsService
+
 - Menu item CRUD operations
 - Availability management
 - Category and type filtering
 - Popularity scoring
 
 ### TokenService
+
 - JWT token generation
 - Token validation and decoding
 - Token refresh logic
 - Cache management for tokens
 
 ### LoggerService
+
 - Application-wide logging
 - Structured logging with levels
 - File logging support
@@ -664,12 +765,14 @@ LOG_TO_FILE=false
 ## 9. VALIDATION & ERROR HANDLING
 
 ### Validation
+
 - Uses **Zod** schemas for runtime validation
 - Validation middleware (`ValidateMiddleware`) checks request body/query/params
 - DTOs generated from Prisma schema
 - Schema validation happens before controller logic
 
 Example:
+
 ```typescript
 const OrderCreateSchema = z.object({
   tableNumber: z.number(),
@@ -684,6 +787,7 @@ async createOrder(req: TypedRequest<OrderCreateDTO>, res: Response) {}
 ```
 
 ### Error Handling
+
 - Global exception filter catches all errors
 - Custom error classes for specific scenarios
 - Errors converted to standardized JSON responses
@@ -695,12 +799,14 @@ async createOrder(req: TypedRequest<OrderCreateDTO>, res: Response) {}
 ## 10. AUTHENTICATION & AUTHORIZATION
 
 ### JWT Authentication
+
 1. User logs in → JWT token generated
 2. Token stored in Authorization header or cookie
 3. Middleware validates token on protected routes
 4. User context added to Express Request object
 
 ### Middleware Flow
+
 ```typescript
 // AuthMiddleware
 1. Extract token from header/cookie
@@ -711,6 +817,7 @@ async createOrder(req: TypedRequest<OrderCreateDTO>, res: Response) {}
 ```
 
 ### Role-Based Access
+
 - RoleMiddleware checks user.role
 - Routes restricted to specific roles (ADMIN, USER, HOST, MANAGER)
 
@@ -740,18 +847,21 @@ async getOrderMeta() {}
 ## 12. TESTING
 
 ### Test Structure
+
 - **Jest** framework with ts-jest preset
 - Tests located in `src/tests/` and `dto-package/tests/`
 - Test files: `*.test.ts`
 - Coverage reports in `coverage/` directory
 
 ### Running Tests
+
 ```bash
 npm run test              # Run once with coverage
 npm run test-watch       # Watch mode with coverage
 ```
 
 ### Test Categories
+
 - Unit tests for services
 - Integration tests for controllers
 - DTO validation tests
@@ -778,6 +888,7 @@ These use **@faker-js/faker** for realistic test data.
 ## 14. BUILD & DEPLOYMENT
 
 ### Development
+
 ```bash
 npm run dev              # Start with nodemon (hot reload)
 npm run build            # Compile TypeScript to dist/
@@ -785,6 +896,7 @@ npm run test             # Run tests
 ```
 
 ### Production
+
 ```bash
 npm run build            # Compile
 npm run start:prod       # Run with PM2
@@ -793,6 +905,7 @@ npm run pm2:monitor      # Monitor PM2
 ```
 
 ### Docker
+
 ```bash
 docker-compose -f docker-compose.dev.yml up    # Development
 docker-compose -f docker-compose.yml up        # Production
@@ -803,9 +916,11 @@ docker-compose -f docker-compose.yml up        # Production
 ## 15. DATABASE MIGRATIONS
 
 ### Prisma Migrations
+
 Stored in `prisma/migrations/` directory with timestamps.
 
 Common operations:
+
 ```bash
 # Create new migration
 npx prisma migrate dev --name migration_name
@@ -824,6 +939,7 @@ npx prisma studio
 ```
 
 ### Current Migrations (20+)
+
 - Initial schema setup
 - User ID sequence creation
 - Relationship configurations
@@ -836,6 +952,7 @@ npx prisma studio
 ## 16. CORS & SECURITY
 
 ### CORS Configuration
+
 ```typescript
 cors({
   origin: [
@@ -852,6 +969,7 @@ cors({
 ```
 
 ### Security Headers
+
 ```typescript
 // Permission-Policy header restricts features
 res.setHeader('Permission-Policy', 'geolocation=(), microphone=(), camera=()');
@@ -862,16 +980,19 @@ res.setHeader('Permission-Policy', 'geolocation=(), microphone=(), camera=()');
 ## 17. LOGGING & MONITORING
 
 ### LoggerService
+
 - Structured logging with levels: log, warn, error
 - Optional file-based logging (LOG_TO_FILE env)
 - Colored console output for development
 - Integration with OpenTelemetry for tracing
 
 ### Metrics
+
 - `metrics.ts` file for application metrics
 - Performance tracking integration
 
 ### OpenTelemetry
+
 - Auto-instrumentation for Node.js
 - HTTP tracing via OTLP exporter
 - Distributed tracing support
@@ -883,6 +1004,7 @@ res.setHeader('Permission-Policy', 'geolocation=(), microphone=(), camera=()');
 **Location:** `/dto-package/`
 
 Shared data transfer objects and Zod validation schemas:
+
 - OrderCreateDTO, OrderUpdateDTO, OrderSearchDTO
 - PaymentDTO, RefundDTO
 - UserDTO, TableDTO
@@ -896,6 +1018,7 @@ All DTOs have corresponding Zod schemas for validation.
 ## 19. KEY INTERFACE DEFINITIONS
 
 ### TypedRequest
+
 ```typescript
 interface TypedRequest<Body, Query, Params> extends Request {
   body: Body;
@@ -905,6 +1028,7 @@ interface TypedRequest<Body, Query, Params> extends Request {
 ```
 
 ### BaseController
+
 ```typescript
 class BaseController {
   protected cache: NodeCache;
@@ -915,6 +1039,7 @@ class BaseController {
 ```
 
 ### BaseService
+
 ```typescript
 class BaseService {
   protected prisma: PrismaClient;
@@ -929,18 +1054,21 @@ class BaseService {
 ### Adding a New Endpoint
 
 1. **Update Prisma Schema** (if needed)
+
    ```bash
    # Edit prisma/schema.prisma
    npm run prisma migrate dev --name feature_name
    ```
 
 2. **Create/Update DTO** in `dto-package/src/dto/`
+
    ```typescript
    export const MyNewDTOSchema = z.object({...});
    export type MyNewDTO = z.infer<typeof MyNewDTOSchema>;
    ```
 
 3. **Create Service Method** in appropriate service
+
    ```typescript
    async myNewMethod(data: MyNewDTO): Promise<Result> {
      return this.prisma.model.create({...});
@@ -948,6 +1076,7 @@ class BaseService {
    ```
 
 4. **Add Controller Route**
+
    ```typescript
    @Post('/my-route')
    @Validate(MyNewDTOSchema, 'body')
@@ -1004,18 +1133,21 @@ class BaseService {
 ## 23. IMPORTANT NOTES FOR AI AGENTS
 
 ### When Reading Code
+
 - All routes are registered via metadata decorators
 - Look in decorators/httpDecorators.ts for route definitions
 - Services contain business logic, controllers are thin
 - DTOs are in separate workspace package
 
 ### When Modifying Code
+
 - Always update DTO schemas when changing request/response shapes
 - Run migrations for database changes
 - Update type definitions in src/types.ts if adding new DI bindings
 - Run tests after changes
 
 ### When Adding Features
+
 - Follow existing patterns (controller → service → database)
 - Use dependency injection for all major components
 - Add Zod validation for all user inputs
@@ -1023,6 +1155,7 @@ class BaseService {
 - Document complex logic with JSDoc comments
 
 ### When Debugging
+
 - Check env variables in env.ts
 - Verify JWT middleware bypass routes in app.ts
 - Look at CORS origin whitelist for client-side issues

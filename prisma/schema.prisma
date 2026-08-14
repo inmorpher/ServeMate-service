@@ -2,11 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator enums {
-  provider = "tsx ./src/scripts/generateDto.ts"
-}
-
-
 datasource db {
   provider = "postgresql"
 

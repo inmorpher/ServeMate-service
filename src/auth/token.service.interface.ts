@@ -1,4 +1,4 @@
-import { UserDto } from '../dto-package';
+import { UserDto } from '../щдввещ';
 import { AccessToken } from './entities/access-token.vo';
 import { RefreshToken } from './entities/refresh-token.vo';
 

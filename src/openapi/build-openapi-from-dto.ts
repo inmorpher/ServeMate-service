@@ -27,18 +27,29 @@ function isZodSchema(value: unknown): value is z.ZodTypeAny {
 }
 
 function loadDtoSchemas() {
-  const dtoModule = require('../dto-package/src/dto') as Record<
-    string,
-    unknown
-  >;
+  const dtoModules = [
+    '../drink-items/dto',
+    '../food-items/dto',
+    '../orders/dto',
+    '../payments/dto',
+    '../reservations/dto',
+    '../tables/dto',
+    '../users/dto',
+  ].map(modulePath => require(modulePath) as Record<string, unknown>);
 
   return Object.fromEntries(
-    Object.entries(dtoModule).filter(([, value]) => isZodSchema(value))
+    dtoModules
+      .flatMap(dtoModule => Object.entries(dtoModule))
+      .filter(([, value]) => isZodSchema(value))
   ) as Record<string, z.ZodTypeAny>;
 }
 
 function getControllerFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) {
+    return [];
+  }
+
+  if (path.basename(dir) === 'old') {
     return [];
   }
 

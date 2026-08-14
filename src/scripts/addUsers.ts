@@ -4,59 +4,59 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 
-
-import { CreateUser, UserRole } from '../dto-package/dist';
 import { hashPassword } from '../utils/password';
+import { CreateUser, UserRole } from '../щдввещ/dist';
 
-const connectionString = 'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
+const connectionString =
+  'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';
 
 const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
 async function generateUsers(count: number) {
-	const users: CreateUser[] = [];
+  const users: CreateUser[] = [];
 
-	for (let i = 0; i < count; i++) {
-		const firstName = faker.person.firstName();
-		const lastName = faker.person.lastName();
-		const email = faker.internet.email({ firstName, lastName });
-		const password = await bcrypt.hash(faker.internet.password(), 10);
-		const role = faker.helpers.arrayElement(Object.values(UserRole));
+  for (let i = 0; i < count; i++) {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const email = faker.internet.email({ firstName, lastName });
+    const password = await bcrypt.hash(faker.internet.password(), 10);
+    const role = faker.helpers.arrayElement(Object.values(UserRole));
 
-		users.push({
-			name: `${firstName} ${lastName}`,
-			email,
-			password,
-			role,
-		});
-	}
+    users.push({
+      name: `${firstName} ${lastName}`,
+      email,
+      password,
+      role,
+    });
+  }
 
-	users.push({
-		name:'Super Admin',
-		email:'super@super.com',
-		password: await hashPassword('123321'),
-		role: UserRole.ADMIN,
-	})
+  users.push({
+    name: 'Super Admin',
+    email: 'super@super.com',
+    password: await hashPassword('123321'),
+    role: UserRole.ADMIN,
+  });
 
-	return users;
+  return users;
 }
 
 async function seedUsers() {
-	try {
-		const users = await generateUsers(100);
+  try {
+    const users = await generateUsers(100);
 
-		for (const user of users) {
-			await prisma.user.create({
-				data: user,
-			});
-		}
+    for (const user of users) {
+      await prisma.user.create({
+        data: user,
+      });
+    }
 
-		console.log('Successfully added 100 random users to the database.');
-	} catch (error) {
-		console.error('Error seeding users:', error);
-	} finally {
-		await prisma.$disconnect();
-	}
+    console.log('Successfully added 100 random users to the database.');
+  } catch (error) {
+    console.error('Error seeding users:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 seedUsers();

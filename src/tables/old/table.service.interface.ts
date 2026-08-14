@@ -4,7 +4,7 @@ import {
   TableSearchCriteria,
   TablesList,
   TableUpdate,
-} from '../../dto-package/dist';
+} from '../../щдввещ/dist';
 
 /**
  * Abstract class representing the table service.

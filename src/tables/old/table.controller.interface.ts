@@ -7,7 +7,7 @@ import {
   TableId,
   TableSearchCriteria,
   TableUpdate,
-} from '../../dto-package/dist';
+} from '../../щдввещ/dist';
 
 export abstract class ITableController extends BaseController {
   /**

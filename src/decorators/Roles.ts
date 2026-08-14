@@ -1,7 +1,6 @@
-
 import { IMiddleware } from '../common/middleware.interface';
-import { UserRole } from '../dto-package/';
 import { RoleMiddleware } from '../middleware/role/role.middleware';
+import { UserRole } from '../щдввещ';
 
 /**
  * A decorator that specifies which user roles are allowed to access a route.
@@ -22,17 +21,21 @@ import { RoleMiddleware } from '../middleware/role/role.middleware';
  * ```
  */
 export const Roles = (roles: UserRole[]): MethodDecorator => {
-	return (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
-		// Get existing middlewares or initialize empty array
-		const existingMiddlewares: IMiddleware[] =
-			Reflect.getMetadata('middlewares', target, propertyKey) || [];
+  return (
+    target: Object,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor
+  ) => {
+    // Get existing middlewares or initialize empty array
+    const existingMiddlewares: IMiddleware[] =
+      Reflect.getMetadata('middlewares', target, propertyKey) || [];
 
-		// Add RoleMiddleware to the beginning of middlewares array
-		const middlewares = [new RoleMiddleware(roles), ...existingMiddlewares];
+    // Add RoleMiddleware to the beginning of middlewares array
+    const middlewares = [new RoleMiddleware(roles), ...existingMiddlewares];
 
-		// Update the middlewares metadata
-		Reflect.defineMetadata('middlewares', middlewares, target, propertyKey);
+    // Update the middlewares metadata
+    Reflect.defineMetadata('middlewares', middlewares, target, propertyKey);
 
-		return descriptor;
-	};
+    return descriptor;
+  };
 };

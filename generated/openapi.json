@@ -29,7 +29,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -80,8 +92,8 @@
     },
     "/api/drink-items": {
       "post": {
-        "summary": "createDrinkItem",
-        "operationId": "DrinkItemsController_createDrinkItem",
+        "summary": "create",
+        "operationId": "DrinkItemsController_create",
         "tags": [
           "DrinkItems"
         ],
@@ -95,15 +107,74 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "volume": {
+                    "type": "number"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "isAvailable": {
+                    "type": "boolean"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "alcoholPercentage": {
+                    "type": "number"
+                  },
+                  "isCarbonated": {
+                    "type": "boolean"
+                  },
+                  "tempriture": {
+                    "type": "string"
+                  },
+                  "popularityScore": {
+                    "type": "number"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "price",
+                  "description",
+                  "volume",
+                  "category",
+                  "tempriture",
+                  "createdAt",
+                  "updatedAt"
+                ]
               }
             }
           }
         }
       },
       "get": {
-        "summary": "getDrinkItems",
-        "operationId": "DrinkItemsController_getDrinkItems",
+        "summary": "findAll",
+        "operationId": "DrinkItemsController_findAll",
         "tags": [
           "DrinkItems"
         ],
@@ -118,7 +189,39 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "volume": {
+                  "type": "number"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         ]
@@ -126,8 +229,8 @@
     },
     "/api/drink-items/:id": {
       "get": {
-        "summary": "getDrinkItem",
-        "operationId": "DrinkItemsController_getDrinkItem",
+        "summary": "findOne",
+        "operationId": "DrinkItemsController_findOne",
         "tags": [
           "DrinkItems"
         ],
@@ -142,36 +245,22 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      },
-      "delete": {
-        "summary": "deleteDrinkItem",
-        "operationId": "DrinkItemsController_deleteDrinkItem",
-        "tags": [
-          "DrinkItems"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
       },
       "patch": {
-        "summary": "updateDrinkItem",
-        "operationId": "DrinkItemsController_updateDrinkItem",
+        "summary": "update",
+        "operationId": "DrinkItemsController_update",
         "tags": [
           "DrinkItems"
         ],
@@ -185,17 +274,96 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "volume": {
+                    "type": "number"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "isAvailable": {
+                    "type": "boolean"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "alcoholPercentage": {
+                    "type": "number"
+                  },
+                  "isCarbonated": {
+                    "type": "boolean"
+                  },
+                  "tempriture": {
+                    "type": "string"
+                  },
+                  "popularityScore": {
+                    "type": "number"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
         }
+      },
+      "delete": {
+        "summary": "delete",
+        "operationId": "DrinkItemsController_delete",
+        "tags": [
+          "DrinkItems"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
       }
     },
     "/api/food-items": {
       "post": {
-        "summary": "createFoodItem",
-        "operationId": "FoodItemsController_createFoodItem",
+        "summary": "create",
+        "operationId": "FoodItemsController_create",
         "tags": [
           "FoodItems"
         ],
@@ -209,15 +377,78 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "isAvailable": {
+                    "type": "boolean"
+                  },
+                  "popularityScore": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "isVegan": {
+                    "type": "boolean"
+                  },
+                  "isGlutenFree": {
+                    "type": "boolean"
+                  },
+                  "isVegetarian": {
+                    "type": "boolean"
+                  },
+                  "allergies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "preparationTime": {
+                    "type": "number"
+                  },
+                  "spicyLevel": {
+                    "type": "string"
+                  },
+                  "calories": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "name",
+                  "price",
+                  "description",
+                  "category",
+                  "type"
+                ]
               }
             }
           }
         }
       },
       "get": {
-        "summary": "getFoodItems",
-        "operationId": "FoodItemsController_getFoodItems",
+        "summary": "findAll",
+        "operationId": "FoodItemsController_findAll",
         "tags": [
           "FoodItems"
         ],
@@ -232,7 +463,51 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "isVegan": {
+                  "type": "boolean"
+                },
+                "isGlutenFree": {
+                  "type": "boolean"
+                },
+                "isVegetarian": {
+                  "type": "boolean"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         ]
@@ -240,8 +515,8 @@
     },
     "/api/food-items/:id": {
       "get": {
-        "summary": "getFoodItem",
-        "operationId": "FoodItemsController_getFoodItem",
+        "summary": "findOne",
+        "operationId": "FoodItemsController_findOne",
         "tags": [
           "FoodItems"
         ],
@@ -256,36 +531,22 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      },
-      "delete": {
-        "summary": "deleteFoodItem",
-        "operationId": "FoodItemsController_deleteFoodItem",
-        "tags": [
-          "FoodItems"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
       },
       "patch": {
-        "summary": "updateFoodItem",
-        "operationId": "FoodItemsController_updateFoodItem",
+        "summary": "update",
+        "operationId": "FoodItemsController_update",
         "tags": [
           "FoodItems"
         ],
@@ -299,253 +560,73 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/payments": {
-      "get": {
-        "summary": "getPayments",
-        "operationId": "PaymentController_getPayments",
-        "tags": [
-          "Payment"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/payments/:id": {
-      "get": {
-        "summary": "getPayment",
-        "operationId": "PaymentController_getPayment",
-        "tags": [
-          "Payment"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/payments/order/:id": {
-      "post": {
-        "summary": "createPayment",
-        "operationId": "PaymentController_createPayment",
-        "tags": [
-          "Payment"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/payments/complete/:id": {
-      "post": {
-        "summary": "completePayment",
-        "operationId": "PaymentController_completePayment",
-        "tags": [
-          "Payment"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/payments/refund/:id": {
-      "post": {
-        "summary": "refundPayment",
-        "operationId": "PaymentController_refundPayment",
-        "tags": [
-          "Payment"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/payments/cancel/:id": {
-      "post": {
-        "summary": "cancelPayment",
-        "operationId": "PaymentController_cancelPayment",
-        "tags": [
-          "Payment"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/reservations": {
-      "post": {
-        "summary": "createReservation",
-        "operationId": "ReservationController_createReservation",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "getAllReservations",
-        "operationId": "ReservationController_getAllReservations",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      }
-    },
-    "/api/reservations/:id": {
-      "get": {
-        "summary": "getReservationById",
-        "operationId": "ReservationController_getReservationById",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "parameters": [
-          {
-            "name": "value",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ]
-      },
-      "put": {
-        "summary": "updateReservation",
-        "operationId": "ReservationController_updateReservation",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "isAvailable": {
+                    "type": "boolean"
+                  },
+                  "popularityScore": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "isVegan": {
+                    "type": "boolean"
+                  },
+                  "isGlutenFree": {
+                    "type": "boolean"
+                  },
+                  "isVegetarian": {
+                    "type": "boolean"
+                  },
+                  "allergies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "preparationTime": {
+                    "type": "number"
+                  },
+                  "spicyLevel": {
+                    "type": "string"
+                  },
+                  "calories": {
+                    "type": "number"
+                  }
+                }
               }
             }
           }
         }
       },
       "delete": {
-        "summary": "deleteReservation",
-        "operationId": "ReservationController_deleteReservation",
+        "summary": "delete",
+        "operationId": "FoodItemsController_delete",
         "tags": [
-          "Reservation"
+          "FoodItems"
         ],
         "responses": {
           "200": {
@@ -558,130 +639,18 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
-      }
-    },
-    "/api/reservations/:id/status": {
-      "patch": {
-        "summary": "updateReservationStatus",
-        "operationId": "ReservationController_updateReservationStatus",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/reservations/:id/time": {
-      "patch": {
-        "summary": "updateReservationTime",
-        "operationId": "ReservationController_updateReservationTime",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/reservations/:id/tables": {
-      "patch": {
-        "summary": "updateReservationTables",
-        "operationId": "ReservationController_updateReservationTables",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/reservations/:id/guest-info": {
-      "patch": {
-        "summary": "updateReservationGuestInfo",
-        "operationId": "ReservationController_updateReservationGuestInfo",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/reservations/:id/comment": {
-      "patch": {
-        "summary": "updateReservationComment",
-        "operationId": "ReservationController_updateReservationComment",
-        "tags": [
-          "Reservation"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
       }
     },
     "/api/orders": {
@@ -702,7 +671,70 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "tableNumber": {
+                  "type": "number"
+                },
+                "tableNumbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "guestsCount": {
+                  "type": "number"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "serverId": {
+                  "type": "number"
+                },
+                "serverName": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "minAmount": {
+                  "type": "number"
+                },
+                "maxAmount": {
+                  "type": "number"
+                },
+                "dateFrom": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "dateTo": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "tableNumbers",
+                "allergies",
+                "status"
+              ]
             }
           }
         ]
@@ -723,7 +755,134 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "tableNumber": {
+                    "type": "number"
+                  },
+                  "guestsCount": {
+                    "type": "number"
+                  },
+                  "serverId": {
+                    "type": "number"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "comments": {
+                    "type": "string"
+                  },
+                  "discount": {
+                    "type": "number"
+                  },
+                  "allergies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "foodItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "guestNumber": {
+                          "type": "number"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "number"
+                              },
+                              "price": {
+                                "type": "number"
+                              },
+                              "discount": {
+                                "type": "number"
+                              },
+                              "finalPrice": {
+                                "type": "number"
+                              },
+                              "specialRequest": {
+                                "type": "string"
+                              },
+                              "allergies": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "price"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "guestNumber",
+                        "items"
+                      ]
+                    }
+                  },
+                  "drinkItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "guestNumber": {
+                          "type": "number"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "number"
+                              },
+                              "price": {
+                                "type": "number"
+                              },
+                              "discount": {
+                                "type": "number"
+                              },
+                              "finalPrice": {
+                                "type": "number"
+                              },
+                              "specialRequest": {
+                                "type": "string"
+                              },
+                              "allergies": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "price"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "guestNumber",
+                        "items"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "tableNumber",
+                  "guestsCount",
+                  "serverId"
+                ]
               }
             }
           }
@@ -748,7 +907,70 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "tableNumber": {
+                  "type": "number"
+                },
+                "tableNumbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "guestsCount": {
+                  "type": "number"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "serverId": {
+                  "type": "number"
+                },
+                "serverName": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "minAmount": {
+                  "type": "number"
+                },
+                "maxAmount": {
+                  "type": "number"
+                },
+                "dateFrom": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "dateTo": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "tableNumbers",
+                "allergies",
+                "status"
+              ]
             }
           }
         ]
@@ -772,7 +994,15 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
@@ -793,7 +1023,27 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "tableNumber": {
+                    "type": "number"
+                  },
+                  "guestsCount": {
+                    "type": "number"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "comments": {
+                    "type": "string"
+                  },
+                  "discount": {
+                    "type": "number"
+                  },
+                  "tip": {
+                    "type": "number"
+                  }
+                }
               }
             }
           }
@@ -816,7 +1066,15 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
@@ -839,7 +1097,105 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "foodItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "guestNumber": {
+                          "type": "number"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "number"
+                              },
+                              "price": {
+                                "type": "number"
+                              },
+                              "discount": {
+                                "type": "number"
+                              },
+                              "finalPrice": {
+                                "type": "number"
+                              },
+                              "specialRequest": {
+                                "type": "string"
+                              },
+                              "allergies": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "price"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "guestNumber",
+                        "items"
+                      ]
+                    }
+                  },
+                  "drinkItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "guestNumber": {
+                          "type": "number"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "number"
+                              },
+                              "price": {
+                                "type": "number"
+                              },
+                              "discount": {
+                                "type": "number"
+                              },
+                              "finalPrice": {
+                                "type": "number"
+                              },
+                              "specialRequest": {
+                                "type": "string"
+                              },
+                              "allergies": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "price"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "guestNumber",
+                        "items"
+                      ]
+                    }
+                  }
+                }
               }
             }
           }
@@ -863,7 +1219,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "string"
               }
             }
           }
@@ -887,11 +1243,641 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "string"
               }
             }
           }
         }
+      }
+    },
+    "/api/payments": {
+      "get": {
+        "summary": "findAll",
+        "operationId": "PaymentsController_findAll",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/:id": {
+      "get": {
+        "summary": "findOne",
+        "operationId": "PaymentsController_findOne",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/order/:id": {
+      "post": {
+        "summary": "create",
+        "operationId": "PaymentsController_create",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/complete/:id": {
+      "post": {
+        "summary": "complete",
+        "operationId": "PaymentsController_complete",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/refund/:id": {
+      "post": {
+        "summary": "refund",
+        "operationId": "PaymentsController_refund",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/payments/cancel/:id": {
+      "post": {
+        "summary": "cancel",
+        "operationId": "PaymentsController_cancel",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/reservations": {
+      "post": {
+        "summary": "create",
+        "operationId": "ReservationsController_create",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "guestsCount": {
+                    "type": "number"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "tables": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "comments": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "guestsCount",
+                  "time",
+                  "name",
+                  "phone",
+                  "status"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "findAll",
+        "operationId": "ReservationsController_findAll",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "guestsCount": {
+                  "type": "number"
+                },
+                "guestsCountMin": {
+                  "type": "number"
+                },
+                "guestsCountMax": {
+                  "type": "number"
+                },
+                "timeStart": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "timeEnd": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "tables": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status",
+                "tables"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/reservations/:id": {
+      "get": {
+        "summary": "findOne",
+        "operationId": "ReservationsController_findOne",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "update",
+        "operationId": "ReservationsController_update",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "guestsCount": {
+                    "type": "number"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "tables": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "comments": {
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete",
+        "operationId": "ReservationsController_delete",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/reservations/:id/status": {
+      "patch": {
+        "summary": "updateStatus",
+        "operationId": "ReservationsController_updateStatus",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/time": {
+      "patch": {
+        "summary": "updateTime",
+        "operationId": "ReservationsController_updateTime",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "time": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "time"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/tables": {
+      "patch": {
+        "summary": "updateTables",
+        "operationId": "ReservationsController_updateTables",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tables": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "tables"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/guest-info": {
+      "patch": {
+        "summary": "updateGuestInfo",
+        "operationId": "ReservationsController_updateGuestInfo",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "guestsCount": {
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reservations/:id/comment": {
+      "patch": {
+        "summary": "updateComment",
+        "operationId": "ReservationsController_updateComment",
+        "tags": [
+          "Reservations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        ]
       }
     },
     "/api/tables": {
@@ -912,7 +1898,43 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "tableNumber": {
+                  "type": "number"
+                },
+                "minCapacity": {
+                  "type": "number"
+                },
+                "maxCapacity": {
+                  "type": "number"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "isOccupied": {
+                  "type": "boolean"
+                },
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status",
+                "isOccupied"
+              ]
             }
           }
         ]
@@ -933,7 +1955,67 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "tableNumber": {
+                    "type": "number"
+                  },
+                  "capacity": {
+                    "type": "number"
+                  },
+                  "additionalCapacity": {
+                    "type": "number"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "tableNumber",
+                  "capacity"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tables/assign": {
+      "post": {
+        "summary": "assign",
+        "operationId": "TablesController_assign",
+        "tags": [
+          "Tables"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serverId": {
+                    "type": "number"
+                  },
+                  "isPrimary": {
+                    "type": "boolean"
+                  },
+                  "assignedTables": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "serverId",
+                  "assignedTables"
+                ]
               }
             }
           }
@@ -958,7 +2040,15 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
@@ -979,7 +2069,30 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "tableNumber": {
+                    "type": "number"
+                  },
+                  "capacity": {
+                    "type": "number"
+                  },
+                  "additionalCapacity": {
+                    "type": "number"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "isOccupied": {
+                    "type": "boolean"
+                  },
+                  "guests": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "isOccupied"
+                ]
               }
             }
           }
@@ -1002,7 +2115,15 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
@@ -1026,7 +2147,46 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "page": {
+                  "type": "number"
+                },
+                "pageSize": {
+                  "type": "number"
+                },
+                "sortBy": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAfter": {
+                  "type": "string"
+                },
+                "createdBefore": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "role",
+                "isActive"
+              ]
             }
           }
         ]
@@ -1047,7 +2207,27 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "role",
+                  "password"
+                ]
               }
             }
           }
@@ -1072,7 +2252,15 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
@@ -1094,7 +2282,15 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id"
+              ]
             }
           }
         ]
@@ -1115,7 +2311,25 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "lastLogin": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
               }
             }
           }
@@ -1126,121 +2340,1225 @@
   "components": {
     "schemas": {
       "UserSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "password": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role",
+          "password"
+        ]
       },
       "UserLoginSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "CreateUserSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "role",
+          "password"
+        ]
       },
       "UpdateUserSchema": {
-        "type": "object"
-      },
-      "UserParamSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "drinkItemSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "string"
+          },
+          "alcoholPercentage": {
+            "type": "number"
+          },
+          "isCarbonated": {
+            "type": "boolean"
+          },
+          "tempriture": {
+            "type": "string"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "price",
+          "description",
+          "volume",
+          "category",
+          "tempriture",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "foodItemSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preparationTime": {
+            "type": "number"
+          },
+          "spicyLevel": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "price",
+          "description",
+          "category",
+          "type"
+        ]
       },
       "createDrinkItemSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "string"
+          },
+          "alcoholPercentage": {
+            "type": "number"
+          },
+          "isCarbonated": {
+            "type": "boolean"
+          },
+          "tempriture": {
+            "type": "string"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "price",
+          "description",
+          "volume",
+          "category",
+          "tempriture",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "createFoodItemSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preparationTime": {
+            "type": "number"
+          },
+          "spicyLevel": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "price",
+          "description",
+          "category",
+          "type"
+        ]
       },
       "updateDrinkItemSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "string"
+          },
+          "alcoholPercentage": {
+            "type": "number"
+          },
+          "isCarbonated": {
+            "type": "boolean"
+          },
+          "tempriture": {
+            "type": "string"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
       },
       "updateFoodItemSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preparationTime": {
+            "type": "number"
+          },
+          "spicyLevel": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          }
+        }
       },
       "searchDrinkItemsSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "searchFoodItemsSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "number"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "drinkItemsListSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "volume": {
+                  "type": "number"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "alcoholPercentage": {
+                  "type": "number"
+                },
+                "isCarbonated": {
+                  "type": "boolean"
+                },
+                "tempriture": {
+                  "type": "string"
+                },
+                "popularityScore": {
+                  "type": "number"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "image": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "price",
+                "description",
+                "volume",
+                "category",
+                "tempriture",
+                "createdAt",
+                "updatedAt"
+              ]
+            }
+          },
+          "totalCount": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
       },
       "foodItemsListSchema": {
-        "type": "object"
-      },
-      "OrderSchema": {
-        "type": "object"
-      },
-      "OrderSearchSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "popularityScore": {
+                  "type": "number"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "isVegan": {
+                  "type": "boolean"
+                },
+                "isGlutenFree": {
+                  "type": "boolean"
+                },
+                "isVegetarian": {
+                  "type": "boolean"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "preparationTime": {
+                  "type": "number"
+                },
+                "spicyLevel": {
+                  "type": "string"
+                },
+                "calories": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "price",
+                "description",
+                "category",
+                "type"
+              ]
+            }
+          },
+          "totalCount": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
       },
       "OrderCreateSchema": {
-        "type": "object"
-      },
-      "OrderFullSingleSchema": {
-        "type": "object"
-      },
-      "OrderUpdateProps": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "tableNumber": {
+            "type": "number"
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "serverId": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "foodItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "guestNumber": {
+                  "type": "number"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "itemId": {
+                        "type": "number"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "finalPrice": {
+                        "type": "number"
+                      },
+                      "specialRequest": {
+                        "type": "string"
+                      },
+                      "allergies": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "itemId",
+                      "price"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "guestNumber",
+                "items"
+              ]
+            }
+          },
+          "drinkItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "guestNumber": {
+                  "type": "number"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "itemId": {
+                        "type": "number"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "finalPrice": {
+                        "type": "number"
+                      },
+                      "specialRequest": {
+                        "type": "string"
+                      },
+                      "allergies": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "itemId",
+                      "price"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "guestNumber",
+                "items"
+              ]
+            }
+          }
+        },
+        "required": [
+          "tableNumber",
+          "guestsCount",
+          "serverId"
+        ]
       },
       "OrderUpdateItemsSchema": {
-        "type": "object"
-      },
-      "OrderMeta": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "foodItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "guestNumber": {
+                  "type": "number"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "itemId": {
+                        "type": "number"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "finalPrice": {
+                        "type": "number"
+                      },
+                      "specialRequest": {
+                        "type": "string"
+                      },
+                      "allergies": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "itemId",
+                      "price"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "guestNumber",
+                "items"
+              ]
+            }
+          },
+          "drinkItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "guestNumber": {
+                  "type": "number"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "itemId": {
+                        "type": "number"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "finalPrice": {
+                        "type": "number"
+                      },
+                      "specialRequest": {
+                        "type": "string"
+                      },
+                      "allergies": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "itemId",
+                      "price"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "guestNumber",
+                "items"
+              ]
+            }
+          }
+        }
       },
       "PaymentSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "tax": {
+            "type": "number"
+          },
+          "tip": {
+            "type": "number"
+          },
+          "serviceCharge": {
+            "type": "number"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "tax",
+          "tip",
+          "serviceCharge",
+          "totalAmount",
+          "paymentType",
+          "status",
+          "createdAt",
+          "orderId"
+        ]
       },
       "PaymentSearchSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "number"
+          }
+        }
       },
       "RefundSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "reason"
+        ]
       },
       "ReservationSchema": {
-        "type": "object"
-      },
-      "CreateReservationSchema": {
-        "type": "object"
-      },
-      "UpdateReservationSchema": {
-        "type": "object"
-      },
-      "ReservationWithTablesSchema": {
-        "type": "object"
-      },
-      "ReservationDetailedSchema": {
-        "type": "object"
-      },
-      "ReservationSearchCriteria": {
-        "type": "object"
-      },
-      "TableBaseTableSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "tableNumber": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "tableNumber"
+              ]
+            }
+          },
+          "comments": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "guestsCount",
+          "time",
+          "name",
+          "phone",
+          "status",
+          "tables",
+          "createdAt",
+          "updatedAt",
+          "isActive"
+        ]
       },
       "TableSchema": {
-        "type": "object"
-      },
-      "TableSearchCriteriaSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tableNumber": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "additionalCapacity": {
+            "type": "number"
+          },
+          "isOccupied": {
+            "type": "boolean"
+          },
+          "originalCapacity": {
+            "type": "number"
+          },
+          "guests": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "tableNumber",
+          "capacity",
+          "status",
+          "additionalCapacity",
+          "isOccupied",
+          "originalCapacity",
+          "guests"
+        ]
       },
       "TableCreateSchema": {
-        "type": "object"
-      },
-      "TableUpdatesSchema": {
-        "type": "object"
-      },
-      "TableIdSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "tableNumber": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "additionalCapacity": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "tableNumber",
+          "capacity"
+        ]
       },
       "TableAssignmentSchema": {
-        "type": "object"
-      },
-      "TableSeatingSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "serverId": {
+            "type": "number"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          },
+          "assignedTables": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "serverId",
+          "assignedTables"
+        ]
       }
     },
     "securitySchemes": {

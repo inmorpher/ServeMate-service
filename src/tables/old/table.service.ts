@@ -6,6 +6,8 @@ import {
   InvalidateCacheByKeys,
   InvalidateCacheByPrefix,
 } from '../../decorators/Cache';
+import { HTTPError } from '../../errors/http-error.class';
+import { TYPES } from '../../types';
 import {
   PaymentState,
   ReservationStatus,
@@ -15,9 +17,7 @@ import {
   TableSearchCriteria,
   TableSeatingDTO,
   TableUpdate,
-} from '../../dto-package/dist';
-import { HTTPError } from '../../errors/http-error.class';
-import { TYPES } from '../../types';
+} from '../../щдввещ/dist';
 import { ITableService } from './table.service.interface';
 
 @injectable()

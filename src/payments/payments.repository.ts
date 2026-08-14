@@ -1,6 +1,5 @@
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { PaymentService } from '../services/payment/payment.service';
 import { TYPES } from '../types';
 import {
   PaymentCreateDto,
@@ -9,6 +8,7 @@ import {
   PaymentSearchCriteria,
   RefundDTO,
 } from './dto';
+import { PaymentService } from './old/payment.service';
 import { IPaymentsRepository } from './payments.repository.interface';
 
 @injectable()
