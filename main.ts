@@ -11,7 +11,6 @@ import { BaseService } from './src/common/base.service';
 import { DatabaseProvider } from './src/common/database.provider';
 import { DrinkItemsController } from './src/controllers/drinkItems/drink-items.controller';
 import { FoodItemsController } from './src/controllers/foodItems/food-items.controller';
-import { OrdersController } from './src/controllers/orders/orders.controller';
 import { PaymentController } from './src/controllers/payments/payment.controller';
 import { AbstractPaymentController } from './src/controllers/payments/payment.controller.interface';
 import { ReservationController } from './src/controllers/reservations/reservation.controller';
@@ -19,11 +18,11 @@ import { TableController } from './src/controllers/tables/table.controller';
 import { ITableController } from './src/controllers/tables/table.controller.interface';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
+import { ordersContainerModule } from './src/orders/orders.container';
 import { DrinkItemsService } from './src/services/drinks/drink-items.service';
 import { FoodItemsService } from './src/services/food/food-items.service';
 import { LoggerService } from './src/services/logger/logger.service';
 import { ILogger } from './src/services/logger/logger.service.interface';
-import { OrdersService } from './src/services/orders/order.service';
 import { AbstractPaymentService } from './src/services/payment/abstract-payment.service';
 import { PaymentService } from './src/services/payment/payment.service';
 import { ReservationService } from './src/services/reservations/reservation.service';
@@ -126,17 +125,6 @@ export const tablesModule = new ContainerModule(
  * @module ordersModule
  * @param bind - The bind function used to bind types to implementations in the IoC container.
  */
-export const ordersModule = new ContainerModule(
-  ({ bind }: ContainerModuleLoadOptions) => {
-    bind<OrdersService>(TYPES.OrdersService)
-      .to(OrdersService)
-      .inSingletonScope();
-    bind<OrdersController>(TYPES.OrdersController)
-      .to(OrdersController)
-      .inSingletonScope();
-  }
-);
-
 /**
  * Container module for the payment service and controller.
  *
@@ -246,7 +234,7 @@ export const appBindings = [
   authContainerModule,
   userContainerModule,
   tablesModule,
-  ordersModule,
+  ordersContainerModule,
   paymentModule,
   reservationsModule,
   foodItemsModule,

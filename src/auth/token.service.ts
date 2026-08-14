@@ -1,15 +1,19 @@
-import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
 import { v4 as uuidv4 } from 'uuid';
 import { ENV } from '../../env';
-import { HTTPError } from '../errors/http-error.class';
+
 import { parseExpiresIn } from '../utils/expireEncoder';
 import { AccessToken } from './entities/access-token.vo';
 import { RefreshToken } from './entities/refresh-token.vo';
 import { DecodedUser, ITokenService } from './token.service.interface';
+
+type RefreshTokenPayload = {
+  id: number;
+  jti: string;
+};
 
 @injectable()
 export class TokenService implements ITokenService {
@@ -24,62 +28,38 @@ export class TokenService implements ITokenService {
     this.tokenCache = new NodeCache({ stdTTL: ttlSeconds });
     this.revokedTokens = new NodeCache({ stdTTL: ttlSeconds });
   }
-  async authenticate(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-      return next(new HTTPError(401, 'Header', 'Authorization header missing'));
-    }
-
-    const [bearer, token] = authHeader.split(' ');
-
-    if (bearer !== 'Bearer' || !token) {
-      return next(
-        new HTTPError(401, 'Header', 'Invalid Authorization header format')
-      );
-    }
-
-    try {
-      if (this.isTokenRevoked(token)) {
-        return next(new HTTPError(401, 'Token', 'Token has been revoked'));
-      }
-
-      const decoded = await this.verifyAccessToken(token);
-      req.user = decoded;
-      next();
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        return next(error);
-      }
-      this.handleAuthError(error, next);
-    }
-  }
   async verifyRefreshToken(
     token: string
   ): Promise<{ userId: number; jti: string }> {
-    const decoded = (await this.verifyToken(token, ENV.JWT_REFRESH)) as any;
+    const decoded = await this.verifyToken<RefreshTokenPayload>(
+      token,
+      ENV.JWT_REFRESH
+    );
     return { userId: decoded.id, jti: decoded.jti };
   }
+
   async generateAccessToken(user: DecodedUser): Promise<AccessToken> {
     const { token, expiresAt } = await this.generateToken(user, false);
     const expiresIn = parseExpiresIn(ENV.JWT_EXPIRES_IN);
     return new AccessToken(token, expiresIn, expiresAt);
   }
+
   async generateRefreshToken(user: DecodedUser): Promise<RefreshToken> {
     const { token, jti, expiresAt } = await this.generateToken(user, true);
     return new RefreshToken(token, jti, expiresAt);
   }
+
   revokeAccessToken(token: string): void {
     this.revokedTokens.set(token, true, this.getTokenTtlSeconds(token));
-
     this.tokenCache.del(token);
   }
 
-  private async verifyAccessToken(token: string): Promise<DecodedUser> {
+  async verifyAccessToken(token: string): Promise<DecodedUser> {
+    if (this.isTokenRevoked(token)) {
+      throw new Error('Token has been revoked');
+    }
+
     const cached = this.tokenCache.get<DecodedUser>(token);
     if (cached) {
       return cached;
@@ -146,16 +126,13 @@ export class TokenService implements ITokenService {
     };
   }
 
-  private async verifyToken(
-    token: string,
-    secret: string
-  ): Promise<DecodedUser> {
+  private async verifyToken<T>(token: string, secret: string): Promise<T> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, secret, (err, decoded) => {
         if (err) {
           reject(err);
         } else {
-          resolve(decoded as DecodedUser);
+          resolve(decoded as T);
         }
       });
     });
@@ -174,22 +151,6 @@ export class TokenService implements ITokenService {
     return Math.max(
       1,
       Math.ceil(parseExpiresIn(ENV.TOKEN_CACHE_TTL, true) / 1000)
-    );
-  }
-
-  private handleAuthError(error: unknown, next: NextFunction): void {
-    if (error instanceof jwt.TokenExpiredError) {
-      return next(new HTTPError(401, 'Token', 'Token has expired'));
-    }
-    if (error instanceof jwt.JsonWebTokenError) {
-      return next(new HTTPError(401, 'Token', 'Invalid token'));
-    }
-    return next(
-      new HTTPError(
-        401,
-        'Authentication',
-        'An error occurred during authentication'
-      )
     );
   }
 }
