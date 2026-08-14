@@ -1,6 +1,6 @@
+import { UserRole } from '@prisma/client';
 import { IMiddleware } from '../common/middleware.interface';
 import { RoleMiddleware } from '../middleware/role/role.middleware';
-import { UserRole } from '../щдввещ';
 
 /**
  * A decorator that specifies which user roles are allowed to access a route.

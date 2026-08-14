@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { Allergy, PrismaClient } from '@prisma/client';
+import { Allergy, OrderState, PrismaClient } from '@prisma/client';
 import 'dotenv/config';
-import { OrderState } from '../щдввещ/dist';
 
 const connectionString =
   'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';

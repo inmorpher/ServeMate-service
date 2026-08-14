@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 
+import type { CreateUserDto as CreateUser } from '../users/dto/create-user.dto';
 import { hashPassword } from '../utils/password';
-import { CreateUser, UserRole } from '../щдввещ/dist';
 
 const connectionString =
   'postgresql://inmo:!From1to8@localhost:5432/servemate?schema=public';

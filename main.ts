@@ -10,13 +10,9 @@ import { authContainerModule } from './src/auth/auth.container';
 import { BaseService } from './src/common/base.service';
 import { DatabaseProvider } from './src/common/database.provider';
 import { drinkItemsContainerModule } from './src/drink-items/drink-items.container';
-import { DrinkItemsController } from './src/drink-items/old/drink-items.controller';
-import { DrinkItemsService } from './src/drink-items/old/drink-items.service';
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { foodItemsContainerModule } from './src/food-items/food-items.container';
-import { FoodItemsController } from './src/food-items/old/food-items.controller';
-import { FoodItemsService } from './src/food-items/old/food-items.service';
 import { ordersContainerModule } from './src/orders/orders.container';
 import { paymentsContainerModule } from './src/payments/payments.container';
 import { reservationsContainerModule } from './src/reservations/reservations.container';
@@ -121,28 +117,6 @@ export const baseModules = new ContainerModule(
  * @module foodItemsModule
  * @param bind - The InversifyJS bind function used to bind types to implementations.
  */
-export const foodItemsModule = new ContainerModule(
-  ({ bind }: ContainerModuleLoadOptions) => {
-    bind<FoodItemsController>(TYPES.FoodItemsController)
-      .to(FoodItemsController)
-      .inSingletonScope();
-    bind<FoodItemsService>(TYPES.FoodItemsService)
-      .to(FoodItemsService)
-      .inSingletonScope();
-  }
-);
-
-export const drinkItemsModule = new ContainerModule(
-  ({ bind }: ContainerModuleLoadOptions) => {
-    bind<DrinkItemsController>(TYPES.DrinkItemsController)
-      .to(DrinkItemsController)
-      .inSingletonScope();
-    bind<DrinkItemsService>(TYPES.DrinkItemsService)
-      .to(DrinkItemsService)
-      .inSingletonScope();
-  }
-);
-
 /**
  * An array of application modules to be bound to the application.
  *

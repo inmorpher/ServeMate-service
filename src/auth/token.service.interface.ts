@@ -1,8 +1,8 @@
-import { UserDto } from '../щдввещ';
+import { UserResponse } from '../users/dto';
 import { AccessToken } from './entities/access-token.vo';
 import { RefreshToken } from './entities/refresh-token.vo';
 
-export type DecodedUser = Pick<UserDto, 'email' | 'role' | 'id'>;
+export type DecodedUser = Pick<UserResponse, 'email' | 'role' | 'id'>;
 
 export interface ITokenService {
   verifyAccessToken(token: string): Promise<DecodedUser>;

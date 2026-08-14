@@ -1,8 +1,8 @@
+import { UserRole } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { IMiddleware } from '../../common/middleware.interface';
-import { UserRole } from '../../щдввещ';
 
 /**
  * Middleware for role-based access control.
