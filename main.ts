@@ -17,6 +17,8 @@ import { ReservationController } from './src/controllers/reservations/reservatio
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { ordersContainerModule } from './src/orders/orders.container';
+import { paymentsContainerModule } from './src/payments/payments.container';
+import { reservationsContainerModule } from './src/reservations/reservations.container';
 import { DrinkItemsService } from './src/services/drinks/drink-items.service';
 import { FoodItemsService } from './src/services/food/food-items.service';
 import { LoggerService } from './src/services/logger/logger.service';
@@ -224,7 +226,9 @@ export const appBindings = [
   tablesContainerModule,
   ordersContainerModule,
   paymentModule,
+  paymentsContainerModule,
   reservationsModule,
+  reservationsContainerModule,
   foodItemsModule,
   drinkItemsModule,
   appModule,

@@ -11,11 +11,11 @@ import { IMiddleware } from './common/middleware.interface';
 
 import { DrinkItemsController } from './controllers/drinkItems/drink-items.controller';
 import { FoodItemsController } from './controllers/foodItems/food-items.controller';
-import { PaymentController } from './controllers/payments/payment.controller';
-import { ReservationController } from './controllers/reservations/reservation.controller';
 import { METADATA_KEYS, RouteDefinition } from './decorators/httpDecorators';
 import { IExceptionFilter } from './errors/exception.filter.interface';
 import { OrdersController } from './orders/orders.controller';
+import { PaymentsController } from './payments/payments.controller';
+import { ReservationsController } from './reservations/reservations.controller';
 import { TablesController } from './tables/tables.controller';
 
 import { AuthenticationController } from './auth/auth.controller';
@@ -46,9 +46,9 @@ export class App {
     @inject(TYPES.TablesController) private tablesController: TablesController,
     @inject(TYPES.OrdersController) private ordersController: OrdersController,
     @inject(TYPES.PaymentController)
-    private paymentController: PaymentController,
+    private paymentController: PaymentsController,
     @inject(TYPES.ReservationController)
-    private reservationController: ReservationController,
+    private reservationController: ReservationsController,
     @inject(TYPES.FoodItemsController)
     private foodItemsController: FoodItemsController,
     @inject(TYPES.DrinkItemsController)
