@@ -32,7 +32,6 @@ WORKDIR /app
 # Копируем package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig.json ./
-COPY src/dto-package ./src/dto-package
 COPY prisma ./prisma
 
 # Устанавливаем ALL зависимости (включая devDependencies для разработки)
