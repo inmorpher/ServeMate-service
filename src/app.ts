@@ -26,6 +26,7 @@ import { openApiRouter } from './openapi/swagger';
 import { TYPES } from './types';
 import { IUsersController } from './users/users.controller.interface';
 import { WebSocketService } from './websocket/old/websocket.service';
+import { WorkspaceController } from './workspace/workspace.controller';
 
 @injectable()
 export class App {
@@ -52,7 +53,9 @@ export class App {
     @inject(TYPES.FoodItemsController)
     private foodItemsController: FoodItemsController,
     @inject(TYPES.DrinkItemsController)
-    private drinkItemsController: DrinkItemsController
+    private drinkItemsController: DrinkItemsController,
+    @inject(TYPES.WorkspaceController)
+    private workspaceController: WorkspaceController
   ) {
     this.app = express();
     this.port = ENV.PORT || 3000;
@@ -65,6 +68,7 @@ export class App {
       this.reservationController,
       this.foodItemsController,
       this.drinkItemsController,
+      this.workspaceController,
     ];
   }
 
