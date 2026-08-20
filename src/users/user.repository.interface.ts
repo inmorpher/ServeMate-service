@@ -4,8 +4,18 @@ import {
   UserFilters,
   UserListItem,
   UserRole,
+  UserSortColumn,
 } from './dto';
-import { UserPagination, UserSort } from './users.repository';
+
+export type UserPagination = {
+  page: number;
+  pageSize: number;
+};
+
+export type UserSort = {
+  sortBy: UserSortColumn;
+  sortOrder: 'asc' | 'desc';
+};
 
 export interface IUsersRepository {
   findMany(
