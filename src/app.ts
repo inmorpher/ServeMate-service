@@ -1,3 +1,4 @@
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express, json, Router, urlencoded } from 'express';
@@ -73,6 +74,7 @@ export class App {
   }
 
   private useMiddlewares(): void {
+    this.app.use(compression());
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));
     this.app.use((req, res, next) => {
