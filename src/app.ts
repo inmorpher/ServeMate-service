@@ -21,8 +21,8 @@ import { TablesController } from './tables/tables.controller';
 import { AuthenticationController } from './auth/auth.controller';
 
 import { AuthMiddleware } from './auth/auth.middleware';
+import { ILogger } from './logger/logger.service.interface';
 import { openApiRouter } from './openapi/swagger';
-import { ILogger } from './services/logger/logger.service.interface';
 import { TYPES } from './types';
 import { IUsersController } from './users/users.controller.interface';
 import { WebSocketService } from './websocket/old/websocket.service';
@@ -135,7 +135,7 @@ export class App {
       const methods = Object.getOwnPropertyNames(
         Object.getPrototypeOf(controller)
       );
-      console.log('this is a test feature');
+
       if (!prefix) {
         this.logger.warn(`No prefix found for ${controller.constructor.name}`);
         return;

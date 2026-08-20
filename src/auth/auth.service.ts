@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { v4 as uidv4 } from 'uuid';
 import { BaseService } from '../common/base.service';
-import { ILogger } from '../services/logger/logger.service.interface';
+import { ILogger } from '../logger/logger.service.interface';
 import { TYPES } from '../types';
 import { AuthenticatedUser, UserLoginDto } from '../users/dto';
 import { IUsersService } from '../users/users.service.interface';

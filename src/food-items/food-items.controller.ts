@@ -10,8 +10,8 @@ import {
   Patch,
   Post,
 } from '../decorators/httpDecorators';
+import { ILogger } from '../logger/logger.service.interface';
 import { Validate } from '../middleware/validate/validate.middleware';
-import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
 import {
   CreateFoodItemDTO,
