@@ -13,11 +13,11 @@ import { drinkItemsContainerModule } from './src/drink-items/drink-items.contain
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { foodItemsContainerModule } from './src/food-items/food-items.container';
+import { LoggerService } from './src/logger/logger.service';
+import { ILogger } from './src/logger/logger.service.interface';
 import { ordersContainerModule } from './src/orders/orders.container';
 import { paymentsContainerModule } from './src/payments/payments.container';
 import { reservationsContainerModule } from './src/reservations/reservations.container';
-import { LoggerService } from './src/services/logger/logger.service';
-import { ILogger } from './src/services/logger/logger.service.interface';
 import { tablesContainerModule } from './src/tables/tables.container';
 import { TYPES } from './src/types';
 import { userContainerModule } from './src/users/users.container';
