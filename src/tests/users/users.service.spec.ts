@@ -6,10 +6,10 @@ import {
   UserQueryDto,
   UserSortColumn,
 } from '../../users/dto';
-import { UsersRepository } from '../../users/users.repository';
+import { IUsersRepository } from '../../users/user.repository.interface';
 import { UserService } from '../../users/users.service';
 
-const repositoryMock = (): jest.Mocked<UsersRepository> =>
+const repositoryMock = (): jest.Mocked<IUsersRepository> =>
   ({
     findMany: jest.fn(),
     findById: jest.fn(),
@@ -20,7 +20,7 @@ const repositoryMock = (): jest.Mocked<UsersRepository> =>
     delete: jest.fn(),
     countActiveOrdersByServer: jest.fn(),
     verifyCredentials: jest.fn(),
-  }) as jest.Mocked<UsersRepository>;
+  }) as jest.Mocked<IUsersRepository>;
 
 const user = (overrides: Partial<UserListItem> = {}): UserListItem => ({
   id: 7,
@@ -35,7 +35,7 @@ const user = (overrides: Partial<UserListItem> = {}): UserListItem => ({
 });
 
 describe('UserService', () => {
-  let repository: jest.Mocked<UsersRepository>;
+  let repository: jest.Mocked<IUsersRepository>;
   let service: UserService;
 
   beforeEach(() => {
