@@ -1,0 +1,29 @@
+model Payment {
+  id              Int             @id @default(autoincrement())
+  amount          Float
+  tax             Float           @default(0)
+  tip             Float           @default(0)
+  serviceCharge   Float           @default(0)
+  totalAmount     Float           @default(0)
+  paymentType     PaymentMethod   @default(CASH)
+  status          PaymentState    @default(PENDING)
+  createdAt       DateTime        @default(now())
+  completedAt     DateTime?
+  orderId         Int
+  order           Order           @relation(fields: [orderId], references: [id])
+  refunds         RefundPayment[]
+  orderDrinkItems OrderDrinkItem[]
+  orderFoodItems  OrderFoodItem[]
+}
+
+model RefundPayment {
+  id             Int             @id @default(autoincrement())
+  amount         Float
+  reason         String
+  status         RefundState      @default(COMPLETED)
+  createdAt      DateTime         @default(now())
+  paymentId      Int
+  payment        Payment          @relation(fields: [paymentId], references: [id])
+  orderDrinkItems OrderDrinkItem[]
+  orderFoodItems  OrderFoodItem[]
+}

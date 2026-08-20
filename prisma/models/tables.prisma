@@ -1,0 +1,25 @@
+model Table {
+  id                 Int              @id @default(autoincrement())
+  tableNumber        Int              @unique
+  capacity           Int
+  status             TableCondition   @default(AVAILABLE)
+  additionalCapacity Int              @default(0)
+  isOccupied         Boolean          @default(false)
+  originalCapacity   Int
+  guests             Int              @default(0)
+  orders             Order[]
+  assignment         TableAssignment[]
+  reservationTables  ReservationTable[]
+}
+
+model TableAssignment {
+  id         Int      @id @default(autoincrement())
+  tableId    Int
+  serverId   Int
+  isPrimary  Boolean  @default(false)
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+  server     User     @relation(fields: [serverId], references: [id])
+  table      Table    @relation(fields: [tableId], references: [id])
+  @@unique([tableId, serverId])
+}
