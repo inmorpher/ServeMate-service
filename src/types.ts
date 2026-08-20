@@ -50,6 +50,7 @@ export const TYPES = {
   WorkspaceService: Symbol.for('WorkspaceService'),
   WorkspaceController: Symbol.for('WorkspaceController'),
   WorkspaceRepository: Symbol.for('WorkspaceRepository'),
+  WorkspaceTabLoader: Symbol.for('WorkspaceTabLoader'),
 
   // Base
   BaseService: Symbol.for('BaseService'),

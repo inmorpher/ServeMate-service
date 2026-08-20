@@ -1,6 +1,7 @@
 import { ContainerModule, ContainerModuleLoadOptions } from 'inversify';
 
 import { TYPES } from '../types';
+import { WorkspaceTabLoader } from './workspace-tab-loader';
 import { WorkspaceController } from './workspace.controller';
 import { WorkspaceRepository } from './workspace.repository';
 import { IWorkspaceRepository } from './workspace.repository.interface';
@@ -19,6 +20,10 @@ export const workspaceContainerModule = new ContainerModule(
 
     bind<WorkspaceController>(TYPES.WorkspaceController)
       .to(WorkspaceController)
+      .inSingletonScope();
+
+    bind<WorkspaceTabLoader>(TYPES.WorkspaceTabLoader)
+      .to(WorkspaceTabLoader)
       .inSingletonScope();
   }
 );
