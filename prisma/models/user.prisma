@@ -12,6 +12,7 @@ model User {
   TableAssignment TableAssignment[]
   userActions    orderServerAction[]
   sessions       Session[]
+  workspace      UserWorkspace?
 }
 
 model Session {
