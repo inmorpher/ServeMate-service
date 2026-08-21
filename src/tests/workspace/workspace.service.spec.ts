@@ -15,7 +15,7 @@ const repositoryMock = (): jest.Mocked<IWorkspaceRepository> =>
   }) as jest.Mocked<IWorkspaceRepository>;
 
 const tabLoaderMock = (): jest.Mocked<WorkspaceTabLoader> =>
-  ({ load: jest.fn() }) as jest.Mocked<WorkspaceTabLoader>;
+  ({ load: jest.fn() }) as unknown as jest.Mocked<WorkspaceTabLoader>;
 
 const tab = (overrides: Partial<WorkspaceTab> = {}): WorkspaceTab => ({
   id: 'users-tab',
