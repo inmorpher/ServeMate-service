@@ -23,9 +23,9 @@ export class AuthMiddleware implements IMiddleware {
       return next(new HTTPError(401, 'Header', 'Authorization header missing'));
     }
 
-    const [scheme, token] = header.split(' ');
+    const [scheme, token, extra] = header.split(' ');
 
-    if (scheme !== 'Bearer' || !token) {
+    if (scheme !== 'Bearer' || !token || extra) {
       return next(
         new HTTPError(401, 'Header', 'Invalid Authorization header format')
       );

@@ -1,6 +1,7 @@
 import { UserRole } from '@prisma/client';
 import { IMiddleware } from '../common/middleware.interface';
 import { RoleMiddleware } from '../middleware/role/role.middleware';
+import { METADATA_KEYS, RouteDefinition } from './httpDecorators';
 
 /**
  * A decorator that specifies which user roles are allowed to access a route.
@@ -35,6 +36,14 @@ export const Roles = (roles: UserRole[]): MethodDecorator => {
 
     // Update the middlewares metadata
     Reflect.defineMetadata('middlewares', middlewares, target, propertyKey);
+
+    const routes: RouteDefinition[] =
+      Reflect.getMetadata(METADATA_KEYS.ROUTES, target.constructor) || [];
+    const route = routes.find(item => item.handlerName === propertyKey);
+
+    if (route) {
+      route.middlewares = middlewares;
+    }
 
     return descriptor;
   };
