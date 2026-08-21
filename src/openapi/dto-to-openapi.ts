@@ -152,6 +152,11 @@ export function zodToOpenApiSchema(
     case 'ZodTransform':
     case 'transform':
       return { type: 'string' };
+    case 'ZodAny':
+    case 'ZodUnknown':
+    case 'any':
+    case 'unknown':
+      return {};
     case 'ZodIntersection':
     case 'intersection':
       return {

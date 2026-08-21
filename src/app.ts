@@ -1,3 +1,4 @@
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express, json, Router, urlencoded } from 'express';
@@ -21,11 +22,12 @@ import { TablesController } from './tables/tables.controller';
 import { AuthenticationController } from './auth/auth.controller';
 
 import { AuthMiddleware } from './auth/auth.middleware';
+import { ILogger } from './logger/logger.service.interface';
 import { openApiRouter } from './openapi/swagger';
-import { ILogger } from './services/logger/logger.service.interface';
 import { TYPES } from './types';
 import { IUsersController } from './users/users.controller.interface';
 import { WebSocketService } from './websocket/old/websocket.service';
+import { WorkspaceController } from './workspace/workspace.controller';
 
 @injectable()
 export class App {
@@ -52,7 +54,9 @@ export class App {
     @inject(TYPES.FoodItemsController)
     private foodItemsController: FoodItemsController,
     @inject(TYPES.DrinkItemsController)
-    private drinkItemsController: DrinkItemsController
+    private drinkItemsController: DrinkItemsController,
+    @inject(TYPES.WorkspaceController)
+    private workspaceController: WorkspaceController
   ) {
     this.app = express();
     this.port = ENV.PORT || 3000;
@@ -65,10 +69,12 @@ export class App {
       this.reservationController,
       this.foodItemsController,
       this.drinkItemsController,
+      this.workspaceController,
     ];
   }
 
   private useMiddlewares(): void {
+    this.app.use(compression());
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));
     this.app.use((req, res, next) => {
@@ -135,7 +141,7 @@ export class App {
       const methods = Object.getOwnPropertyNames(
         Object.getPrototypeOf(controller)
       );
-      console.log('this is a test feature');
+
       if (!prefix) {
         this.logger.warn(`No prefix found for ${controller.constructor.name}`);
         return;

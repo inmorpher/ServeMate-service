@@ -18,7 +18,7 @@ import {
   UserQueryDto,
   UserSortColumn,
 } from './dto';
-import { UsersRepository } from './users.repository';
+import { IUsersRepository } from './user.repository.interface';
 import { IUsersService } from './users.service.interface';
 
 @injectable()
@@ -28,7 +28,7 @@ export class UserService extends BaseService implements IUsersService {
 
   constructor(
     @inject(TYPES.PrismaClient) prisma: PrismaClient,
-    @inject(TYPES.UsersRepository) private userRepository: UsersRepository
+    @inject(TYPES.UsersRepository) private userRepository: IUsersRepository
   ) {
     super();
     this.prisma = prisma;

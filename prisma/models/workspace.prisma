@@ -1,0 +1,10 @@
+model UserWorkspace {
+  userId      Int      @id
+  tabs        Json     @default("[]")
+  activeTabId String?
+  settings    Json     @default("{}")
+  version     Int      @default(1)
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

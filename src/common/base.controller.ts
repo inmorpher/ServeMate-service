@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import NodeCache from 'node-cache';
 import 'reflect-metadata';
 import { RouteDefinition } from '../decorators/httpDecorators';
-import { ILogger } from '../services/logger/logger.service.interface';
+import { ILogger } from '../logger/logger.service.interface';
 import { TYPES } from '../types';
 import { TypedRequest } from './route.interface';
 

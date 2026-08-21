@@ -1,0 +1,123 @@
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  HOST
+  MANAGER
+}
+
+enum OrderState {
+  AWAITING
+  RECEIVED
+  SERVED
+  CANCELED
+  DISPUTED
+  READY_TO_PAY
+  COMPLETED
+}
+
+enum SpiceLevel {
+  NOT_SPICY
+  MILD
+  MEDIUM
+  HOT
+  EXTRA_HOT
+}
+
+enum PaymentState {
+  NONE
+  PAID
+  REFUNDED
+  CANCELLED
+  PENDING
+}
+
+enum DrinkTemp {
+  COLD
+  ROOM
+  HOT
+}
+
+enum TableCondition {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  ORDERING
+  SERVING
+  PAYMENT
+}
+
+enum OrderAction {
+  CREATE
+  UPDATE
+  ADD_ITEM
+  REMOVE_ITEM
+  CHANGE_STATUS
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+}
+
+enum RefundState {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum Allergy {
+  GLUTEN
+  DAIRY
+  EGG
+  PEANUT
+  TREENUT
+  FISH
+  SHELLFISH
+  SOY
+  SESAME
+  CELERY
+  MUSTARD
+  LUPIN
+  SULPHITES
+  MOLLUSCS
+}
+
+enum FoodType {
+  APPETIZER
+  MAIN_COURSE
+  DESSERT
+  SIDES
+  SAUCE
+  OTHER
+}
+
+enum FoodCategory {
+  SALAD
+  MEAT
+  SOUP
+  FISH
+  VEGGIES
+  OTHER
+  SEAFOOD
+}
+
+enum DrinkCategory {
+  BEER
+  WINE
+  SPIRITS
+  COFFEE
+  TEA
+  OTHER
+  SODA
+  ALCOHOLIC
+  NON_ALCOHOLIC
+}

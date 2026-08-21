@@ -12,8 +12,8 @@ import {
   Put,
 } from '../decorators/httpDecorators';
 import { Roles } from '../decorators/Roles';
+import { ILogger } from '../logger/logger.service.interface';
 import { Validate } from '../middleware/validate/validate.middleware';
-import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
 import {
   TableAssignmentDto,

@@ -90,7 +90,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/drink-items/:id": {
+    "/api/drink-items/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -127,7 +127,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/food-items/:id": {
+    "/api/food-items/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -181,7 +181,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/orders/:id": {
+    "/api/orders/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -200,7 +200,7 @@ export interface paths {
         patch: operations["OrdersController_updateOrder"];
         trace?: never;
     };
-    "/api/orders/:id/items": {
+    "/api/orders/{id}/items": {
         parameters: {
             query?: never;
             header?: never;
@@ -217,7 +217,7 @@ export interface paths {
         patch: operations["OrdersController_updateOrderItems"];
         trace?: never;
     };
-    "/api/orders/:id/print": {
+    "/api/orders/{id}/print": {
         parameters: {
             query?: never;
             header?: never;
@@ -234,7 +234,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/orders/:id/call": {
+    "/api/orders/{id}/call": {
         parameters: {
             query?: never;
             header?: never;
@@ -268,7 +268,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/:id": {
+    "/api/payments/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -285,7 +285,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/order/:id": {
+    "/api/payments/order/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -302,7 +302,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/complete/:id": {
+    "/api/payments/complete/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -319,7 +319,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/refund/:id": {
+    "/api/payments/refund/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -336,7 +336,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/cancel/:id": {
+    "/api/payments/cancel/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -371,7 +371,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reservations/:id": {
+    "/api/reservations/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -390,7 +390,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reservations/:id/status": {
+    "/api/reservations/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -407,7 +407,7 @@ export interface paths {
         patch: operations["ReservationsController_updateStatus"];
         trace?: never;
     };
-    "/api/reservations/:id/time": {
+    "/api/reservations/{id}/time": {
         parameters: {
             query?: never;
             header?: never;
@@ -424,7 +424,7 @@ export interface paths {
         patch: operations["ReservationsController_updateTime"];
         trace?: never;
     };
-    "/api/reservations/:id/tables": {
+    "/api/reservations/{id}/tables": {
         parameters: {
             query?: never;
             header?: never;
@@ -441,7 +441,7 @@ export interface paths {
         patch: operations["ReservationsController_updateTables"];
         trace?: never;
     };
-    "/api/reservations/:id/guest-info": {
+    "/api/reservations/{id}/guest-info": {
         parameters: {
             query?: never;
             header?: never;
@@ -458,7 +458,7 @@ export interface paths {
         patch: operations["ReservationsController_updateGuestInfo"];
         trace?: never;
     };
-    "/api/reservations/:id/comment": {
+    "/api/reservations/{id}/comment": {
         parameters: {
             query?: never;
             header?: never;
@@ -510,7 +510,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tables/:id": {
+    "/api/tables/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -547,7 +547,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/:id": {
+    "/api/users/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -566,17 +566,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workspace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** get */
+        get: operations["WorkspaceController_get"];
+        /** update */
+        put: operations["WorkspaceController_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspace/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getBootstrap */
+        get: operations["WorkspaceController_getBootstrap"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        UserSchema: {
+        UserResponseSchema: {
             id: number;
             name: string;
             email: string;
             role: string;
             isActive?: boolean;
-            password: string;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -652,10 +686,6 @@ export interface components {
             isCarbonated?: boolean;
             tempriture: string;
             popularityScore?: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
             image?: string;
         };
         createFoodItemSchema: {
@@ -968,7 +998,9 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
-            cookie?: never;
+            cookie: {
+                refreshToken: string;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1002,17 +1034,15 @@ export interface operations {
     DrinkItemsController_findAll: {
         parameters: {
             query?: {
-                value?: {
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                    name?: string;
-                    category?: string;
-                    isAvailable?: boolean;
-                    volume?: number;
-                    ingredients?: string[];
-                };
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
+                name?: string;
+                category?: string;
+                isAvailable?: boolean;
+                volume?: number;
+                ingredients?: string[];
             };
             header?: never;
             path?: never;
@@ -1050,10 +1080,6 @@ export interface operations {
                     isCarbonated?: boolean;
                     tempriture: string;
                     popularityScore?: number;
-                    /** Format: date-time */
-                    createdAt: string;
-                    /** Format: date-time */
-                    updatedAt: string;
                     image?: string;
                 };
             };
@@ -1073,9 +1099,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1095,9 +1119,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1116,7 +1138,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1154,21 +1178,19 @@ export interface operations {
     FoodItemsController_findAll: {
         parameters: {
             query?: {
-                value?: {
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                    name?: string;
-                    category?: string;
-                    type?: string;
-                    isAvailable?: boolean;
-                    price?: number;
-                    isVegan?: boolean;
-                    isGlutenFree?: boolean;
-                    isVegetarian?: boolean;
-                    ingredients?: string[];
-                };
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
+                name?: string;
+                category?: string;
+                type?: string;
+                isAvailable?: boolean;
+                price?: number;
+                isVegan?: boolean;
+                isGlutenFree?: boolean;
+                isVegetarian?: boolean;
+                ingredients?: string[];
             };
             header?: never;
             path?: never;
@@ -1229,9 +1251,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1251,9 +1271,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1272,7 +1290,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1309,27 +1329,23 @@ export interface operations {
     };
     OrdersController_findOrders: {
         parameters: {
-            query?: {
-                value?: {
-                    id?: number;
-                    tableNumber?: number;
-                    tableNumbers: number[];
-                    guestsCount?: number;
-                    allergies: string[];
-                    serverId?: number;
-                    serverName?: string;
-                    status: string;
-                    minAmount?: number;
-                    maxAmount?: number;
-                    /** Format: date-time */
-                    dateFrom?: string;
-                    /** Format: date-time */
-                    dateTo?: string;
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                };
+            query: {
+                id?: number;
+                tableNumber?: number;
+                tableNumbers: number[];
+                guestsCount?: number;
+                allergies: string[];
+                serverId?: number;
+                serverName?: string;
+                status: string;
+                minAmount?: number;
+                maxAmount?: number;
+                dateFrom?: string;
+                dateTo?: string;
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
             };
             header?: never;
             path?: never;
@@ -1400,27 +1416,23 @@ export interface operations {
     };
     OrdersController_getOrderMeta: {
         parameters: {
-            query?: {
-                value?: {
-                    id?: number;
-                    tableNumber?: number;
-                    tableNumbers: number[];
-                    guestsCount?: number;
-                    allergies: string[];
-                    serverId?: number;
-                    serverName?: string;
-                    status: string;
-                    minAmount?: number;
-                    maxAmount?: number;
-                    /** Format: date-time */
-                    dateFrom?: string;
-                    /** Format: date-time */
-                    dateTo?: string;
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                };
+            query: {
+                id?: number;
+                tableNumber?: number;
+                tableNumbers: number[];
+                guestsCount?: number;
+                allergies: string[];
+                serverId?: number;
+                serverName?: string;
+                status: string;
+                minAmount?: number;
+                maxAmount?: number;
+                dateFrom?: string;
+                dateTo?: string;
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
             };
             header?: never;
             path?: never;
@@ -1442,9 +1454,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1464,9 +1474,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1485,7 +1493,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1514,7 +1524,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1559,7 +1571,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1581,7 +1595,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1602,14 +1618,12 @@ export interface operations {
     PaymentsController_findAll: {
         parameters: {
             query?: {
-                value?: {
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                    status?: string;
-                    orderId?: number;
-                };
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
+                status?: string;
+                orderId?: number;
             };
             header?: never;
             path?: never;
@@ -1631,9 +1645,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1653,13 +1665,18 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    foodItems?: number[];
+                    drinkItems?: number[];
+                };
+            };
+        };
         responses: {
             /** @description Successful response */
             200: {
@@ -1675,9 +1692,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1697,13 +1712,18 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    amount: number;
+                    reason: string;
+                };
+            };
+        };
         responses: {
             /** @description Successful response */
             200: {
@@ -1719,9 +1739,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1738,25 +1756,21 @@ export interface operations {
     };
     ReservationsController_findAll: {
         parameters: {
-            query?: {
-                value?: {
-                    name?: string;
-                    email?: string;
-                    phone?: string;
-                    status: string;
-                    guestsCount?: number;
-                    guestsCountMin?: number;
-                    guestsCountMax?: number;
-                    /** Format: date-time */
-                    timeStart?: string;
-                    /** Format: date-time */
-                    timeEnd?: string;
-                    tables: number[];
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                };
+            query: {
+                name?: string;
+                email?: string;
+                phone?: string;
+                status: string;
+                guestsCount?: number;
+                guestsCountMin?: number;
+                guestsCountMax?: number;
+                timeStart?: string;
+                timeEnd?: string;
+                tables: number[];
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
             };
             header?: never;
             path?: never;
@@ -1810,9 +1824,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1831,7 +1843,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1865,9 +1879,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -1886,7 +1898,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1910,7 +1924,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1935,7 +1951,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1959,7 +1977,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -1987,9 +2007,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -2006,19 +2024,17 @@ export interface operations {
     };
     TablesController_findAll: {
         parameters: {
-            query?: {
-                value?: {
-                    id?: number;
-                    tableNumber?: number;
-                    minCapacity?: number;
-                    maxCapacity?: number;
-                    status: string;
-                    isOccupied: boolean;
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                };
+            query: {
+                id?: number;
+                tableNumber?: number;
+                minCapacity?: number;
+                maxCapacity?: number;
+                status: string;
+                isOccupied: boolean;
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
             };
             header?: never;
             path?: never;
@@ -2093,9 +2109,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -2114,7 +2128,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -2144,9 +2160,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -2163,20 +2177,18 @@ export interface operations {
     };
     UserController_findAll: {
         parameters: {
-            query?: {
-                value?: {
-                    id?: number;
-                    email?: string;
-                    name?: string;
-                    page?: number;
-                    pageSize?: number;
-                    sortBy?: string;
-                    sortOrder?: string;
-                    role: string;
-                    isActive: boolean;
-                    createdAfter?: string;
-                    createdBefore?: string;
-                };
+            query: {
+                id?: number;
+                email?: string;
+                name?: string;
+                page?: number;
+                pageSize?: number;
+                sortBy?: string;
+                sortOrder?: string;
+                role: string;
+                isActive: boolean;
+                createdAfter?: string;
+                createdBefore?: string;
             };
             header?: never;
             path?: never;
@@ -2225,9 +2237,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
-                };
+                id: number;
             };
             cookie?: never;
         };
@@ -2246,7 +2256,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -2276,10 +2288,92 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                value: {
-                    id: number;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkspaceController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkspaceController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    tabs: {
+                        id: string;
+                        title: string;
+                        type: string;
+                        state?: {
+                            [key: string]: unknown;
+                        };
+                        pinned?: boolean;
+                        order: number;
+                    }[];
+                    activeTabId?: string;
+                    settings: {
+                        theme?: string;
+                        sidebar?: {
+                            width?: number;
+                            collapsed?: boolean;
+                        };
+                        notifications?: {
+                            enabled?: boolean;
+                            sound?: boolean;
+                        };
+                        density?: string;
+                        language?: string;
+                    };
+                    expectedVersion: number;
                 };
             };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkspaceController_getBootstrap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

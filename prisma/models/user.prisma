@@ -1,0 +1,30 @@
+model User {
+  id             Int                 @id @default(autoincrement())
+  name           String              @default("")
+  email          String              @unique
+  password       String
+  role           UserRole            @default(USER)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  isActive       Boolean             @default(true)
+  lastLogin      DateTime?
+  orders         Order[]
+  TableAssignment TableAssignment[]
+  userActions    orderServerAction[]
+  sessions       Session[]
+  workspace      UserWorkspace?
+}
+
+model Session {
+  id        String  @id @default(uuid())
+  userId    Int
+  refreshJti String  @unique
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}

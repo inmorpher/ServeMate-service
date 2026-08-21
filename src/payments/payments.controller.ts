@@ -6,8 +6,8 @@ import { BaseController } from '../common/base.controller';
 import { TypedRequest } from '../common/route.interface';
 import { Controller, Get, Post } from '../decorators/httpDecorators';
 import { Roles } from '../decorators/Roles';
+import { ILogger } from '../logger/logger.service.interface';
 import { Validate } from '../middleware/validate/validate.middleware';
-import { ILogger } from '../services/logger/logger.service.interface';
 import { TYPES } from '../types';
 import {
   PaymentCreateDto,

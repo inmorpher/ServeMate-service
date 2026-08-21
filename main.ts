@@ -13,15 +13,16 @@ import { drinkItemsContainerModule } from './src/drink-items/drink-items.contain
 import { ExceptionFilter } from './src/errors/exception.filter';
 import { IExceptionFilter } from './src/errors/exception.filter.interface';
 import { foodItemsContainerModule } from './src/food-items/food-items.container';
+import { LoggerService } from './src/logger/logger.service';
+import { ILogger } from './src/logger/logger.service.interface';
 import { ordersContainerModule } from './src/orders/orders.container';
 import { paymentsContainerModule } from './src/payments/payments.container';
 import { reservationsContainerModule } from './src/reservations/reservations.container';
-import { LoggerService } from './src/services/logger/logger.service';
-import { ILogger } from './src/services/logger/logger.service.interface';
 import { tablesContainerModule } from './src/tables/tables.container';
 import { TYPES } from './src/types';
 import { userContainerModule } from './src/users/users.container';
 import { WebSocketService } from './src/websocket/old/websocket.service';
+import { workspaceContainerModule } from './src/workspace/workspace.container';
 /**
  * Module that binds core services to their respective implementations in a singleton scope.
  *
@@ -89,35 +90,6 @@ export const baseModules = new ContainerModule(
 );
 
 /**
- * Container module for table-related services and controllers.
- *
- * This module binds the `ITableService` and `ITableController` interfaces
- * to their respective implementations (`TableService` and `TableController`)
- * in a singleton scope.
- *
- * @module tablesModule
- * @param bind - The bind function used to bind interfaces to implementations.
- */
-/**
- * Container module for the Orders feature.
- *
- * This module binds the `OrdersService` and `OrdersController` to their respective
- * types in the IoC container, ensuring they are instantiated as singletons.
- *
- * @module ordersModule
- * @param bind - The bind function used to bind types to implementations in the IoC container.
- */
-/**
- * Module that sets up the bindings for the FoodItems feature.
- *
- * This module binds the `FoodItemsController` and `FoodItemsService` to their respective
- * types in the InversifyJS container. Both bindings are set to singleton scope, meaning
- * that only one instance of each will be created and shared throughout the application.
- *
- * @module foodItemsModule
- * @param bind - The InversifyJS bind function used to bind types to implementations.
- */
-/**
  * An array of application modules to be bound to the application.
  *
  * This array includes the following modules:
@@ -140,6 +112,7 @@ export const appBindings = [
   reservationsContainerModule,
   foodItemsContainerModule,
   drinkItemsContainerModule,
+  workspaceContainerModule,
   appModule,
   baseModules,
 ];

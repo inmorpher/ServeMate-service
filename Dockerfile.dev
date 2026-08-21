@@ -22,17 +22,20 @@
 
 # # Запускаем dev сервер с nodemon (будет смотреть за изменениями)
 # CMD ["npm", "run", "dev"]
-FROM node:24-alpine
+FROM node:24.19.0-trixie-slim
 
 # Устанавливаем pnpm
-RUN npm install -g pnpm@9
+RUN apt-get update \
+	&& apt-get upgrade -y \
+	&& apt-get install -y --no-install-recommends ca-certificates \
+	&& npm install -g pnpm@9 \
+	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Копируем package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig.json ./
-COPY src/dto-package ./src/dto-package
 COPY prisma ./prisma
 
 # Устанавливаем ALL зависимости (включая devDependencies для разработки)

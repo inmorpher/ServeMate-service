@@ -59,7 +59,12 @@
           "200": {
             "description": "Successful response"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/auth/refresh-token": {
@@ -73,7 +78,17 @@
           "200": {
             "description": "Successful response"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "cookie",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/api/auth/me": {
@@ -87,7 +102,12 @@
           "200": {
             "description": "Successful response"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/drink-items": {
@@ -102,6 +122,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -145,14 +170,6 @@
                   "popularityScore": {
                     "type": "number"
                   },
-                  "createdAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "updatedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "image": {
                     "type": "string"
                   }
@@ -163,9 +180,7 @@
                   "description",
                   "volume",
                   "category",
-                  "tempriture",
-                  "createdAt",
-                  "updatedAt"
+                  "tempriture"
                 ]
               }
             }
@@ -183,51 +198,91 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "page",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "isAvailable": {
-                  "type": "boolean"
-                },
-                "volume": {
-                  "type": "number"
-                },
-                "ingredients": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAvailable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "volume",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "ingredients",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           }
         ]
       }
     },
-    "/api/drink-items/:id": {
+    "/api/drink-items/{id}": {
       "get": {
         "summary": "findOne",
         "operationId": "DrinkItemsController_findOne",
@@ -239,21 +294,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -269,6 +321,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -340,21 +407,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -372,6 +436,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -457,63 +526,123 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "page",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "isAvailable": {
-                  "type": "boolean"
-                },
-                "price": {
-                  "type": "number"
-                },
-                "isVegan": {
-                  "type": "boolean"
-                },
-                "isGlutenFree": {
-                  "type": "boolean"
-                },
-                "isVegetarian": {
-                  "type": "boolean"
-                },
-                "ingredients": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAvailable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "isVegan",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isGlutenFree",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isVegetarian",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ingredients",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           }
         ]
       }
     },
-    "/api/food-items/:id": {
+    "/api/food-items/{id}": {
       "get": {
         "summary": "findOne",
         "operationId": "FoodItemsController_findOne",
@@ -525,21 +654,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -555,6 +681,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -633,21 +774,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -665,76 +803,146 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "tableNumber": {
-                  "type": "number"
-                },
-                "tableNumbers": {
-                  "type": "array",
-                  "items": {
-                    "type": "number"
-                  }
-                },
-                "guestsCount": {
-                  "type": "number"
-                },
-                "allergies": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "serverId": {
-                  "type": "number"
-                },
-                "serverName": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "minAmount": {
-                  "type": "number"
-                },
-                "maxAmount": {
-                  "type": "number"
-                },
-                "dateFrom": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "dateTo": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "tableNumbers",
-                "allergies",
-                "status"
-              ]
+              "type": "number"
+            }
+          },
+          {
+            "name": "tableNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "tableNumbers",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          {
+            "name": "guestsCount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "allergies",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "serverId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "serverName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAmount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAmount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ]
@@ -750,6 +958,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -903,80 +1116,145 @@
         },
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "tableNumber": {
-                  "type": "number"
-                },
-                "tableNumbers": {
-                  "type": "array",
-                  "items": {
-                    "type": "number"
-                  }
-                },
-                "guestsCount": {
-                  "type": "number"
-                },
-                "allergies": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "serverId": {
-                  "type": "number"
-                },
-                "serverName": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "minAmount": {
-                  "type": "number"
-                },
-                "maxAmount": {
-                  "type": "number"
-                },
-                "dateFrom": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "dateTo": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "tableNumbers",
-                "allergies",
-                "status"
-              ]
+              "type": "number"
+            }
+          },
+          {
+            "name": "tableNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "tableNumbers",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          {
+            "name": "guestsCount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "allergies",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "serverId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "serverName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAmount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxAmount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ]
       }
     },
-    "/api/orders/:id": {
+    "/api/orders/{id}": {
       "get": {
         "summary": "findOrderById",
         "operationId": "OrdersController_findOrderById",
@@ -988,21 +1266,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -1018,6 +1293,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1060,27 +1350,24 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/orders/:id/items": {
+    "/api/orders/{id}/items": {
       "patch": {
         "summary": "updateOrderItems",
         "operationId": "OrdersController_updateOrderItems",
@@ -1092,6 +1379,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1202,7 +1504,7 @@
         }
       }
     },
-    "/api/orders/:id/print": {
+    "/api/orders/{id}/print": {
       "post": {
         "summary": "printOrderItems",
         "operationId": "OrdersController_printOrderItems",
@@ -1214,6 +1516,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1226,7 +1543,7 @@
         }
       }
     },
-    "/api/orders/:id/call": {
+    "/api/orders/{id}/call": {
       "post": {
         "summary": "callOrderItems",
         "operationId": "OrdersController_callOrderItems",
@@ -1238,6 +1555,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1262,39 +1594,64 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "page",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "orderId": {
-                  "type": "number"
-                }
-              }
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/payments/:id": {
+    "/api/payments/{id}": {
       "get": {
         "summary": "findOne",
         "operationId": "PaymentsController_findOne",
@@ -1306,27 +1663,24 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/payments/order/:id": {
+    "/api/payments/order/{id}": {
       "post": {
         "summary": "create",
         "operationId": "PaymentsController_create",
@@ -1338,27 +1692,48 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "foodItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "drinkItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/payments/complete/:id": {
+    "/api/payments/complete/{id}": {
       "post": {
         "summary": "complete",
         "operationId": "PaymentsController_complete",
@@ -1370,27 +1745,24 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/payments/refund/:id": {
+    "/api/payments/refund/{id}": {
       "post": {
         "summary": "refund",
         "operationId": "PaymentsController_refund",
@@ -1402,27 +1774,46 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/payments/cancel/:id": {
+    "/api/payments/cancel/{id}": {
       "post": {
         "summary": "cancel",
         "operationId": "PaymentsController_cancel",
@@ -1434,21 +1825,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -1466,6 +1854,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1525,72 +1918,133 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "name",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                },
-                "phone": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "guestsCount": {
-                  "type": "number"
-                },
-                "guestsCountMin": {
-                  "type": "number"
-                },
-                "guestsCountMax": {
-                  "type": "number"
-                },
-                "timeStart": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "timeEnd": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "tables": {
-                  "type": "array",
-                  "items": {
-                    "type": "number"
-                  }
-                },
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "status",
-                "tables"
-              ]
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestsCount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "guestsCountMin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "guestsCountMax",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "timeStart",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "timeEnd",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "tables",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ]
       }
     },
-    "/api/reservations/:id": {
+    "/api/reservations/{id}": {
       "get": {
         "summary": "findOne",
         "operationId": "ReservationsController_findOne",
@@ -1602,21 +2056,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -1632,6 +2083,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1690,27 +2156,24 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
       }
     },
-    "/api/reservations/:id/status": {
+    "/api/reservations/{id}/status": {
       "patch": {
         "summary": "updateStatus",
         "operationId": "ReservationsController_updateStatus",
@@ -1722,6 +2185,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1742,7 +2220,7 @@
         }
       }
     },
-    "/api/reservations/:id/time": {
+    "/api/reservations/{id}/time": {
       "patch": {
         "summary": "updateTime",
         "operationId": "ReservationsController_updateTime",
@@ -1754,6 +2232,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1775,7 +2268,7 @@
         }
       }
     },
-    "/api/reservations/:id/tables": {
+    "/api/reservations/{id}/tables": {
       "patch": {
         "summary": "updateTables",
         "operationId": "ReservationsController_updateTables",
@@ -1787,6 +2280,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1810,7 +2318,7 @@
         }
       }
     },
-    "/api/reservations/:id/guest-info": {
+    "/api/reservations/{id}/guest-info": {
       "patch": {
         "summary": "updateGuestInfo",
         "operationId": "ReservationsController_updateGuestInfo",
@@ -1822,6 +2330,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1848,7 +2371,7 @@
         }
       }
     },
-    "/api/reservations/:id/comment": {
+    "/api/reservations/{id}/comment": {
       "patch": {
         "summary": "updateComment",
         "operationId": "ReservationsController_updateComment",
@@ -1860,21 +2383,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -1892,49 +2412,90 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "tableNumber": {
-                  "type": "number"
-                },
-                "minCapacity": {
-                  "type": "number"
-                },
-                "maxCapacity": {
-                  "type": "number"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "isOccupied": {
-                  "type": "boolean"
-                },
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "status",
-                "isOccupied"
-              ]
+              "type": "number"
+            }
+          },
+          {
+            "name": "tableNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minCapacity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxCapacity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isOccupied",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ]
@@ -1950,6 +2511,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1992,6 +2558,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2022,7 +2593,7 @@
         }
       }
     },
-    "/api/tables/:id": {
+    "/api/tables/{id}": {
       "get": {
         "summary": "findOne",
         "operationId": "TablesController_findOne",
@@ -2034,21 +2605,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -2064,6 +2632,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2109,21 +2692,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -2141,52 +2721,98 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "email": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "page": {
-                  "type": "number"
-                },
-                "pageSize": {
-                  "type": "number"
-                },
-                "sortBy": {
-                  "type": "string"
-                },
-                "sortOrder": {
-                  "type": "string"
-                },
-                "role": {
-                  "type": "string"
-                },
-                "isActive": {
-                  "type": "boolean"
-                },
-                "createdAfter": {
-                  "type": "string"
-                },
-                "createdBefore": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "role",
-                "isActive"
-              ]
+              "type": "number"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "createdAfter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ]
@@ -2202,6 +2828,11 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2234,7 +2865,7 @@
         }
       }
     },
-    "/api/users/:id": {
+    "/api/users/{id}": {
       "get": {
         "summary": "findOne",
         "operationId": "UserController_findOne",
@@ -2246,21 +2877,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -2276,21 +2904,18 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "value",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id"
-              ]
+              "type": "number"
             }
           }
         ]
@@ -2306,6 +2931,21 @@
             "description": "Successful response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2335,11 +2975,158 @@
           }
         }
       }
+    },
+    "/api/workspace": {
+      "get": {
+        "summary": "get",
+        "operationId": "WorkspaceController_get",
+        "tags": [
+          "Workspace"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "update",
+        "operationId": "WorkspaceController_update",
+        "tags": [
+          "Workspace"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tabs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "object",
+                          "additionalProperties": {}
+                        },
+                        "pinned": {
+                          "type": "boolean"
+                        },
+                        "order": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "type",
+                        "order"
+                      ]
+                    }
+                  },
+                  "activeTabId": {
+                    "type": "string"
+                  },
+                  "settings": {
+                    "type": "object",
+                    "properties": {
+                      "theme": {
+                        "type": "string"
+                      },
+                      "sidebar": {
+                        "type": "object",
+                        "properties": {
+                          "width": {
+                            "type": "number"
+                          },
+                          "collapsed": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "notifications": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "sound": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "density": {
+                        "type": "string"
+                      },
+                      "language": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "expectedVersion": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "tabs",
+                  "settings",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspace/bootstrap": {
+      "get": {
+        "summary": "getBootstrap",
+        "operationId": "WorkspaceController_getBootstrap",
+        "tags": [
+          "Workspace"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
-      "UserSchema": {
+      "UserResponseSchema": {
         "type": "object",
         "properties": {
           "id": {
@@ -2356,9 +3143,6 @@
           },
           "isActive": {
             "type": "boolean"
-          },
-          "password": {
-            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -2377,8 +3161,7 @@
           "id",
           "name",
           "email",
-          "role",
-          "password"
+          "role"
         ]
       },
       "UserLoginSchema": {
@@ -2615,14 +3398,6 @@
           "popularityScore": {
             "type": "number"
           },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
           "image": {
             "type": "string"
           }
@@ -2633,9 +3408,7 @@
           "description",
           "volume",
           "category",
-          "tempriture",
-          "createdAt",
-          "updatedAt"
+          "tempriture"
         ]
       },
       "createFoodItemSchema": {

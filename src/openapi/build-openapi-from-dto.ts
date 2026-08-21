@@ -81,7 +81,45 @@ function joinRoutePath(prefix: string, routePath: string): string {
         ? routePath
         : `/${routePath}`
       : '';
-  return `${normalizedPrefix}${normalizedRoute}` || '/';
+  return (
+    `${normalizedPrefix}${normalizedRoute}`.replace(
+      /:([A-Za-z0-9_]+)/g,
+      '{$1}'
+    ) || '/'
+  );
+}
+
+function isProtectedPath(pathKey: string): boolean {
+  return !(
+    pathKey === '/api/auth/login' ||
+    pathKey === '/api/auth/refresh-token' ||
+    pathKey.includes('/meta')
+  );
+}
+
+function getValidationMetadata(
+  value: any,
+  handlerName: string
+): Array<{
+  schema: z.ZodTypeAny;
+  property: 'body' | 'params' | 'query';
+}> {
+  const validations = Reflect.getMetadata(
+    'validations',
+    value.prototype,
+    handlerName
+  );
+
+  if (validations?.length) {
+    return validations;
+  }
+
+  const validation = Reflect.getMetadata(
+    'validate',
+    value.prototype,
+    handlerName
+  );
+  return validation ? [validation] : [];
 }
 
 function buildParameters(
@@ -90,15 +128,24 @@ function buildParameters(
 ): ParameterObject[] {
   const openApiLocation = location === 'params' ? 'path' : 'query';
   const typeName = (schema._def as any).typeName as string;
+  const zodType = (schema._def as any).type as string;
 
-  if (typeName === 'ZodObject') {
+  if (typeName === 'ZodObject' || zodType === 'object') {
     const shape = (schema as z.ZodObject<any>).shape;
-    return Object.entries(shape).map(([name, fieldSchema]) => ({
-      name,
-      in: openApiLocation,
-      required: location === 'params',
-      schema: zodToOpenApiSchema(fieldSchema as z.ZodTypeAny),
-    }));
+    return Object.entries(shape).map(([name, fieldSchema]) => {
+      const field = fieldSchema as z.ZodTypeAny;
+      const fieldDef = (field as any)._def;
+      const optional = ['optional', 'default', 'nullable'].includes(
+        fieldDef?.type
+      );
+
+      return {
+        name,
+        in: openApiLocation,
+        required: location === 'params' || !optional,
+        schema: zodToOpenApiSchema(field),
+      };
+    });
   }
 
   return [
@@ -183,27 +230,42 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
           responses: buildResponses(value, route.handlerName),
         };
 
-        const validationMetadata = Reflect.getMetadata(
-          'validate',
-          value.prototype,
+        if (isProtectedPath(pathKey)) {
+          operation.security = [{ bearerAuth: [] }];
+        }
+
+        const validationMetadata = getValidationMetadata(
+          value,
           route.handlerName
         );
-        if (validationMetadata?.schema) {
-          if (validationMetadata.property === 'body') {
+        validationMetadata.forEach(validation => {
+          if (validation.property === 'body') {
             operation.requestBody = {
               required: true,
               content: {
                 'application/json': {
-                  schema: zodToOpenApiSchema(validationMetadata.schema),
+                  schema: zodToOpenApiSchema(validation.schema),
                 },
               },
             };
           } else {
-            operation.parameters = buildParameters(
-              validationMetadata.schema,
-              validationMetadata.property
-            );
+            operation.parameters = [
+              ...(operation.parameters || []),
+              ...buildParameters(validation.schema, validation.property),
+            ];
           }
+        });
+
+        if (pathKey === '/api/auth/refresh-token') {
+          operation.parameters = [
+            ...(operation.parameters || []),
+            {
+              name: 'refreshToken',
+              in: 'cookie',
+              required: true,
+              schema: { type: 'string' },
+            },
+          ];
         }
 
         if (!paths[pathKey]) {
@@ -219,7 +281,7 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
 }
 
 const NAMED_SCHEMAS = [
-  'UserSchema',
+  'UserResponseSchema',
   'UserLoginSchema',
   'CreateUserSchema',
   'UpdateUserSchema',

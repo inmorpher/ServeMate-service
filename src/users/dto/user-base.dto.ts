@@ -32,10 +32,16 @@ export const UserSchema = z.object({
 export type UserEntity = z.infer<typeof UserSchema>;
 
 /**
+ * Public user schema for API responses.
+ * Passwords must never cross the API boundary.
+ */
+export const UserResponseSchema = UserSchema.omit({ password: true });
+
+/**
  * Public user response type.
  * Excludes sensitive fields like password.
  */
-export type UserResponse = Omit<UserEntity, 'password'>;
+export type UserResponse = z.infer<typeof UserResponseSchema>;
 
 /**
  * Single item in a user list response.

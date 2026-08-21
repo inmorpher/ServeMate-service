@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import WebSocket from 'ws';
-import { ILogger } from '../../services/logger/logger.service.interface';
+import { ILogger } from '../../logger/logger.service.interface';
 import { TYPES } from '../../types';
 
 export interface OrderUpdateSubscriber {

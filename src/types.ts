@@ -46,6 +46,12 @@ export const TYPES = {
   DrinkItemsService: Symbol.for('DrinkItemsService'),
   DrinkItemsController: Symbol.for('DrinkItemsController'),
   DrinkItemsRepository: Symbol.for('DrinkItemsRepository'),
+  //Workspace
+  WorkspaceService: Symbol.for('WorkspaceService'),
+  WorkspaceController: Symbol.for('WorkspaceController'),
+  WorkspaceRepository: Symbol.for('WorkspaceRepository'),
+  WorkspaceTabLoader: Symbol.for('WorkspaceTabLoader'),
+
   // Base
   BaseService: Symbol.for('BaseService'),
   OrderItemsService: Symbol.for('OrderItemsService'),

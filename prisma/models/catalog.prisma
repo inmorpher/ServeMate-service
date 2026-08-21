@@ -1,0 +1,40 @@
+model FoodItem {
+  id              Int             @id @unique @default(autoincrement())
+  name            String
+  price           Float
+  type            FoodType        @default(OTHER)
+  category        FoodCategory    @default(OTHER)
+  ingredients     String[]        @default([])
+  description     String          @default("")
+  isAvailable     Boolean         @default(true)
+  preparationTime Int             @default(0)
+  calories        Int?
+  image           String?
+  spicyLevel      SpiceLevel      @default(NOT_SPICY)
+  popularityScore Float           @default(0)
+  isVegetarian    Boolean         @default(false)
+  isVegan         Boolean         @default(false)
+  isGlutenFree    Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  OrderFoodItem   OrderFoodItem[]
+}
+
+model DrinkItem {
+  id                Int             @id @default(autoincrement())
+  name              String
+  price             Float
+  category          DrinkCategory   @default(OTHER)
+  description       String          @default("")
+  ingredients       String[]        @default([])
+  isAvailable       Boolean         @default(true)
+  volume            Int
+  alcoholPercentage Float?
+  image             String?
+  isCarbonated      Boolean         @default(false)
+  tempriture        DrinkTemp       @default(ROOM)
+  popularityScore   Float           @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  OrderDrinkItem    OrderDrinkItem[]
+}
