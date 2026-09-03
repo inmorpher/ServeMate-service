@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { BaseService } from '../common/base.service';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import {
   TableAssignmentDto,
   TableCreateDto,
@@ -20,7 +22,9 @@ export class TablesService extends BaseService implements ITablesService {
   protected serviceName = 'TablesService';
 
   constructor(
-    @inject(TYPES.TablesRepository) private tablesRepository: ITablesRepository
+    @inject(TYPES.TablesRepository) private tablesRepository: ITablesRepository,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
   }
@@ -65,7 +69,15 @@ export class TablesService extends BaseService implements ITablesService {
           `Table with number ${data.tableNumber} already exists`
         );
       }
-      return await this.tablesRepository.create(data);
+      const table = await this.tablesRepository.create(data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'tables',
+        'created',
+        table.id,
+        table
+      );
+      return table;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -90,7 +102,15 @@ export class TablesService extends BaseService implements ITablesService {
         );
       }
 
-      return await this.tablesRepository.update(id, data);
+      const table = await this.tablesRepository.update(id, data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'tables',
+        'updated',
+        table.id,
+        table
+      );
+      return table;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -103,6 +123,7 @@ export class TablesService extends BaseService implements ITablesService {
         throw new HTTPError(404, this.serviceName, 'Table not found');
       }
       await this.tablesRepository.delete(id);
+      publishRealtimeEvent(this.realtimeGateway, 'tables', 'deleted', id);
     } catch (error) {
       throw this.handleError(error);
     }
@@ -111,6 +132,13 @@ export class TablesService extends BaseService implements ITablesService {
   async assignTables(data: TableAssignmentDto): Promise<void> {
     try {
       await this.tablesRepository.assignTables(data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'tables',
+        'assigned',
+        undefined,
+        data
+      );
     } catch (error) {
       throw this.handleError(error);
     }

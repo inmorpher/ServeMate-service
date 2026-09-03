@@ -2,6 +2,8 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseService } from '../common/base.service';
 import { TYPES } from '../types';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import {
   PaymentCreateDto,
   PaymentDTO,
@@ -17,7 +19,9 @@ export class PaymentsService extends BaseService implements IPaymentsService {
   protected serviceName = 'PaymentsService';
   constructor(
     @inject(TYPES.PaymentsRepository)
-    private paymentsRepository: IPaymentsRepository
+    private paymentsRepository: IPaymentsRepository,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
   }
@@ -40,28 +44,60 @@ export class PaymentsService extends BaseService implements IPaymentsService {
     data: PaymentCreateDto
   ): Promise<string> {
     try {
-      return await this.paymentsRepository.create(orderId, data);
+      const result = await this.paymentsRepository.create(orderId, data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'payments',
+        'created',
+        orderId,
+        result
+      );
+      return result;
     } catch (error) {
       throw this.handleError(error);
     }
   }
   async completePayment(id: number): Promise<string> {
     try {
-      return await this.paymentsRepository.complete(id);
+      const result = await this.paymentsRepository.complete(id);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'payments',
+        'completed',
+        id,
+        result
+      );
+      return result;
     } catch (error) {
       throw this.handleError(error);
     }
   }
   async refundPayment(id: number, refund: RefundDTO): Promise<string> {
     try {
-      return await this.paymentsRepository.refund(id, refund);
+      const result = await this.paymentsRepository.refund(id, refund);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'payments',
+        'refunded',
+        id,
+        result
+      );
+      return result;
     } catch (error) {
       throw this.handleError(error);
     }
   }
   async cancelPayment(id: number): Promise<string> {
     try {
-      return await this.paymentsRepository.cancel(id);
+      const result = await this.paymentsRepository.cancel(id);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'payments',
+        'cancelled',
+        id,
+        result
+      );
+      return result;
     } catch (error) {
       throw this.handleError(error);
     }

@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { BaseService } from '../common/base.service';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import { IDrinkItemsRepository } from './drink-items.repository.interface';
 import { IDrinkItemsService } from './drink-items.service.interface';
 import {
@@ -21,7 +23,9 @@ export class DrinkItemsService
   protected serviceName = 'DrinkItemsService';
   constructor(
     @inject(TYPES.DrinkItemsRepository)
-    private repository: IDrinkItemsRepository
+    private repository: IDrinkItemsRepository,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
   }
@@ -43,7 +47,15 @@ export class DrinkItemsService
   }
   async createDrinkItem(data: CreateDrinkItemDTO): Promise<DrinkItemDTO> {
     try {
-      return await this.repository.create(data);
+      const item = await this.repository.create(data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'drink-items',
+        'created',
+        item.id,
+        item
+      );
+      return item;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -55,7 +67,15 @@ export class DrinkItemsService
     try {
       if (!(await this.repository.findById(id)))
         throw new HTTPError(404, this.serviceName, 'Drink Item not found');
-      return await this.repository.update(id, data);
+      const item = await this.repository.update(id, data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'drink-items',
+        'updated',
+        item.id,
+        item
+      );
+      return item;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -65,6 +85,7 @@ export class DrinkItemsService
       if (!(await this.repository.findById(id)))
         throw new HTTPError(404, this.serviceName, 'Drink Item not found');
       await this.repository.delete(id);
+      publishRealtimeEvent(this.realtimeGateway, 'drink-items', 'deleted', id);
     } catch (error) {
       throw this.handleError(error);
     }

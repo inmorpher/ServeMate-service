@@ -26,7 +26,11 @@ import { ILogger } from './logger/logger.service.interface';
 import { openApiRouter } from './openapi/swagger';
 import { TYPES } from './types';
 import { IUsersController } from './users/users.controller.interface';
-import { WebSocketService } from './websocket/old/websocket.service';
+import { IWebSocketService } from './websocket/websocket.service.interface';
+import {
+  isRealtimeResource,
+  RealtimeResource,
+} from './websocket/websocket.types';
 import { WorkspaceController } from './workspace/workspace.controller';
 
 @injectable()
@@ -41,7 +45,7 @@ export class App {
     @inject(TYPES.ILogger) private logger: ILogger,
     @inject(TYPES.ExceptionFilter) private exceptionFilter: IExceptionFilter,
     @inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
-    @inject(TYPES.WebSocketService) private wsService: WebSocketService,
+    @inject(TYPES.WebSocketService) private wsService: IWebSocketService,
     @inject(TYPES.AuthenticationController)
     private authController: AuthenticationController,
     @inject(TYPES.UsersController) private usersController: IUsersController,
@@ -205,18 +209,34 @@ export class App {
       );
 
       const url = new URL(req.url || '', `http://${req.headers.host}`);
+      const resourceParam = url.searchParams.get('resource');
+      const entityId = url.searchParams.get('entityId');
       const orderId = url.searchParams.get('orderId');
       const userId = url.searchParams.get('userId');
 
-      if (!orderId || !userId) {
+      const subscriptionResource = resourceParam
+        ? isRealtimeResource(resourceParam)
+          ? resourceParam
+          : null
+        : orderId
+          ? ('orders' as RealtimeResource)
+          : null;
+      const subscriptionEntityId = entityId || orderId || undefined;
+
+      if (!subscriptionResource || !userId) {
         this.logger.warn(
-          'WebSocket connection rejected: Missing orderId or userId'
+          'WebSocket connection rejected: Missing resource and userId'
         );
-        ws.close(1008, 'Missing orderId or userId');
+        ws.close(1008, 'Missing resource and userId');
         return;
       }
 
-      this.wsService.subscribe(orderId, userId, ws);
+      this.wsService.subscribe(
+        subscriptionResource,
+        subscriptionEntityId,
+        userId,
+        ws
+      );
 
       ws.on('message', (message: string) => {
         try {
@@ -234,6 +254,7 @@ export class App {
       ws.on('error', error => {
         this.logger.error(`WebSocket error for user ${userId}:`, error);
       });
+      ws.on('close', () => this.wsService.unsubscribe(ws));
     });
 
     this.logger.log(`\x1b[36m✓\x1b[0m WebSocket Server initialized`);

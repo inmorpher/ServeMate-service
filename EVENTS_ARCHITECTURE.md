@@ -1,5 +1,27 @@
 # 📌 Event-Driven Architecture для ServeMate
 
+## Реализованный базовый контракт
+
+Внутренние доменные события публикуются через singleton `EventBus`, а не
+напрямую из сервисов в WebSocket. Сейчас реализованы:
+
+- `workspace.updated`;
+- `user.created`;
+- `user.updated`;
+- `user.deleted`.
+
+Событие публикуется только после успешной записи в базу и содержит минимальный
+payload: `eventId`, `type`, `occurredAt`, `scope` и `data`. Пароли, токены и
+полные сущности в события не попадают.
+
+EventBus изолирует ошибку одного обработчика и логирует её, поэтому сбой
+уведомления не должен отменять уже успешную бизнес-операцию.
+
+WebSocket пока не подключён к этим событиям намеренно: текущий handshake
+принимает `userId` из query-параметра и не является доверенным источником
+идентичности. Перед подключением событий к сокету нужно добавить проверку JWT
+и серверный `SubscriptionAuthorizer`.
+
 ## 🎯 Обзор
 
 Модульный монолит с Event Bus паттерном. События связывают разные сервисы без прямых зависимостей.
@@ -19,9 +41,10 @@ Service A создает событие
 ## 📋 ORDERS Events (8 событий)
 
 ### 1. `order:created`
+
 **Когда:** Создан новый заказ  
 **Источник:** OrdersService.createOrder()  
-**Слушатели:** TableService, WebSocketService, Analytics  
+**Слушатели:** TableService, WebSocketService, Analytics
 
 ```typescript
 interface OrderCreatedEvent {
@@ -39,6 +62,7 @@ interface OrderCreatedEvent {
 ```
 
 **Действия:**
+
 - TableService: пометить столик как occupied
 - WebSocketService: отправить уведомление всем клиентам
 - Analytics: залогировать событие
@@ -46,9 +70,10 @@ interface OrderCreatedEvent {
 ---
 
 ### 2. `order:status_changed`
+
 **Когда:** Статус заказа изменился  
 **Источник:** OrdersService.updateOrderProperties()  
-**Слушатели:** TableService, PaymentService, WebSocketService  
+**Слушатели:** TableService, PaymentService, WebSocketService
 
 ```typescript
 interface OrderStatusChangedEvent {
@@ -65,6 +90,7 @@ interface OrderStatusChangedEvent {
 ```
 
 **Действия по статусам:**
+
 - COMPLETED или DISPUTED → освободить столик (table:freed)
 - READY_TO_PAY → готов к оплате
 - SERVED → блюда подали
@@ -72,9 +98,10 @@ interface OrderStatusChangedEvent {
 ---
 
 ### 3. `order:deleted`
+
 **Когда:** Заказ удален  
 **Источник:** OrdersService.delete()  
-**Слушатели:** TableService, Cache, WebSocketService  
+**Слушатели:** TableService, Cache, WebSocketService
 
 ```typescript
 interface OrderDeletedEvent {
@@ -91,9 +118,10 @@ interface OrderDeletedEvent {
 ---
 
 ### 4. `order:items_added`
+
 **Когда:** Добавлены позиции в заказ  
 **Источник:** OrdersService.updateItemsInOrder()  
-**Слушатели:** Cache, WebSocketService  
+**Слушатели:** Cache, WebSocketService
 
 ```typescript
 interface OrderItemsAddedEvent {
@@ -112,9 +140,10 @@ interface OrderItemsAddedEvent {
 ---
 
 ### 5. `order:items_removed`
+
 **Когда:** Удалены позиции из заказа  
 **Источник:** OrdersService.updateItemsInOrder()  
-**Слушатели:** Cache, WebSocketService  
+**Слушатели:** Cache, WebSocketService
 
 ```typescript
 interface OrderItemsRemovedEvent {
@@ -132,9 +161,10 @@ interface OrderItemsRemovedEvent {
 ---
 
 ### 6. `order:items_printed`
+
 **Когда:** Позиции отправлены в кухню/бар  
 **Источник:** OrdersService.printOrderItems()  
-**Слушатели:** KitchenDisplay, WebSocketService  
+**Слушатели:** KitchenDisplay, WebSocketService
 
 ```typescript
 interface OrderItemsPrintedEvent {
@@ -151,9 +181,10 @@ interface OrderItemsPrintedEvent {
 ---
 
 ### 7. `order:items_fired`
+
 **Когда:** Блюда/напитки готовы  
 **Источник:** OrdersService.callOrderItems()  
-**Слушатели:** WaiterAlert, WebSocketService  
+**Слушатели:** WaiterAlert, WebSocketService
 
 ```typescript
 interface OrderItemsFiredEvent {
@@ -170,9 +201,10 @@ interface OrderItemsFiredEvent {
 ---
 
 ### 8. `order:total_changed`
+
 **Когда:** Изменилась итоговая сумма (скидка, чаевые)  
 **Источник:** OrdersService.updateOrderProperties()  
-**Слушатели:** PaymentService, Cache  
+**Слушатели:** PaymentService, Cache
 
 ```typescript
 interface OrderTotalChangedEvent {
@@ -194,9 +226,10 @@ interface OrderTotalChangedEvent {
 ## 🪑 TABLES Events (5 событий)
 
 ### 1. `table:occupied`
+
 **Когда:** Столик занят (создан заказ)  
 **Источник:** Triggered by order:created  
-**Слушатели:** UI, Cache, WebSocketService, Analytics  
+**Слушатели:** UI, Cache, WebSocketService, Analytics
 
 ```typescript
 interface TableOccupiedEvent {
@@ -214,9 +247,10 @@ interface TableOccupiedEvent {
 ---
 
 ### 2. `table:freed`
+
 **Когда:** Столик свободен (заказ завершен)  
 **Источник:** Triggered by order:status_changed  
-**Слушатели:** UI, Cache, WebSocketService, UserService (reassign)  
+**Слушатели:** UI, Cache, WebSocketService, UserService (reassign)
 
 ```typescript
 interface TableFreedEvent {
@@ -233,9 +267,10 @@ interface TableFreedEvent {
 ---
 
 ### 3. `table:assigned`
+
 **Когда:** Столик назначен официанту  
 **Источник:** TableService.assignTable() или via Reservation  
-**Слушатели:** UI, Cache, WebSocketService  
+**Слушатели:** UI, Cache, WebSocketService
 
 ```typescript
 interface TableAssignedEvent {
@@ -252,9 +287,10 @@ interface TableAssignedEvent {
 ---
 
 ### 4. `table:unassigned`
+
 **Когда:** Официант убран со столика  
 **Источник:** TableService.unassignTable()  
-**Слушатели:** UI, Cache, WebSocketService  
+**Слушатели:** UI, Cache, WebSocketService
 
 ```typescript
 interface TableUnassignedEvent {
@@ -270,9 +306,10 @@ interface TableUnassignedEvent {
 ---
 
 ### 5. `table:status_changed`
+
 **Когда:** Статус столика изменился (AVAILABLE → MAINTENANCE и т.д.)  
 **Источник:** TableService.updateStatus()  
-**Слушатели:** UI, Cache, WebSocketService  
+**Слушатели:** UI, Cache, WebSocketService
 
 ```typescript
 interface TableStatusChangedEvent {
@@ -291,9 +328,10 @@ interface TableStatusChangedEvent {
 ## 💰 PAYMENTS Events (7 событий)
 
 ### 1. `payment:created`
+
 **Когда:** Платеж создан  
 **Источник:** PaymentService.createPayment()  
-**Слушатели:** OrdersService, WebSocketService  
+**Слушатели:** OrdersService, WebSocketService
 
 ```typescript
 interface PaymentCreatedEvent {
@@ -315,9 +353,10 @@ interface PaymentCreatedEvent {
 ---
 
 ### 2. `payment:completed`
+
 **Когда:** Платеж успешно обработан  
 **Источник:** PaymentService.completePayment()  
-**Слушатели:** OrdersService, TableService, WebSocketService, Analytics  
+**Слушатели:** OrdersService, TableService, WebSocketService, Analytics
 
 ```typescript
 interface PaymentCompletedEvent {
@@ -334,15 +373,17 @@ interface PaymentCompletedEvent {
 ```
 
 **Действия:**
+
 - OrdersService: изменить статус на READY_TO_PAY
 - TableService: освободить столик (если не освобожден)
 
 ---
 
 ### 3. `payment:failed`
+
 **Когда:** Платеж не прошел  
 **Источник:** PaymentService.failPayment()  
-**Слушатели:** OrdersService, AlertService, WebSocketService  
+**Слушатели:** OrdersService, AlertService, WebSocketService
 
 ```typescript
 interface PaymentFailedEvent {
@@ -360,9 +401,10 @@ interface PaymentFailedEvent {
 ---
 
 ### 4. `payment:cancelled`
+
 **Когда:** Платеж отменен  
 **Источник:** PaymentService.cancelPayment()  
-**Слушатели:** OrdersService, WebSocketService  
+**Слушатели:** OrdersService, WebSocketService
 
 ```typescript
 interface PaymentCancelledEvent {
@@ -380,9 +422,10 @@ interface PaymentCancelledEvent {
 ---
 
 ### 5. `refund:requested`
+
 **Когда:** Запрос на возврат средств  
 **Источник:** PaymentService.requestRefund()  
-**Слушатели:** ApprovalService, NotificationService, WebSocketService  
+**Слушатели:** ApprovalService, NotificationService, WebSocketService
 
 ```typescript
 interface RefundRequestedEvent {
@@ -402,9 +445,10 @@ interface RefundRequestedEvent {
 ---
 
 ### 6. `refund:completed`
+
 **Когда:** Возврат средств завершен  
 **Источник:** PaymentService.completeRefund()  
-**Слушатели:** OrdersService, WebSocketService, Analytics  
+**Слушатели:** OrdersService, WebSocketService, Analytics
 
 ```typescript
 interface RefundCompletedEvent {
@@ -423,9 +467,10 @@ interface RefundCompletedEvent {
 ---
 
 ### 7. `refund:failed`
+
 **Когда:** Возврат не прошел  
 **Источник:** PaymentService.failRefund()  
-**Слушатели:** AlertService, WebSocketService  
+**Слушатели:** AlertService, WebSocketService
 
 ```typescript
 interface RefundFailedEvent {
@@ -445,9 +490,10 @@ interface RefundFailedEvent {
 ## 📅 RESERVATIONS Events (5 событий)
 
 ### 1. `reservation:created`
+
 **Когда:** Бронирование создано  
 **Источник:** ReservationService.createReservation()  
-**Слушатели:** TableService, NotificationService, WebSocketService  
+**Слушатели:** TableService, NotificationService, WebSocketService
 
 ```typescript
 interface ReservationCreatedEvent {
@@ -468,9 +514,10 @@ interface ReservationCreatedEvent {
 ---
 
 ### 2. `reservation:confirmed`
+
 **Когда:** Бронирование подтверждено  
 **Источник:** ReservationService.updateReservationStatus()  
-**Слушатели:** TableService, NotificationService, WebSocketService  
+**Слушатели:** TableService, NotificationService, WebSocketService
 
 ```typescript
 interface ReservationConfirmedEvent {
@@ -486,9 +533,10 @@ interface ReservationConfirmedEvent {
 ---
 
 ### 3. `reservation:cancelled`
+
 **Когда:** Бронирование отменено  
 **Источник:** ReservationService.deleteReservation()  
-**Слушатели:** TableService, NotificationService, WebSocketService  
+**Слушатели:** TableService, NotificationService, WebSocketService
 
 ```typescript
 interface ReservationCancelledEvent {
@@ -505,9 +553,10 @@ interface ReservationCancelledEvent {
 ---
 
 ### 4. `reservation:completed`
+
 **Когда:** Гость пришел и заказ завершен  
 **Источник:** Triggered by order:status_changed or manual  
-**Слушатели:** Analytics, NotificationService, WebSocketService  
+**Слушатели:** Analytics, NotificationService, WebSocketService
 
 ```typescript
 interface ReservationCompletedEvent {
@@ -524,9 +573,10 @@ interface ReservationCompletedEvent {
 ---
 
 ### 5. `reservation:no_show`
+
 **Когда:** Гость не пришел  
 **Источник:** ReservationService.markNoShow()  
-**Слушатели:** TableService, Analytics, NotificationService  
+**Слушатели:** TableService, Analytics, NotificationService
 
 ```typescript
 interface ReservationNoShowEvent {
@@ -545,9 +595,10 @@ interface ReservationNoShowEvent {
 ## 👤 USERS Events (6 событий)
 
 ### 1. `user:created`
+
 **Когда:** Создан новый пользователь  
 **Источник:** UserService.createUser()  
-**Слушатели:** NotificationService, WebSocketService, AuditService  
+**Слушатели:** NotificationService, WebSocketService, AuditService
 
 ```typescript
 interface UserCreatedEvent {
@@ -565,9 +616,10 @@ interface UserCreatedEvent {
 ---
 
 ### 2. `user:updated`
+
 **Когда:** Профиль обновлен  
 **Источник:** UserService.updateUser()  
-**Слушатели:** WebSocketService, CacheService, AuditService  
+**Слушатели:** WebSocketService, CacheService, AuditService
 
 ```typescript
 interface UserUpdatedEvent {
@@ -583,9 +635,10 @@ interface UserUpdatedEvent {
 ---
 
 ### 3. `user:deleted`
+
 **Когда:** Пользователь удален  
 **Источник:** UserService.deleteUser()  
-**Слушатели:** TableService, OrdersService, WebSocketService, AuditService  
+**Слушатели:** TableService, OrdersService, WebSocketService, AuditService
 
 ```typescript
 interface UserDeletedEvent {
@@ -601,9 +654,10 @@ interface UserDeletedEvent {
 ---
 
 ### 4. `user:login`
+
 **Когда:** Пользователь вошел в систему  
 **Источник:** AuthController.login()  
-**Слушатели:** SecurityService, AnalyticsService, WebSocketService  
+**Слушатели:** SecurityService, AnalyticsService, WebSocketService
 
 ```typescript
 interface UserLoginEvent {
@@ -622,9 +676,10 @@ interface UserLoginEvent {
 ---
 
 ### 5. `user:logout`
+
 **Когда:** Пользователь вышел из системы  
 **Источник:** AuthController.logout()  
-**Слушатели:** TableService, OrdersService, WebSocketService  
+**Слушатели:** TableService, OrdersService, WebSocketService
 
 ```typescript
 interface UserLogoutEvent {
@@ -640,9 +695,10 @@ interface UserLogoutEvent {
 ---
 
 ### 6. `user:password_changed`
+
 **Когда:** Пароль изменен  
 **Источник:** UserService.changePassword()  
-**Слушатели:** SecurityService, AuditService  
+**Слушатели:** SecurityService, AuditService
 
 ```typescript
 interface UserPasswordChangedEvent {
@@ -660,9 +716,10 @@ interface UserPasswordChangedEvent {
 ## 🍽️ MENU Events (8 событий)
 
 ### 1. `food:created`
+
 **Когда:** Блюдо добавлено в меню  
 **Источник:** FoodItemsService.createFoodItem()  
-**Слушатели:** MenuCacheService, WebSocketService  
+**Слушатели:** MenuCacheService, WebSocketService
 
 ```typescript
 interface FoodCreatedEvent {
@@ -681,9 +738,10 @@ interface FoodCreatedEvent {
 ---
 
 ### 2. `food:updated`
+
 **Когда:** Блюдо обновлено  
 **Источник:** FoodItemsService.updateFoodItem()  
-**Слушатели:** MenuCacheService, WebSocketService  
+**Слушатели:** MenuCacheService, WebSocketService
 
 ```typescript
 interface FoodUpdatedEvent {
@@ -699,9 +757,10 @@ interface FoodUpdatedEvent {
 ---
 
 ### 3. `food:deleted`
+
 **Когда:** Блюдо удалено  
 **Источник:** FoodItemsService.deleteFoodItem()  
-**Слушатели:** MenuCacheService, WebSocketService, OrdersService  
+**Слушатели:** MenuCacheService, WebSocketService, OrdersService
 
 ```typescript
 interface FoodDeletedEvent {
@@ -717,9 +776,10 @@ interface FoodDeletedEvent {
 ---
 
 ### 4. `food:availability_changed`
+
 **Когда:** Блюдо стало доступным/недоступным  
 **Источник:** FoodItemsService.updateAvailability()  
-**Слушатели:** MenuCacheService, KitchenDisplay, WebSocketService  
+**Слушатели:** MenuCacheService, KitchenDisplay, WebSocketService
 
 ```typescript
 interface FoodAvailabilityChangedEvent {
@@ -736,9 +796,10 @@ interface FoodAvailabilityChangedEvent {
 ---
 
 ### 5. `drink:created`
+
 **Когда:** Напиток добавлен  
 **Источник:** DrinkItemsService.createDrinkItem()  
-**Слушатели:** MenuCacheService, WebSocketService  
+**Слушатели:** MenuCacheService, WebSocketService
 
 ```typescript
 interface DrinkCreatedEvent {
@@ -757,9 +818,10 @@ interface DrinkCreatedEvent {
 ---
 
 ### 6. `drink:updated`
+
 **Когда:** Напиток обновлен  
 **Источник:** DrinkItemsService.updateDrinkItem()  
-**Слушатели:** MenuCacheService, WebSocketService  
+**Слушатели:** MenuCacheService, WebSocketService
 
 ```typescript
 interface DrinkUpdatedEvent {
@@ -775,9 +837,10 @@ interface DrinkUpdatedEvent {
 ---
 
 ### 7. `drink:deleted`
+
 **Когда:** Напиток удален  
 **Источник:** DrinkItemsService.deleteDrinkItem()  
-**Слушатели:** MenuCacheService, WebSocketService  
+**Слушатели:** MenuCacheService, WebSocketService
 
 ```typescript
 interface DrinkDeletedEvent {
@@ -793,9 +856,10 @@ interface DrinkDeletedEvent {
 ---
 
 ### 8. `drink:availability_changed`
+
 **Когда:** Напиток стал доступным/недоступным  
 **Источник:** DrinkItemsService.updateAvailability()  
-**Слушатели:** MenuCacheService, BarDisplay, WebSocketService  
+**Слушатели:** MenuCacheService, BarDisplay, WebSocketService
 
 ```typescript
 interface DrinkAvailabilityChangedEvent {
@@ -814,6 +878,7 @@ interface DrinkAvailabilityChangedEvent {
 ## 🔗 Critical Event Chains
 
 ### Создание и завершение заказа:
+
 ```
 order:created
 ├─> table:occupied
@@ -829,6 +894,7 @@ order:status_changed (to COMPLETED)
 ```
 
 ### Процесс оплаты:
+
 ```
 payment:created
 ├─> order:status_changed (to PENDING)
@@ -845,6 +911,7 @@ payment:failed
 ```
 
 ### Бронирование:
+
 ```
 reservation:created
 ├─> table:assigned (зарезервировать столик)
@@ -866,6 +933,7 @@ reservation:completed
 ## 📊 Приоритет реализации
 
 ### 🔴 **Tier 1 - CRITICAL** (Реализовать первым)
+
 - [x] EventBusService (сам сервис)
 - [ ] order:created
 - [ ] order:status_changed
@@ -874,6 +942,7 @@ reservation:completed
 - [ ] payment:completed
 
 ### 🟠 **Tier 2 - IMPORTANT** (Реализовать вторым)
+
 - [ ] order:items_printed
 - [ ] order:items_fired
 - [ ] payment:failed
@@ -881,6 +950,7 @@ reservation:completed
 - [ ] user:login / user:logout
 
 ### 🟡 **Tier 3 - NICE TO HAVE** (Потом)
+
 - [ ] Все остальные события
 - [ ] Event persistence (логирование в БД)
 - [ ] Event replay механика
@@ -902,6 +972,7 @@ reservation:completed
 ## 🚀 Как использовать
 
 Будет реализовано в следующих файлах:
+
 - `src/services/events/event-bus.service.ts` - сам EventBus
 - `src/services/events/domain-events.ts` - типы всех событий
 - `src/services/*/handlers/` - обработчики для каждого сервиса

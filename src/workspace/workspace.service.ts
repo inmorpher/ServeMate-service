@@ -4,6 +4,8 @@ import 'reflect-metadata';
 import { BaseService } from '../common/base.service';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { WorkspaceBootstrapDto } from './dto/workspace-bootstrap.dto';
 import { Workspace } from './dto/workspace.dto';
@@ -19,7 +21,9 @@ export class WorkspaceService extends BaseService implements IWorkspaceService {
     @inject(TYPES.WorkspaceRepository)
     private readonly workspaceRepository: IWorkspaceRepository,
     @inject(TYPES.WorkspaceTabLoader)
-    private readonly workspaceTabLoader: WorkspaceTabLoader
+    private readonly workspaceTabLoader: WorkspaceTabLoader,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
   }
@@ -87,6 +91,13 @@ export class WorkspaceService extends BaseService implements IWorkspaceService {
       );
 
       if (workspace) {
+        publishRealtimeEvent(
+          this.realtimeGateway,
+          'workspace',
+          'updated',
+          userId,
+          workspace
+        );
         return workspace;
       }
 
