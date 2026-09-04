@@ -50,9 +50,14 @@ export class WebSocketGateway implements IWebSocketGateway {
           return;
         }
 
+        const subscriptionEntityId =
+          subscription.resource === 'workspace'
+            ? (subscription.entityId ?? String(connection.id))
+            : subscription.entityId;
+
         if (
           subscription.resource === 'workspace' &&
-          subscription.entityId !== String(connection.id)
+          subscriptionEntityId !== String(connection.id)
         ) {
           this.logger.warn(
             `WebSocket connection rejected: User ${connection.id} requested another workspace`
@@ -63,7 +68,7 @@ export class WebSocketGateway implements IWebSocketGateway {
 
         this.websocketService.subscribe(
           subscription.resource,
-          subscription.entityId,
+          subscriptionEntityId,
           String(connection.id),
           ws
         );
