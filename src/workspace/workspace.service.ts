@@ -96,7 +96,10 @@ export class WorkspaceService extends BaseService implements IWorkspaceService {
           'workspace',
           'updated',
           userId,
-          workspace
+          {
+            version: workspace.version,
+            updatedAt: workspace.updatedAt,
+          }
         );
         return workspace;
       }

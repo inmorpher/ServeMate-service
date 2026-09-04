@@ -1,4 +1,5 @@
 import { HTTPError } from '../../errors/http-error.class';
+import { IWebSocketService } from '../../websocket/websocket.service.interface';
 import { UpdateWorkspaceDto } from '../../workspace/dto/update-workspace.dto';
 import { WorkspaceBootstrapDto } from '../../workspace/dto/workspace-bootstrap.dto';
 import { WorkspaceTab } from '../../workspace/dto/workspace-tab.dto';
@@ -16,6 +17,14 @@ const repositoryMock = (): jest.Mocked<IWorkspaceRepository> =>
 
 const tabLoaderMock = (): jest.Mocked<WorkspaceTabLoader> =>
   ({ load: jest.fn() }) as unknown as jest.Mocked<WorkspaceTabLoader>;
+
+const realtimeGatewayMock = (): jest.Mocked<IWebSocketService> =>
+  ({
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+    publish: jest.fn(),
+    getActiveSubscribers: jest.fn(),
+  }) as jest.Mocked<IWebSocketService>;
 
 const tab = (overrides: Partial<WorkspaceTab> = {}): WorkspaceTab => ({
   id: 'users-tab',
@@ -48,12 +57,14 @@ const update = (
 describe('WorkspaceService', () => {
   let repository: jest.Mocked<IWorkspaceRepository>;
   let tabLoader: jest.Mocked<WorkspaceTabLoader>;
+  let realtimeGateway: jest.Mocked<IWebSocketService>;
   let service: WorkspaceService;
 
   beforeEach(() => {
     repository = repositoryMock();
     tabLoader = tabLoaderMock();
-    service = new WorkspaceService(repository, tabLoader);
+    realtimeGateway = realtimeGatewayMock();
+    service = new WorkspaceService(repository, tabLoader, realtimeGateway);
   });
 
   it('returns an existing workspace', async () => {
@@ -125,6 +136,20 @@ describe('WorkspaceService', () => {
         settings: { theme: 'dark' },
       },
       1
+    );
+    expect(realtimeGateway.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        resource: 'workspace',
+        type: 'workspace.updated',
+        entityId: 7,
+        payload: {
+          version: 2,
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      })
+    );
+    expect(realtimeGateway.publish.mock.calls[0][0].payload).not.toEqual(
+      updated
     );
   });
 
