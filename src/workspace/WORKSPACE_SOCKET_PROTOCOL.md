@@ -6,7 +6,8 @@ WebSocket сообщает другим клиентам пользовател�
 
 ## Connection and authorization
 
-- Клиент подключается к существующему WebSocket transport.
+- Клиент подключается к WebSocket endpoint `/ws`.
+- Access token передаётся через `Authorization: Bearer <accessToken>` или query-параметр `accessToken` для браузерного WebSocket API.
 - Пользователь определяется из авторизованного connection context, а не из `userId` в сообщении.
 - Клиент не может подписаться на workspace другого пользователя.
 - Workspace channel имеет ключ `workspace:<userId>`.

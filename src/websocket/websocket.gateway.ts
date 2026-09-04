@@ -24,51 +24,59 @@ export class WebSocketGateway implements IWebSocketGateway {
   ) {}
 
   initialize(server: Server): void {
-    const websocketServer = new WebSocket.Server({ server });
+    const websocketServer = new WebSocket.Server({
+      server,
+      path: '/ws',
+    });
 
     websocketServer.on(
       'connection',
       async (ws: WebSocket, request: IncomingMessage) => {
-      this.logger.log(
-        `WebSocket client connected from ${request.socket.remoteAddress}`
-      );
-
-      const connection = await this.authenticate(ws, request);
-      if (!connection) {
-        return;
-      }
-
-      const subscription = this.getSubscription(
-        request.url,
-        request.headers.host
-      );
-      if (!subscription) {
-        this.reject(ws, 'Missing or invalid resource');
-        return;
-      }
-
-      if (
-        subscription.resource === 'workspace' &&
-        subscription.entityId !== String(connection.id)
-      ) {
-        this.logger.warn(
-          `WebSocket connection rejected: User ${connection.id} requested another workspace`
+        this.logger.log(
+          `WebSocket client connected from ${request.socket.remoteAddress}`
         );
-        this.reject(ws, 'Workspace access denied');
-        return;
-      }
 
-      this.websocketService.subscribe(
-        subscription.resource,
-        subscription.entityId,
-        String(connection.id),
-        ws
-      );
+        const connection = await this.authenticate(ws, request);
+        if (!connection) {
+          return;
+        }
 
-      ws.on('message', message => this.handleMessage(ws, connection, message));
-      ws.on('error', error => {
-        this.logger.error(`WebSocket error for user ${connection.id}:`, error);
-      });
+        const subscription = this.getSubscription(
+          request.url,
+          request.headers.host
+        );
+        if (!subscription) {
+          this.reject(ws, 'Missing or invalid resource');
+          return;
+        }
+
+        if (
+          subscription.resource === 'workspace' &&
+          subscription.entityId !== String(connection.id)
+        ) {
+          this.logger.warn(
+            `WebSocket connection rejected: User ${connection.id} requested another workspace`
+          );
+          this.reject(ws, 'Workspace access denied');
+          return;
+        }
+
+        this.websocketService.subscribe(
+          subscription.resource,
+          subscription.entityId,
+          String(connection.id),
+          ws
+        );
+
+        ws.on('message', message =>
+          this.handleMessage(ws, connection, message)
+        );
+        ws.on('error', error => {
+          this.logger.error(
+            `WebSocket error for user ${connection.id}:`,
+            error
+          );
+        });
         ws.on('close', () => this.websocketService.unsubscribe(ws));
       }
     );
