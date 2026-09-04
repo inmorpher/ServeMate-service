@@ -55,8 +55,9 @@ export const TYPES = {
   // Base
   BaseService: Symbol.for('BaseService'),
   OrderItemsService: Symbol.for('OrderItemsService'),
-  // WebSocket
+  // Realtime
   WebSocketService: Symbol.for('WebSocketService'),
+  WebSocketGateway: Symbol.for('WebSocketGateway'),
   // Database
   DatabaseProvider: Symbol.for('DatabaseProvider'),
 };

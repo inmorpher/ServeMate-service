@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { BaseService } from '../common/base.service';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import {
   CreateFoodItemDTO,
   FoodItemDTO,
@@ -17,7 +19,9 @@ import { IFoodItemsService } from './food-items.service.interface';
 export class FoodItemsService extends BaseService implements IFoodItemsService {
   protected serviceName = 'FoodItemsService';
   constructor(
-    @inject(TYPES.FoodItemsRepository) private repository: IFoodItemsRepository
+    @inject(TYPES.FoodItemsRepository) private repository: IFoodItemsRepository,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
   }
@@ -37,7 +41,15 @@ export class FoodItemsService extends BaseService implements IFoodItemsService {
   }
   async createFoodItem(data: CreateFoodItemDTO): Promise<FoodItemDTO> {
     try {
-      return await this.repository.create(data);
+      const item = await this.repository.create(data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'food-items',
+        'created',
+        item.id,
+        item
+      );
+      return item;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -49,7 +61,15 @@ export class FoodItemsService extends BaseService implements IFoodItemsService {
     try {
       if (!(await this.repository.findById(id)))
         throw new HTTPError(404, this.serviceName, 'Food Item not found');
-      return await this.repository.update(id, data);
+      const item = await this.repository.update(id, data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'food-items',
+        'updated',
+        item.id,
+        item
+      );
+      return item;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -59,6 +79,7 @@ export class FoodItemsService extends BaseService implements IFoodItemsService {
       if (!(await this.repository.findById(id)))
         throw new HTTPError(404, this.serviceName, 'Food Item not found');
       await this.repository.delete(id);
+      publishRealtimeEvent(this.realtimeGateway, 'food-items', 'deleted', id);
     } catch (error) {
       throw this.handleError(error);
     }

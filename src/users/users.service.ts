@@ -6,6 +6,8 @@ import { BaseService } from '../common/base.service';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
 import { hashPassword } from '../utils/password';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import {
   AuthenticatedUser,
   CreatedUserResponse,
@@ -28,7 +30,9 @@ export class UserService extends BaseService implements IUsersService {
 
   constructor(
     @inject(TYPES.PrismaClient) prisma: PrismaClient,
-    @inject(TYPES.UsersRepository) private userRepository: IUsersRepository
+    @inject(TYPES.UsersRepository) private userRepository: IUsersRepository,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
     this.prisma = prisma;
@@ -142,6 +146,19 @@ export class UserService extends BaseService implements IUsersService {
         password: hashedPassword,
       });
 
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'users',
+        'created',
+        newUser.id,
+        {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+        }
+      );
+
       return {
         id: newUser.id,
         name: newUser.name,
@@ -173,6 +190,7 @@ export class UserService extends BaseService implements IUsersService {
       }
 
       await this.userRepository.delete(id);
+      publishRealtimeEvent(this.realtimeGateway, 'users', 'deleted', id);
     } catch (error) {
       throw this.handleError(error);
     }
@@ -194,6 +212,9 @@ export class UserService extends BaseService implements IUsersService {
   async updateUser(id: number, user: UpdateUserDto): Promise<void> {
     try {
       await this.userRepository.update(id, user);
+      publishRealtimeEvent(this.realtimeGateway, 'users', 'updated', id, {
+        fields: Object.keys(user),
+      });
     } catch (error) {
       throw this.handleError(error);
     }

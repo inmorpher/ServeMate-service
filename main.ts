@@ -21,7 +21,7 @@ import { reservationsContainerModule } from './src/reservations/reservations.con
 import { tablesContainerModule } from './src/tables/tables.container';
 import { TYPES } from './src/types';
 import { userContainerModule } from './src/users/users.container';
-import { WebSocketService } from './src/websocket/old/websocket.service';
+import { websocketContainerModule } from './src/websocket/websocket.container';
 import { workspaceContainerModule } from './src/workspace/workspace.container';
 /**
  * Module that binds core services to their respective implementations in a singleton scope.
@@ -42,10 +42,6 @@ export const coreServicesModule = new ContainerModule(
     bind<IExceptionFilter>(TYPES.ExceptionFilter)
       .to(ExceptionFilter)
       .inSingletonScope();
-    bind<WebSocketService>(TYPES.WebSocketService)
-      .to(WebSocketService)
-      .inSingletonScope();
-
     // Prisma 7 с адаптером PostgreSQL
   }
 );
@@ -103,6 +99,7 @@ export const baseModules = new ContainerModule(
  */
 export const appBindings = [
   coreServicesModule,
+  websocketContainerModule,
   databaseModule,
   authContainerModule,
   userContainerModule,

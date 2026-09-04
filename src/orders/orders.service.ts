@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { BaseService } from '../common/base.service';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
+import { publishRealtimeEvent } from '../websocket/realtime-event';
+import { IWebSocketService } from '../websocket/websocket.service.interface';
 import {
   OrderCreate,
   OrderMetaDto,
@@ -20,7 +22,9 @@ export class OrdersService extends BaseService implements IOrdersService {
   protected serviceName = 'OrdersService';
 
   constructor(
-    @inject(TYPES.OrdersRepository) private ordersRepository: IOrdersRepository
+    @inject(TYPES.OrdersRepository) private ordersRepository: IOrdersRepository,
+    @inject(TYPES.WebSocketService)
+    private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
   }
@@ -57,7 +61,7 @@ export class OrdersService extends BaseService implements IOrdersService {
         (subtotal * (1 - data.discount / 100)).toFixed(2)
       );
 
-      return await this.ordersRepository.create({
+      const order = await this.ordersRepository.create({
         tableNumber: data.tableNumber,
         guestsCount: data.guestsCount,
         serverId: data.serverId,
@@ -78,6 +82,14 @@ export class OrdersService extends BaseService implements IOrdersService {
           }))
         ),
       });
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'orders',
+        'created',
+        order.id,
+        order
+      );
+      return order;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -88,7 +100,15 @@ export class OrdersService extends BaseService implements IOrdersService {
     data: OrderUpdate
   ): Promise<OrderResponseDto> {
     try {
-      return await this.ordersRepository.update(orderId, data);
+      const order = await this.ordersRepository.update(orderId, data);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'orders',
+        'updated',
+        order.id,
+        order
+      );
+      return order;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -137,11 +157,19 @@ export class OrdersService extends BaseService implements IOrdersService {
         (subtotal * (1 - currentOrder.discount / 100)).toFixed(2)
       );
 
-      return await this.ordersRepository.updateItems(orderId, {
+      const order = await this.ordersRepository.updateItems(orderId, {
         totalAmount,
         foodItems,
         drinkItems,
       });
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'orders',
+        'items_updated',
+        order.id,
+        order
+      );
+      return order;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -150,6 +178,15 @@ export class OrdersService extends BaseService implements IOrdersService {
   async printOrderItems(orderId: number, ids: number[]): Promise<string> {
     try {
       await this.ordersRepository.printItems(orderId, ids);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'orders',
+        'items_printed',
+        orderId,
+        {
+          itemIds: ids,
+        }
+      );
       return 'Items have been printed';
     } catch (error) {
       throw this.handleError(error);
@@ -159,6 +196,15 @@ export class OrdersService extends BaseService implements IOrdersService {
   async callOrderItems(orderId: number, ids: number[]): Promise<string> {
     try {
       await this.ordersRepository.callItems(orderId, ids);
+      publishRealtimeEvent(
+        this.realtimeGateway,
+        'orders',
+        'items_called',
+        orderId,
+        {
+          itemIds: ids,
+        }
+      );
       return `Items ${ids.join(', ')} have been called`;
     } catch (error) {
       throw this.handleError(error);
@@ -168,6 +214,7 @@ export class OrdersService extends BaseService implements IOrdersService {
   async deleteOrder(orderId: number): Promise<void> {
     try {
       await this.ordersRepository.delete(orderId);
+      publishRealtimeEvent(this.realtimeGateway, 'orders', 'deleted', orderId);
     } catch (error) {
       throw this.handleError(error);
     }

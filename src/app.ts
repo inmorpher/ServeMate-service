@@ -5,7 +5,6 @@ import express, { Express, json, Router, urlencoded } from 'express';
 import { Server } from 'http';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import WebSocket from 'ws';
 import { ENV } from '../env';
 import { BaseController } from './common/base.controller';
 import { IMiddleware } from './common/middleware.interface';
@@ -26,14 +25,13 @@ import { ILogger } from './logger/logger.service.interface';
 import { openApiRouter } from './openapi/swagger';
 import { TYPES } from './types';
 import { IUsersController } from './users/users.controller.interface';
-import { WebSocketService } from './websocket/old/websocket.service';
+import { IWebSocketGateway } from './websocket/websocket.gateway';
 import { WorkspaceController } from './workspace/workspace.controller';
 
 @injectable()
 export class App {
   app: Express;
   server: Server | null = null;
-  wss: WebSocket.Server | null = null;
   port: string | number;
   private controllers: BaseController[];
 
@@ -41,7 +39,8 @@ export class App {
     @inject(TYPES.ILogger) private logger: ILogger,
     @inject(TYPES.ExceptionFilter) private exceptionFilter: IExceptionFilter,
     @inject(TYPES.AuthMiddleware) private authMiddleware: AuthMiddleware,
-    @inject(TYPES.WebSocketService) private wsService: WebSocketService,
+    @inject(TYPES.WebSocketGateway)
+    private websocketGateway: IWebSocketGateway,
     @inject(TYPES.AuthenticationController)
     private authController: AuthenticationController,
     @inject(TYPES.UsersController) private usersController: IUsersController,
@@ -191,54 +190,6 @@ export class App {
     this.app.use('/docs', openApiRouter);
   }
 
-  private initializeWebSocket(): void {
-    if (!this.server) {
-      this.logger.error('HTTP Server not initialized');
-      return;
-    }
-
-    this.wss = new WebSocket.Server({ server: this.server });
-
-    this.wss.on('connection', (ws: WebSocket, req) => {
-      this.logger.log(
-        `WebSocket client connected from ${req.socket.remoteAddress}`
-      );
-
-      const url = new URL(req.url || '', `http://${req.headers.host}`);
-      const orderId = url.searchParams.get('orderId');
-      const userId = url.searchParams.get('userId');
-
-      if (!orderId || !userId) {
-        this.logger.warn(
-          'WebSocket connection rejected: Missing orderId or userId'
-        );
-        ws.close(1008, 'Missing orderId or userId');
-        return;
-      }
-
-      this.wsService.subscribe(orderId, userId, ws);
-
-      ws.on('message', (message: string) => {
-        try {
-          const data = JSON.parse(message);
-          this.logger.log(`WebSocket message from ${userId}:`, data);
-          // Обработка сообщений от клиента если нужно
-        } catch (error) {
-          this.logger.error('Invalid WebSocket message:', error);
-          ws.send(
-            JSON.stringify({ type: 'error', data: 'Invalid message format' })
-          );
-        }
-      });
-
-      ws.on('error', error => {
-        this.logger.error(`WebSocket error for user ${userId}:`, error);
-      });
-    });
-
-    this.logger.log(`\x1b[36m✓\x1b[0m WebSocket Server initialized`);
-  }
-
   private useExceptionFilters(): void {
     this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
   }
@@ -248,7 +199,7 @@ export class App {
     this.useRoutes();
     this.useExceptionFilters();
     this.server = this.app.listen(this.port);
-    this.initializeWebSocket();
+    this.websocketGateway.initialize(this.server);
     this.logger.log(`Server is running on port ${this.port}`);
   }
 }
