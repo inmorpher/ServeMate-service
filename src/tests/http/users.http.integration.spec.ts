@@ -109,7 +109,9 @@ describe('Users HTTP integration', () => {
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({
-      error: 'Authorization header missing',
+      statusCode: 401,
+      message: 'Authorization header missing',
+      error: 'HTTPError',
     });
     expect(service.findUsers).not.toHaveBeenCalled();
   });
@@ -126,7 +128,11 @@ describe('Users HTTP integration', () => {
     });
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: 'Forbidden' });
+    await expect(response.json()).resolves.toEqual({
+      statusCode: 403,
+      message: 'Forbidden',
+      error: 'Forbidden',
+    });
     expect(service.findUsers).not.toHaveBeenCalled();
   });
 
@@ -160,9 +166,11 @@ describe('Users HTTP integration', () => {
     });
 
     expect(response.status).toBe(422);
-    expect(await response.json()).toEqual([
-      { path: 'page', message: expect.any(String) },
-    ]);
+    expect(await response.json()).toEqual({
+      statusCode: 422,
+      message: expect.stringContaining('page:'),
+      error: 'Validation Error',
+    });
     expect(service.findUsers).not.toHaveBeenCalled();
   });
 });

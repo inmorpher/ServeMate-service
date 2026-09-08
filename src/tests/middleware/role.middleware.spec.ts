@@ -15,7 +15,11 @@ describe('RoleMiddleware', () => {
     middleware.execute({} as any, response as any, next);
 
     expect(response.status).toHaveBeenCalledWith(401);
-    expect(response.send).toHaveBeenCalledWith({ error: 'Unauthorized' });
+    expect(response.send).toHaveBeenCalledWith({
+      statusCode: 401,
+      message: 'Unauthorized',
+      error: 'Unauthorized',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -48,7 +52,11 @@ describe('RoleMiddleware', () => {
     );
 
     expect(response.status).toHaveBeenCalledWith(403);
-    expect(response.send).toHaveBeenCalledWith({ error: 'Forbidden' });
+    expect(response.send).toHaveBeenCalledWith({
+      statusCode: 403,
+      message: 'Forbidden',
+      error: 'Forbidden',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 

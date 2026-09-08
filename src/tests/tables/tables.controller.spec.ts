@@ -71,7 +71,11 @@ describe('TablesController', () => {
     );
 
     expect(response.status).toHaveBeenCalledWith(404);
-    expect(response.json).toHaveBeenCalledWith({ message: 'Table not found' });
+    expect(response.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      message: 'Table not found',
+      error: 'Not Found',
+    });
   });
 
   it('forwards create, update and delete requests', async () => {

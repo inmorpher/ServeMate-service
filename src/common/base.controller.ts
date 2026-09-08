@@ -89,7 +89,11 @@ export abstract class BaseController {
    * @returns The Express Response object.
    */
   public badRequest(res: Response, message: string = 'Bad Request') {
-    return this.send(res, 400, { message });
+    return this.send(res, 400, {
+      statusCode: 400,
+      message,
+      error: 'Bad Request',
+    });
   }
 
   /**
@@ -99,7 +103,11 @@ export abstract class BaseController {
    * @returns The Express Response object.
    */
   public unauthorized(res: Response, message: string = 'Unauthorized') {
-    return this.send(res, 401, { message });
+    return this.send(res, 401, {
+      statusCode: 401,
+      message,
+      error: 'Unauthorized',
+    });
   }
 
   /**
@@ -109,7 +117,11 @@ export abstract class BaseController {
    * @returns The Express Response object.
    */
   public forbidden(res: Response, message: string = 'Forbidden') {
-    return this.send(res, 403, { message });
+    return this.send(res, 403, {
+      statusCode: 403,
+      message,
+      error: 'Forbidden',
+    });
   }
 
   /**
@@ -119,7 +131,11 @@ export abstract class BaseController {
    * @returns The Express Response object.
    */
   public notFound(res: Response, message: string = 'Not Found') {
-    return this.send(res, 404, { message });
+    return this.send(res, 404, {
+      statusCode: 404,
+      message,
+      error: 'Not Found',
+    });
   }
 
   /**
@@ -132,7 +148,11 @@ export abstract class BaseController {
     res: Response,
     message: string = 'Internal Server Error'
   ) {
-    return this.send(res, 500, { message });
+    return this.send(res, 500, {
+      statusCode: 500,
+      message,
+      error: 'Internal Server Error',
+    });
   }
 
   protected bindRoutes() {

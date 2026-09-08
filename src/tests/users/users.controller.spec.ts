@@ -70,7 +70,11 @@ describe('UserController', () => {
     );
 
     expect(response.status).toHaveBeenCalledWith(404);
-    expect(response.json).toHaveBeenCalledWith({ message: 'User not found' });
+    expect(response.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      message: 'User not found',
+      error: 'Not Found',
+    });
     expect(response.status).toHaveBeenCalledTimes(1);
   });
 

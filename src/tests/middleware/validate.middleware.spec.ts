@@ -42,9 +42,11 @@ describe('ValidateMiddleware', () => {
     middleware.execute({ body: { name: 'x' } } as any, response as any, next);
 
     expect(response.status).toHaveBeenCalledWith(422);
-    expect(response.send).toHaveBeenCalledWith([
-      { path: 'name', message: expect.any(String) },
-    ]);
+    expect(response.send).toHaveBeenCalledWith({
+      statusCode: 422,
+      message: expect.stringContaining('name:'),
+      error: 'Validation Error',
+    });
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -60,6 +62,10 @@ describe('ValidateMiddleware', () => {
     middleware.execute({ body: {} } as any, response as any, jest.fn());
 
     expect(response.status).toHaveBeenCalledWith(500);
-    expect(response.send).toHaveBeenCalledWith('Internal Server Error');
+    expect(response.send).toHaveBeenCalledWith({
+      statusCode: 500,
+      message: 'Internal Server Error',
+      error: 'Internal Server Error',
+    });
   });
 });

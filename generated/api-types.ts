@@ -618,6 +618,20 @@ export interface components {
             /** Format: date-time */
             lastLogin?: string;
         };
+        UserSchema: {
+            id: number;
+            name: string;
+            email: string;
+            role: string;
+            isActive?: boolean;
+            password: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: date-time */
+            lastLogin?: string;
+        };
         UserLoginSchema: {
             email: string;
             password: string;
@@ -941,6 +955,377 @@ export interface components {
             isPrimary?: boolean;
             assignedTables: number[];
         };
+        WorkspaceSchema: {
+            tabs: {
+                id: string;
+                title: string;
+                type: string;
+                state?: {
+                    [key: string]: unknown;
+                };
+                pinned?: boolean;
+                order: number;
+            }[];
+            activeTabId?: string;
+            settings: {
+                theme?: string;
+                sidebar?: {
+                    width?: number;
+                    collapsed?: boolean;
+                };
+                notifications?: {
+                    enabled?: boolean;
+                    sound?: boolean;
+                };
+                density?: string;
+                language?: string;
+            };
+            version: number;
+            updatedAt: string;
+        };
+        WorkspaceSettingsSchema: {
+            theme?: string;
+            sidebar?: {
+                width?: number;
+                collapsed?: boolean;
+            };
+            notifications?: {
+                enabled?: boolean;
+                sound?: boolean;
+            };
+            density?: string;
+            language?: string;
+        };
+        WorkspaceTabSchema: {
+            id: string;
+            title: string;
+            type: string;
+            state?: {
+                [key: string]: unknown;
+            };
+            pinned?: boolean;
+            order: number;
+        };
+        ErrorResponseSchema: {
+            statusCode: number;
+            message: string;
+            error: string;
+        };
+        MessageResponseSchema: {
+            message: string;
+        };
+        TokenPairResponseSchema: {
+            accessToken: string;
+            refreshToken: string;
+            expiresIn: number;
+        };
+        LoginResponseSchema: {
+            accessToken: string;
+            refreshToken: string;
+            expiresIn: number;
+            user: {
+                id: number;
+                name: string;
+                email: string;
+                role: string;
+                isActive?: boolean;
+                /** Format: date-time */
+                createdAt?: string;
+                /** Format: date-time */
+                updatedAt?: string;
+                /** Format: date-time */
+                lastLogin?: string;
+            };
+        };
+        MeResponseSchema: {
+            user: {
+                id: number;
+                name: string;
+                email: string;
+                role: string;
+                isActive?: boolean;
+                /** Format: date-time */
+                createdAt?: string;
+                /** Format: date-time */
+                updatedAt?: string;
+                /** Format: date-time */
+                lastLogin?: string;
+            };
+        };
+        UsersListResponseSchema: {
+            users: {
+                id: number;
+                name: string;
+                email: string;
+                role: string;
+                isActive?: boolean;
+                /** Format: date-time */
+                createdAt?: string;
+                /** Format: date-time */
+                updatedAt?: string;
+                /** Format: date-time */
+                lastLogin?: string;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        WorkspaceBootstrapResponseSchema: {
+            workspace: {
+                tabs: {
+                    id: string;
+                    title: string;
+                    type: string;
+                    state?: {
+                        [key: string]: unknown;
+                    };
+                    pinned?: boolean;
+                    order: number;
+                }[];
+                activeTabId?: string;
+                settings: {
+                    theme?: string;
+                    sidebar?: {
+                        width?: number;
+                        collapsed?: boolean;
+                    };
+                    notifications?: {
+                        enabled?: boolean;
+                        sound?: boolean;
+                    };
+                    density?: string;
+                    language?: string;
+                };
+                version: number;
+                updatedAt: string;
+            };
+            activeTab?: {
+                id: string;
+                title: string;
+                type: string;
+                state?: {
+                    [key: string]: unknown;
+                };
+                pinned?: boolean;
+                order: number;
+            };
+            activeTabData?: unknown;
+        };
+        FoodItemsResponseSchema: {
+            items: {
+                id: number;
+                name: string;
+                price: number;
+                description: string;
+                ingredients?: string[];
+                isAvailable?: boolean;
+                popularityScore?: number;
+                image?: string;
+                category: string;
+                type: string;
+                isVegan?: boolean;
+                isGlutenFree?: boolean;
+                isVegetarian?: boolean;
+                allergies?: string[];
+                preparationTime?: number;
+                spicyLevel?: string;
+                calories?: number;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        DrinkItemsResponseSchema: {
+            items: {
+                id: number;
+                name: string;
+                price: number;
+                description: string;
+                volume: number;
+                ingredients?: string[];
+                isAvailable?: boolean;
+                category: string;
+                alcoholPercentage?: number;
+                isCarbonated?: boolean;
+                tempriture: string;
+                popularityScore?: number;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                image?: string;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        OrdersResponseSchema: {
+            orders: {
+                id: number;
+                status: string;
+                server: {
+                    id: number;
+                    name: string;
+                };
+                tableNumber: number;
+                guestsCount: number;
+                /** Format: date-time */
+                orderTime: string;
+                /** Format: date-time */
+                completionTime?: string;
+                /** Format: date-time */
+                updatedAt: string;
+                comments?: string;
+                totalAmount: number;
+                discount: number;
+                tip: number;
+            }[];
+            priceRange: {
+                min: number;
+                max: number;
+            };
+            dateRange: {
+                min: string;
+                max: string;
+            };
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        OrderMetaResponseSchema: {
+            statuses: string[];
+            allergies: string[];
+            maxGuests: number;
+            prices: {
+                min: number;
+                max: number;
+            };
+            dates: {
+                min: string;
+                max: string;
+            };
+            tableNumbers: number[];
+            filtered: {
+                maxGuests: number;
+                prices: {
+                    min: number;
+                    max: number;
+                };
+                dates: {
+                    min: string;
+                    max: string;
+                };
+                tableNumbers: number[];
+            };
+        };
+        PaymentsListResponseSchema: {
+            payments: {
+                id: number;
+                amount: number;
+                tax: number;
+                tip: number;
+                serviceCharge: number;
+                totalAmount: number;
+                paymentType: string;
+                status: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                completedAt?: string;
+                orderId: number;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        ReservationConflictSchema: {
+            reservationId: number;
+            /** Format: date-time */
+            time: string;
+            tables: {
+                id: number;
+                tableNumber: number;
+            }[];
+        };
+        ReservationMutationResponseSchema: {
+            reservation: {
+                id: number;
+                guestsCount: number;
+                /** Format: date-time */
+                time: string;
+                name: string;
+                email?: string;
+                phone: string;
+                status: string;
+                tables: {
+                    id: number;
+                    tableNumber: number;
+                }[];
+                comments?: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                isActive: boolean;
+            };
+            conflict: {
+                reservationId: number;
+                /** Format: date-time */
+                time: string;
+                tables: {
+                    id: number;
+                    tableNumber: number;
+                }[];
+            }[];
+        };
+        ReservationsListResponseSchema: {
+            list: {
+                id: number;
+                guestsCount: number;
+                /** Format: date-time */
+                time: string;
+                name: string;
+                email?: string;
+                phone: string;
+                status: string;
+                tables: {
+                    id: number;
+                    tableNumber: number;
+                }[];
+                comments?: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                isActive: boolean;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        TablesListResponseSchema: {
+            tables: {
+                id: number;
+                tableNumber: number;
+                capacity: number;
+                status: string;
+                additionalCapacity: number;
+                isOccupied: boolean;
+                originalCapacity: number;
+                guests: number;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        TableAssignmentResponseSchema: string;
     };
     responses: never;
     parameters: never;
@@ -971,7 +1356,117 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        accessToken: string;
+                        refreshToken: string;
+                        expiresIn: number;
+                        user: {
+                            id: number;
+                            name: string;
+                            email: string;
+                            role: string;
+                            isActive?: boolean;
+                            /** Format: date-time */
+                            createdAt?: string;
+                            /** Format: date-time */
+                            updatedAt?: string;
+                            /** Format: date-time */
+                            lastLogin?: string;
+                        };
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -989,7 +1484,102 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1009,7 +1599,104 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        accessToken: string;
+                        refreshToken: string;
+                        expiresIn: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1027,7 +1714,114 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        user: {
+                            id: number;
+                            name: string;
+                            email: string;
+                            role: string;
+                            isActive?: boolean;
+                            /** Format: date-time */
+                            createdAt?: string;
+                            /** Format: date-time */
+                            updatedAt?: string;
+                            /** Format: date-time */
+                            lastLogin?: string;
+                        };
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1055,7 +1849,124 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        items: {
+                            id: number;
+                            name: string;
+                            price: number;
+                            description: string;
+                            volume: number;
+                            ingredients?: string[];
+                            isAvailable?: boolean;
+                            category: string;
+                            alcoholPercentage?: number;
+                            isCarbonated?: boolean;
+                            tempriture: string;
+                            popularityScore?: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            image?: string;
+                        }[];
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1090,7 +2001,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        price: number;
+                        description: string;
+                        volume: number;
+                        ingredients?: string[];
+                        isAvailable?: boolean;
+                        category: string;
+                        alcoholPercentage?: number;
+                        isCarbonated?: boolean;
+                        tempriture: string;
+                        popularityScore?: number;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        updatedAt: string;
+                        image?: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1110,7 +2132,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        price: number;
+                        description: string;
+                        volume: number;
+                        ingredients?: string[];
+                        isAvailable?: boolean;
+                        category: string;
+                        alcoholPercentage?: number;
+                        isCarbonated?: boolean;
+                        tempriture: string;
+                        popularityScore?: number;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        updatedAt: string;
+                        image?: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1125,12 +2258,103 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1171,7 +2395,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        price: number;
+                        description: string;
+                        volume: number;
+                        ingredients?: string[];
+                        isAvailable?: boolean;
+                        category: string;
+                        alcoholPercentage?: number;
+                        isCarbonated?: boolean;
+                        tempriture: string;
+                        popularityScore?: number;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        updatedAt: string;
+                        image?: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1203,7 +2538,124 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        items: {
+                            id: number;
+                            name: string;
+                            price: number;
+                            description: string;
+                            ingredients?: string[];
+                            isAvailable?: boolean;
+                            popularityScore?: number;
+                            image?: string;
+                            category: string;
+                            type: string;
+                            isVegan?: boolean;
+                            isGlutenFree?: boolean;
+                            isVegetarian?: boolean;
+                            allergies?: string[];
+                            preparationTime?: number;
+                            spicyLevel?: string;
+                            calories?: number;
+                        }[];
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1242,7 +2694,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        price: number;
+                        description: string;
+                        ingredients?: string[];
+                        isAvailable?: boolean;
+                        popularityScore?: number;
+                        image?: string;
+                        category: string;
+                        type: string;
+                        isVegan?: boolean;
+                        isGlutenFree?: boolean;
+                        isVegetarian?: boolean;
+                        allergies?: string[];
+                        preparationTime?: number;
+                        spicyLevel?: string;
+                        calories?: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1262,7 +2825,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        price: number;
+                        description: string;
+                        ingredients?: string[];
+                        isAvailable?: boolean;
+                        popularityScore?: number;
+                        image?: string;
+                        category: string;
+                        type: string;
+                        isVegan?: boolean;
+                        isGlutenFree?: boolean;
+                        isVegetarian?: boolean;
+                        allergies?: string[];
+                        preparationTime?: number;
+                        spicyLevel?: string;
+                        calories?: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1277,12 +2951,103 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1323,7 +3088,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        price: number;
+                        description: string;
+                        ingredients?: string[];
+                        isAvailable?: boolean;
+                        popularityScore?: number;
+                        image?: string;
+                        category: string;
+                        type: string;
+                        isVegan?: boolean;
+                        isGlutenFree?: boolean;
+                        isVegetarian?: boolean;
+                        allergies?: string[];
+                        preparationTime?: number;
+                        spicyLevel?: string;
+                        calories?: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1358,7 +3234,133 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        orders: {
+                            id: number;
+                            status: string;
+                            server: {
+                                id: number;
+                                name: string;
+                            };
+                            tableNumber: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            orderTime: string;
+                            /** Format: date-time */
+                            completionTime?: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            comments?: string;
+                            totalAmount: number;
+                            discount: number;
+                            tip: number;
+                        }[];
+                        priceRange: {
+                            min: number;
+                            max: number;
+                        };
+                        dateRange: {
+                            min: string;
+                            max: string;
+                        };
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1405,12 +3407,103 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description Entity created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1445,7 +3538,125 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        statuses: string[];
+                        allergies: string[];
+                        maxGuests: number;
+                        prices: {
+                            min: number;
+                            max: number;
+                        };
+                        dates: {
+                            min: string;
+                            max: string;
+                        };
+                        tableNumbers: number[];
+                        filtered: {
+                            maxGuests: number;
+                            prices: {
+                                min: number;
+                                max: number;
+                            };
+                            dates: {
+                                min: string;
+                                max: string;
+                            };
+                            tableNumbers: number[];
+                        };
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1465,7 +3676,156 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        tableNumber: number;
+                        guestsCount: number;
+                        /** Format: date-time */
+                        orderTime: string;
+                        /** Format: date-time */
+                        updatedAt: string;
+                        serverId: number;
+                        status: string;
+                        comments?: string;
+                        /** Format: date-time */
+                        completionTime?: string;
+                        totalAmount: number;
+                        discount: number;
+                        tip: number;
+                        shiftId?: string;
+                        allergies: string[];
+                        server: {
+                            id: number;
+                            name: string;
+                        };
+                        foodItems: {
+                            guestNumber: number;
+                            items: {
+                                id: number;
+                                name?: string;
+                                itemId: number;
+                                guestNumber: number;
+                                allergies?: string[];
+                                price: number;
+                                discount: number;
+                                finalPrice: number;
+                                printed: boolean;
+                                fired: boolean;
+                                paymentStatus: string;
+                                specialRequest?: string;
+                            }[];
+                        }[];
+                        drinkItems: {
+                            guestNumber: number;
+                            items: {
+                                id: number;
+                                name?: string;
+                                itemId: number;
+                                guestNumber: number;
+                                allergies?: string[];
+                                price: number;
+                                discount: number;
+                                finalPrice: number;
+                                printed: boolean;
+                                fired: boolean;
+                                paymentStatus: string;
+                                specialRequest?: string;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1480,12 +3840,103 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1511,12 +3962,103 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1558,12 +4100,103 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1582,12 +4215,103 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1606,12 +4330,103 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1636,7 +4451,120 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        payments: {
+                            id: number;
+                            amount: number;
+                            tax: number;
+                            tip: number;
+                            serviceCharge: number;
+                            totalAmount: number;
+                            paymentType: string;
+                            status: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            completedAt?: string;
+                            orderId: number;
+                        }[];
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1656,7 +4584,114 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        amount: number;
+                        tax: number;
+                        tip: number;
+                        serviceCharge: number;
+                        totalAmount: number;
+                        paymentType: string;
+                        status: string;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        completedAt?: string;
+                        orderId: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1683,7 +4718,114 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        amount: number;
+                        tax: number;
+                        tip: number;
+                        serviceCharge: number;
+                        totalAmount: number;
+                        paymentType: string;
+                        status: string;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        completedAt?: string;
+                        orderId: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1703,7 +4845,114 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        amount: number;
+                        tax: number;
+                        tip: number;
+                        serviceCharge: number;
+                        totalAmount: number;
+                        paymentType: string;
+                        status: string;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        completedAt?: string;
+                        orderId: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1730,7 +4979,114 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        amount: number;
+                        tax: number;
+                        tip: number;
+                        serviceCharge: number;
+                        totalAmount: number;
+                        paymentType: string;
+                        status: string;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        completedAt?: string;
+                        orderId: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1750,7 +5106,114 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        amount: number;
+                        tax: number;
+                        tip: number;
+                        serviceCharge: number;
+                        totalAmount: number;
+                        paymentType: string;
+                        status: string;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        completedAt?: string;
+                        orderId: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1783,7 +5246,125 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        list: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        }[];
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1815,7 +5396,130 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1835,7 +5539,119 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        guestsCount: number;
+                        /** Format: date-time */
+                        time: string;
+                        name: string;
+                        email?: string;
+                        phone: string;
+                        status: string;
+                        tables: {
+                            id: number;
+                            tableNumber: number;
+                        }[];
+                        comments?: string;
+                        /** Format: date-time */
+                        createdAt: string;
+                        /** Format: date-time */
+                        updatedAt: string;
+                        isActive: boolean;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1870,7 +5686,130 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1890,7 +5829,102 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1916,7 +5950,130 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1943,7 +6100,130 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1969,7 +6249,130 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -1998,7 +6401,130 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2011,14 +6537,143 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    comments: string;
+                };
+            };
+        };
         responses: {
             /** @description Successful response */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        reservation: {
+                            id: number;
+                            guestsCount: number;
+                            /** Format: date-time */
+                            time: string;
+                            name: string;
+                            email?: string;
+                            phone: string;
+                            status: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                            comments?: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            isActive: boolean;
+                        };
+                        conflict: {
+                            reservationId: number;
+                            /** Format: date-time */
+                            time: string;
+                            tables: {
+                                id: number;
+                                tableNumber: number;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2047,7 +6702,115 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        tables: {
+                            id: number;
+                            tableNumber: number;
+                            capacity: number;
+                            status: string;
+                            additionalCapacity: number;
+                            isOccupied: boolean;
+                            originalCapacity: number;
+                            guests: number;
+                        }[];
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2069,12 +6832,103 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description Entity created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2100,7 +6954,100 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2120,7 +7067,109 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        tableNumber: number;
+                        capacity: number;
+                        status: string;
+                        additionalCapacity: number;
+                        isOccupied: boolean;
+                        originalCapacity: number;
+                        guests: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2151,7 +7200,109 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        tableNumber: number;
+                        capacity: number;
+                        status: string;
+                        additionalCapacity: number;
+                        isOccupied: boolean;
+                        originalCapacity: number;
+                        guests: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2166,12 +7317,103 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response */
-            200: {
+            /** @description No content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2201,7 +7443,118 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        users: {
+                            id: number;
+                            name: string;
+                            email: string;
+                            role: string;
+                            isActive?: boolean;
+                            /** Format: date-time */
+                            createdAt?: string;
+                            /** Format: date-time */
+                            updatedAt?: string;
+                            /** Format: date-time */
+                            lastLogin?: string;
+                        }[];
+                        totalCount: number;
+                        page: number;
+                        pageSize: number;
+                        totalPages: number;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2228,7 +7581,112 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        email: string;
+                        role: string;
+                        isActive?: boolean;
+                        /** Format: date-time */
+                        createdAt?: string;
+                        /** Format: date-time */
+                        updatedAt?: string;
+                        /** Format: date-time */
+                        lastLogin?: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2248,7 +7706,112 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        id: number;
+                        name: string;
+                        email: string;
+                        role: string;
+                        isActive?: boolean;
+                        /** Format: date-time */
+                        createdAt?: string;
+                        /** Format: date-time */
+                        updatedAt?: string;
+                        /** Format: date-time */
+                        lastLogin?: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2279,7 +7842,102 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2299,7 +7957,102 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2317,7 +8070,127 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        tabs: {
+                            id: string;
+                            title: string;
+                            type: string;
+                            state?: {
+                                [key: string]: unknown;
+                            };
+                            pinned?: boolean;
+                            order: number;
+                        }[];
+                        activeTabId?: string;
+                        settings: {
+                            theme?: string;
+                            sidebar?: {
+                                width?: number;
+                                collapsed?: boolean;
+                            };
+                            notifications?: {
+                                enabled?: boolean;
+                                sound?: boolean;
+                            };
+                            density?: string;
+                            language?: string;
+                        };
+                        version: number;
+                        updatedAt: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2365,7 +8238,127 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        tabs: {
+                            id: string;
+                            title: string;
+                            type: string;
+                            state?: {
+                                [key: string]: unknown;
+                            };
+                            pinned?: boolean;
+                            order: number;
+                        }[];
+                        activeTabId?: string;
+                        settings: {
+                            theme?: string;
+                            sidebar?: {
+                                width?: number;
+                                collapsed?: boolean;
+                            };
+                            notifications?: {
+                                enabled?: boolean;
+                                sound?: boolean;
+                            };
+                            density?: string;
+                            language?: string;
+                        };
+                        version: number;
+                        updatedAt: string;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };
@@ -2383,7 +8376,140 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        workspace: {
+                            tabs: {
+                                id: string;
+                                title: string;
+                                type: string;
+                                state?: {
+                                    [key: string]: unknown;
+                                };
+                                pinned?: boolean;
+                                order: number;
+                            }[];
+                            activeTabId?: string;
+                            settings: {
+                                theme?: string;
+                                sidebar?: {
+                                    width?: number;
+                                    collapsed?: boolean;
+                                };
+                                notifications?: {
+                                    enabled?: boolean;
+                                    sound?: boolean;
+                                };
+                                density?: string;
+                                language?: string;
+                            };
+                            version: number;
+                            updatedAt: string;
+                        };
+                        activeTab?: {
+                            id: string;
+                            title: string;
+                            type: string;
+                            state?: {
+                                [key: string]: unknown;
+                            };
+                            pinned?: boolean;
+                            order: number;
+                        };
+                        activeTabData?: unknown;
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
             };
         };
     };

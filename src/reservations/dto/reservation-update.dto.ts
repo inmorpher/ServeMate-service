@@ -32,6 +32,10 @@ export const ReservationGuestInfoSchema = z
     message: 'At least one guest field must be provided',
   });
 
+export const ReservationCommentSchema = z.object({
+  comments: z.string(),
+});
+
 export type ReservationUpdateDto = z.infer<typeof ReservationUpdateSchema>;
 export type ReservationGuestInfoDto = z.infer<
   typeof ReservationGuestInfoSchema
