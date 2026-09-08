@@ -46,10 +46,20 @@ export class ValidateMiddleware implements IMiddleware {
           path: issue.path.join('.'),
           message: issue.message,
         }));
-        res.status(422).send(errorMessages);
+        res.status(422).send({
+          statusCode: 422,
+          message: errorMessages
+            .map(error => `${error.path}: ${error.message}`)
+            .join('; '),
+          error: 'Validation Error',
+        });
       } else {
         // console.error('Unexpected error during validation:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).send({
+          statusCode: 500,
+          message: 'Internal Server Error',
+          error: 'Internal Server Error',
+        });
       }
     }
   }

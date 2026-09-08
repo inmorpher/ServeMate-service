@@ -36,10 +36,18 @@ export class ExceptionFilter implements IExceptionFilter {
       this.logger.error(
         `[${err.context}] ${path} Error ${err.statusCode} : ${err.message}`
       );
-      res.status(err.statusCode).json({ error: err.message });
+      res.status(err.statusCode).json({
+        statusCode: err.statusCode,
+        message: err.message,
+        error: err.constructor.name,
+      });
     } else {
       this.logger.error(`[${req.originalUrl}] Error : ${err.message}`);
-      res.status(500).json({ error: 'An unknown error occurred' });
+      res.status(500).json({
+        statusCode: 500,
+        message: 'An unknown error occurred',
+        error: 'Internal Server Error',
+      });
     }
   }
 }

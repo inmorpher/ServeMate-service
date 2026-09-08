@@ -35,7 +35,11 @@ export class RoleMiddleware implements IMiddleware {
     // }
 
     if (!user) {
-      res.status(401).send({ error: 'Unauthorized' });
+      res.status(401).send({
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      });
       return;
     }
 
@@ -45,7 +49,9 @@ export class RoleMiddleware implements IMiddleware {
     }
 
     if (!this.role.includes(user.role)) {
-      res.status(403).send({ error: 'Forbidden' });
+      res
+        .status(403)
+        .send({ statusCode: 403, message: 'Forbidden', error: 'Forbidden' });
       return;
     }
 

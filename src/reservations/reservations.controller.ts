@@ -17,6 +17,7 @@ import { ILogger } from '../logger/logger.service.interface';
 import { Validate } from '../middleware/validate/validate.middleware';
 import { TYPES } from '../types';
 import {
+  ReservationCommentSchema,
   ReservationCreateDto,
   ReservationCreateSchema,
   ReservationGuestInfoDto,
@@ -222,6 +223,7 @@ export class ReservationsController extends BaseController {
   }
 
   @Validate(ReservationParamsSchema, 'params')
+  @Validate(ReservationCommentSchema, 'body')
   @Patch('/:id/comment')
   async updateComment(
     req: TypedRequest<ReservationParamsDto, {}, { comments: string }>,

@@ -14,6 +14,7 @@ import {
   ResponseMetadata,
 } from '../decorators/response.decorator';
 import { zodToOpenApiSchema } from './dto-to-openapi';
+import { ApiResponseSchemas, ErrorResponseSchema } from './response-schemas';
 
 function isZodSchema(value: unknown): value is z.ZodTypeAny {
   return (
@@ -35,6 +36,8 @@ function loadDtoSchemas() {
     '../reservations/dto',
     '../tables/dto',
     '../users/dto',
+    '../workspace/dto',
+    './response-schemas',
   ].map(modulePath => require(modulePath) as Record<string, unknown>);
 
   return Object.fromEntries(
@@ -91,9 +94,7 @@ function joinRoutePath(prefix: string, routePath: string): string {
 
 function isProtectedPath(pathKey: string): boolean {
   return !(
-    pathKey === '/api/auth/login' ||
-    pathKey === '/api/auth/refresh-token' ||
-    pathKey.includes('/meta')
+    pathKey === '/api/auth/login' || pathKey === '/api/auth/refresh-token'
   );
 }
 
@@ -173,18 +174,94 @@ function buildResponseContent(meta: ResponseMetadata): Record<string, unknown> {
 
 function buildResponses(
   value: any,
-  handlerName: string
+  handlerName: string,
+  operationId: string
 ): Record<string, unknown> {
   const responseMetas: ResponseMetadata[] =
     Reflect.getMetadata(RESPONSE_METADATA_KEY, value.prototype, handlerName) ||
     [];
 
-  if (!responseMetas.length) {
+  const schema =
+    ApiResponseSchemas[operationId as keyof typeof ApiResponseSchemas];
+  const errorResponses = {
+    '400': {
+      description: 'Bad request',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+    '401': {
+      description: 'Unauthorized',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+    '403': {
+      description: 'Forbidden',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+    '404': {
+      description: 'Not found',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+    '409': {
+      description: 'Conflict',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+    '422': {
+      description: 'Validation error',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+    '500': {
+      description: 'Internal server error',
+      content: {
+        'application/json': { schema: zodToOpenApiSchema(ErrorResponseSchema) },
+      },
+    },
+  };
+  const noContentHandlers = new Set([
+    'OrdersController_updateOrderItems',
+    'OrdersController_updateOrder',
+    'OrdersController_printOrderItems',
+    'OrdersController_callOrderItems',
+    'OrdersController_deleteOrder',
+    'FoodItemsController_delete',
+    'DrinkItemsController_delete',
+    'TablesController_delete',
+  ]);
+  const createdWithoutContentHandlers = new Set([
+    'OrdersController_createOrder',
+    'TablesController_create',
+  ]);
+
+  if (!responseMetas.length && createdWithoutContentHandlers.has(operationId)) {
+    return { '201': { description: 'Entity created' }, ...errorResponses };
+  }
+
+  if (!responseMetas.length && noContentHandlers.has(operationId)) {
+    return { '204': { description: 'No content' }, ...errorResponses };
+  }
+
+  if (!responseMetas.length && schema) {
     return {
       '200': {
         description: 'Successful response',
+        content: { 'application/json': { schema: zodToOpenApiSchema(schema) } },
       },
+      ...errorResponses,
     };
+  }
+
+  if (!responseMetas.length) {
+    return { '200': { description: 'Successful response' }, ...errorResponses };
   }
 
   const responses: Record<string, unknown> = {};
@@ -197,7 +274,7 @@ function buildResponses(
     };
   });
 
-  return responses;
+  return { ...responses, ...errorResponses };
 }
 
 function loadControllerRoutes(): Record<string, PathItemObject> {
@@ -227,7 +304,11 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
           summary: route.handlerName,
           operationId: `${value.name}_${route.handlerName}`,
           tags: [value.name.replace(/Controller$/, '')],
-          responses: buildResponses(value, route.handlerName),
+          responses: buildResponses(
+            value,
+            route.handlerName,
+            `${value.name}_${route.handlerName}`
+          ),
         };
 
         if (isProtectedPath(pathKey)) {
@@ -282,6 +363,7 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
 
 const NAMED_SCHEMAS = [
   'UserResponseSchema',
+  'UserSchema',
   'UserLoginSchema',
   'CreateUserSchema',
   'UpdateUserSchema',
@@ -320,6 +402,26 @@ const NAMED_SCHEMAS = [
   'TableIdSchema',
   'TableAssignmentSchema',
   'TableSeatingSchema',
+  'WorkspaceSchema',
+  'WorkspaceSettingsSchema',
+  'WorkspaceTabSchema',
+  'ErrorResponseSchema',
+  'MessageResponseSchema',
+  'TokenPairResponseSchema',
+  'LoginResponseSchema',
+  'MeResponseSchema',
+  'UsersListResponseSchema',
+  'WorkspaceBootstrapResponseSchema',
+  'FoodItemsResponseSchema',
+  'DrinkItemsResponseSchema',
+  'OrdersResponseSchema',
+  'OrderMetaResponseSchema',
+  'PaymentsListResponseSchema',
+  'ReservationConflictSchema',
+  'ReservationMutationResponseSchema',
+  'ReservationsListResponseSchema',
+  'TablesListResponseSchema',
+  'TableAssignmentResponseSchema',
 ];
 
 export function buildOpenApiFromDto(): OpenAPIObject {
