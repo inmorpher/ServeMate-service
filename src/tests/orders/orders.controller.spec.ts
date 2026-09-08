@@ -70,7 +70,11 @@ describe('OrdersController', () => {
 
     expect(service.findOrderById).toHaveBeenCalledWith(999);
     expect(response.status).toHaveBeenCalledWith(404);
-    expect(response.json).toHaveBeenCalledWith({ message: 'Order not found' });
+    expect(response.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      message: 'Order not found',
+      error: 'Not Found',
+    });
   });
 
   it('passes validated body and params to updateOrder', async () => {
