@@ -1,6 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
+import { ENV } from '../../env';
 import { BaseController } from '../common/base.controller';
 import { TypedRequest } from '../common/route.interface';
 import { Controller, Get, Post } from '../decorators/httpDecorators';
@@ -9,6 +10,14 @@ import { Validate } from '../middleware/validate/validate.middleware';
 import { TYPES } from '../types';
 import { UserLoginDto, UserLoginSchema } from '../users/dto';
 import { IAuthService } from './auth.service.interface';
+import { RefreshTokenRequest } from './dto/auth.dto';
+
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: ENV.PRODUCTION,
+  sameSite: ENV.PRODUCTION ? ('strict' as const) : ('lax' as const),
+  path: '/api/auth',
+};
 
 const ERROR_MESSAGES = {
   REFRESH_TOKEN_NOT_PROVIDED: 'Refresh token not provided',
@@ -40,6 +49,7 @@ export class AuthenticationController extends BaseController {
         userAgent: req.headers['user-agent'] ?? null,
       });
 
+      this.setRefreshCookie(res, result.refreshToken);
       this.ok(res, result);
     } catch (error) {
       next(error);
@@ -54,9 +64,10 @@ export class AuthenticationController extends BaseController {
         ? authorizationHeader.slice('Bearer '.length)
         : undefined;
 
-      const refreshToken = req.cookies?.refreshToken;
+      const refreshToken = this.getRefreshToken(req);
 
       await this.authService.logout(accessToken, refreshToken);
+      res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
       this.loggerService.log('User logged out successfully');
       this.ok(res, { message: 'Logged out successfully' });
     } catch (error) {
@@ -65,9 +76,23 @@ export class AuthenticationController extends BaseController {
   }
 
   @Post('/refresh-token')
-  async refreshToken(req: TypedRequest, res: Response, next: NextFunction) {
+  async refreshToken(
+    req: TypedRequest<{}, {}, RefreshTokenRequest>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { refreshToken } = req.cookies;
+      const cookieToken = req.cookies?.refreshToken;
+      const bodyToken = req.body?.refreshToken;
+
+      if (cookieToken && bodyToken) {
+        return this.badRequest(
+          res,
+          'Provide refresh token in cookie or body, not both'
+        );
+      }
+
+      const refreshToken = cookieToken ?? bodyToken;
 
       if (!refreshToken) {
         return this.unauthorized(
@@ -80,6 +105,7 @@ export class AuthenticationController extends BaseController {
         ipAddress: req.ip ?? null,
         userAgent: req.headers['user-agent'] ?? null,
       });
+      this.setRefreshCookie(res, result.refreshToken);
       this.ok(res, result);
     } catch (error) {
       this.loggerService.error(
@@ -106,5 +132,17 @@ export class AuthenticationController extends BaseController {
       );
       next(error);
     }
+  }
+
+  private getRefreshToken(req: TypedRequest): string | undefined {
+    const cookieToken = req.cookies?.refreshToken;
+    const bodyToken = (req.body as RefreshTokenRequest | undefined)
+      ?.refreshToken;
+
+    return cookieToken ?? bodyToken;
+  }
+
+  private setRefreshCookie(res: Response, refreshToken: string): void {
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
   }
 }

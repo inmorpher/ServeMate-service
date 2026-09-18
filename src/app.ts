@@ -91,6 +91,7 @@ export class App {
           'http://192.168.2.60:3000',
           'http://192.168.2.60:3002',
           'http://localhost:3002',
+          'http://192.168.2.47:3000',
         ],
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
