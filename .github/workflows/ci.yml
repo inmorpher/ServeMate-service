@@ -44,6 +44,14 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+        env:
+          PRODUCTION: '0'
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          JWT_SECRET: ci-test-secret
+          JWT_REFRESH: ci-test-refresh-secret
+          JWT_EXPIRES_IN: 1h
+          JWT_REFRESH_EXPIRES_IN: 7d
+          LOG_TO_FILE: '0'
 
       - name: Build application
         run: pnpm build

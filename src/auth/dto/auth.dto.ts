@@ -17,3 +17,7 @@ export interface TokenPair {
   refreshToken: string;
   expiresIn: number;
 }
+
+export interface RefreshTokenRequest {
+  refreshToken?: string;
+}
