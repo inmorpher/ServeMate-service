@@ -11,6 +11,7 @@ import { UserService } from '../../users/users.service';
 
 const repositoryMock = (): jest.Mocked<IUsersRepository> =>
   ({
+    getMeta: jest.fn(),
     findMany: jest.fn(),
     findById: jest.fn(),
     findByEmail: jest.fn(),

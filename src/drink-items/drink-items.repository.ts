@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { DrinkCategory, Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { TYPES } from '../types';
@@ -7,6 +7,7 @@ import {
   CreateDrinkItemDTO,
   DrinkItemDTO,
   DrinkItemsListDTO,
+  DrinkMetaDto,
   SearchDrinkItemsDTO,
   UpdateDrinkItemDTO,
 } from './dto';
@@ -29,6 +30,29 @@ const DRINK_SORT_FIELDS = new Set([
 @injectable()
 export class DrinkItemsRepository implements IDrinkItemsRepository {
   constructor(@inject(TYPES.PrismaClient) private prisma: PrismaClient) {}
+  async getMeta(): Promise<DrinkMetaDto> {
+    const [ranges, items] = await Promise.all([
+      this.prisma.drinkItem.aggregate({
+        _min: { price: true, volume: true },
+        _max: { price: true, volume: true },
+      }),
+      this.prisma.drinkItem.findMany({ select: { ingredients: true } }),
+    ]);
+
+    return {
+      categories: Object.values(DrinkCategory),
+      ingredients: [...new Set(items.flatMap(item => item.ingredients))].sort(),
+      availabilityStates: [true, false],
+      volumeRange: {
+        min: ranges._min.volume ?? 0,
+        max: ranges._max.volume ?? 0,
+      },
+      priceRange: {
+        min: Math.floor(ranges._min.price ?? 0),
+        max: Math.ceil(ranges._max.price ?? 0),
+      },
+    };
+  }
 
   async findMany(criteria: SearchDrinkItemsDTO): Promise<DrinkItemsListDTO> {
     const { page, pageSize } = criteria;

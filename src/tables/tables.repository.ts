@@ -3,7 +3,13 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { HTTPError } from '../errors/http-error.class';
 import { TYPES } from '../types';
-import { TableCreateDto, TableDto, TableQueryDto, TableUpdateDto } from './dto';
+import {
+  TableCreateDto,
+  TableDto,
+  TableMetaDto,
+  TableQueryDto,
+  TableUpdateDto,
+} from './dto';
 import {
   ITablesRepository,
   TablePagination,
@@ -24,6 +30,28 @@ const TABLE_SELECT = {
 @injectable()
 export class TablesRepository implements ITablesRepository {
   constructor(@inject(TYPES.PrismaClient) private prisma: PrismaClient) {}
+  async getMeta(): Promise<TableMetaDto> {
+    const [capacityRange, tables] = await Promise.all([
+      this.prisma.table.aggregate({
+        _min: { capacity: true },
+        _max: { capacity: true },
+      }),
+      this.prisma.table.findMany({
+        select: { tableNumber: true },
+        orderBy: { tableNumber: 'asc' },
+      }),
+    ]);
+
+    return {
+      statuses: Object.values(TableCondition),
+      occupiedStates: [true, false],
+      tableNumbers: tables.map(table => table.tableNumber),
+      capacityRange: {
+        min: capacityRange._min.capacity ?? 0,
+        max: capacityRange._max.capacity ?? 0,
+      },
+    };
+  }
 
   async findMany(
     filters: TableQueryDto,

@@ -22,6 +22,7 @@ import {
   ReservationCreateSchema,
   ReservationGuestInfoDto,
   ReservationGuestInfoSchema,
+  ReservationMetaDto,
   ReservationParamsDto,
   ReservationParamsSchema,
   ReservationQueryDto,
@@ -40,6 +41,7 @@ import { IReservationsService } from './reservations.service.interface';
 export type ReservationsControllerService = Pick<
   IReservationsService,
   | 'findReservations'
+  | 'getMeta'
   | 'findReservationById'
   | 'createReservation'
   | 'updateReservation'
@@ -94,6 +96,21 @@ export class ReservationsController extends BaseController {
           this.getValidated(req, 'query')
         )
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Get('/meta')
+  async getMeta(
+    _req: TypedRequest<{}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const result: ReservationMetaDto =
+        await this.reservationsService.getMeta();
+      this.ok(res, result);
     } catch (error) {
       next(error);
     }

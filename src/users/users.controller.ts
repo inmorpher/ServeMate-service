@@ -1,5 +1,5 @@
 import { UserRole } from '@prisma/client';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { BaseController } from '../common/base.controller';
@@ -21,11 +21,11 @@ import {
   UpdateUserDto,
   UpdateUserSchema,
   UserListResponse,
+  UserMetaDto,
   UserParamsDto,
   UserParamsSchema,
   UserQueryDto,
   UserQuerySchema,
-  UserSortColumn,
 } from './dto';
 import { IUsersController } from './users.controller.interface';
 import { IUsersService } from './users.service.interface';
@@ -33,6 +33,7 @@ import { IUsersService } from './users.service.interface';
 export type UserControllerService = Pick<
   IUsersService,
   | 'findUsers'
+  | 'getMeta'
   | 'findUserById'
   | 'createUser'
   | 'deleteUser'
@@ -67,28 +68,19 @@ export class UserController extends BaseController implements IUsersController {
     }
   }
 
-  /**
-   * Retrieves users based on the provided query parameters.
-   *
-   * @param {Request} req - The Express request object containing query parameters.
-   * @param {Response} res - The Express response object used to send the result.
-   * @param {NextFunction} next - The Express next middleware function for error handling.
-   *
-   * @param {number} [req.query.id] - The user ID to filter by.
-   * @param {string} [req.query.email] - The email to filter by.
-   * @param {string} [req.query.name] - The name to filter by.
-   * @param {number} [req.query.page=1] - The page number for pagination.
-   * @param {number} [req.query.pageSize=10] - The number of items per page.
-   * @param {UserSortColumn} [req.query.sortBy='name'] - The column to sort by.
-   * @param {'asc' | 'desc'} [req.query.sortOrder='asc'] - The sort order.
-   * @param {Role} [req.query.role] - The role to filter by.
-   * @param {boolean} [req.query.isActive] - The active status to filter by.
-   * @param {string} [req.query.createdAfter] - The date to filter users created after.
-   * @param {string} [req.query.createdBefore] - The date to filter users created before.
-   *
-   * @returns {Promise<void>} Sends a JSON response with the retrieved users if successful.
-   *                          If an error occurs, it's passed to the next middleware for handling.
-   */
+  @Get('/meta')
+  async getMeta(
+    _req: TypedRequest<{}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const result: UserMetaDto = await this.userService.getMeta();
+      this.ok(res, result);
+    } catch (error) {
+      next(error);
+    }
+  }
 
   @Validate(UserParamsSchema, 'params')
   @Roles([UserRole.ADMIN, UserRole.MANAGER])
@@ -159,6 +151,7 @@ export class UserController extends BaseController implements IUsersController {
    * @returns {Promise<void>} Sends a JSON response with a success message if the user is deleted successfully.
    *                          If an error occurs during the process, it's passed to the next middleware for error handling.
    */
+  @Roles([UserRole.ADMIN, UserRole.MANAGER])
   @Validate(UserParamsSchema, 'params')
   @Delete('/:id')
   @Roles([UserRole.ADMIN, UserRole.MANAGER])

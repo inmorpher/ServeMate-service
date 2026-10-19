@@ -17,6 +17,7 @@ import {
   UserListItem,
   UserListResponse,
   UserLoginDto,
+  UserMetaDto,
   UserQueryDto,
   UserSortColumn,
 } from './dto';
@@ -36,6 +37,14 @@ export class UserService extends BaseService implements IUsersService {
   ) {
     super();
     this.prisma = prisma;
+  }
+
+  async getMeta(): Promise<UserMetaDto> {
+    try {
+      return await this.userRepository.getMeta();
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   /**

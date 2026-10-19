@@ -3,12 +3,14 @@ import {
   ReservationDetailedDto,
   ReservationDto,
   ReservationGuestInfoDto,
+  ReservationMetaDto,
   ReservationQueryDto,
   ReservationStatus,
   ReservationUpdateDto,
 } from './dto';
 
 export interface IReservationsRepository {
+  getMeta(): Promise<ReservationMetaDto>;
   findMany(criteria: ReservationQueryDto): Promise<{
     reservations: ReservationDto[];
     total: number;

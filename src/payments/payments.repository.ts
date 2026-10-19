@@ -1,4 +1,9 @@
-import { PaymentState, Prisma, PrismaClient } from '@prisma/client';
+import {
+  PaymentMethod,
+  PaymentState,
+  Prisma,
+  PrismaClient,
+} from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { HTTPError } from '../errors/http-error.class';
@@ -7,6 +12,7 @@ import {
   PaymentCreateDto,
   PaymentDTO,
   PaymentListDTO,
+  PaymentMetaDto,
   PaymentSearchCriteria,
   RefundDTO,
 } from './dto';
@@ -15,6 +21,29 @@ import { IPaymentsRepository } from './payments.repository.interface';
 @injectable()
 export class PaymentsRepository implements IPaymentsRepository {
   constructor(@inject(TYPES.PrismaClient) private prisma: PrismaClient) {}
+  async getMeta(): Promise<PaymentMetaDto> {
+    const [amountRange, payments] = await Promise.all([
+      this.prisma.payment.aggregate({
+        _min: { totalAmount: true },
+        _max: { totalAmount: true },
+      }),
+      this.prisma.payment.findMany({
+        select: { orderId: true },
+        distinct: ['orderId'],
+        orderBy: { orderId: 'asc' },
+      }),
+    ]);
+
+    return {
+      statuses: Object.values(PaymentState),
+      methods: Object.values(PaymentMethod),
+      orderIds: payments.map(payment => payment.orderId),
+      totalAmountRange: {
+        min: Math.floor(amountRange._min.totalAmount ?? 0),
+        max: Math.ceil(amountRange._max.totalAmount ?? 0),
+      },
+    };
+  }
 
   async findMany(criteria: PaymentSearchCriteria): Promise<PaymentListDTO> {
     const where: Prisma.PaymentWhereInput = {

@@ -21,6 +21,7 @@ import {
   createDrinkItemSchema,
   DrinkItemParamsDto,
   DrinkItemParamsSchema,
+  DrinkMetaDto,
   SearchDrinkItemsDTO,
   searchDrinkItemsSchema,
   UpdateDrinkItemDTO,
@@ -30,6 +31,7 @@ import {
 export type DrinkItemsControllerService = Pick<
   IDrinkItemsService,
   | 'findDrinkItems'
+  | 'getMeta'
   | 'findDrinkItemById'
   | 'createDrinkItem'
   | 'updateDrinkItem'
@@ -77,6 +79,20 @@ export class DrinkItemsController extends BaseController {
         res,
         await this.service.findDrinkItems(this.getValidated(req, 'query'))
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Get('/meta')
+  async getMeta(
+    _req: TypedRequest<{}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const result: DrinkMetaDto = await this.service.getMeta();
+      this.ok(res, result);
     } catch (error) {
       next(error);
     }

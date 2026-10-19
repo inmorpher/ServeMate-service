@@ -18,6 +18,7 @@ import {
   createFoodItemSchema,
   FoodItemParamsDto,
   FoodItemParamsSchema,
+  FoodMetaDto,
   SearchFoodItemsDTO,
   searchFoodItemsSchema,
   UpdateFoodItemDTO,
@@ -28,6 +29,7 @@ import { IFoodItemsService } from './food-items.service.interface';
 export type FoodItemsControllerService = Pick<
   IFoodItemsService,
   | 'findFoodItems'
+  | 'getMeta'
   | 'findFoodItemById'
   | 'createFoodItem'
   | 'updateFoodItem'
@@ -73,6 +75,20 @@ export class FoodItemsController extends BaseController {
         res,
         await this.service.findFoodItems(this.getValidated(req, 'query'))
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Get('/meta')
+  async getMeta(
+    _req: TypedRequest<{}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const result: FoodMetaDto = await this.service.getMeta();
+      this.ok(res, result);
     } catch (error) {
       next(error);
     }

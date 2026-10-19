@@ -3,6 +3,7 @@ import {
   TableAssignmentDto,
   TableCreateDto,
   TableDto,
+  TableMetaDto,
   TableQueryDto,
   TableUpdateDto,
 } from './dto';
@@ -18,6 +19,7 @@ export type TableSort = {
 };
 
 export interface ITablesRepository {
+  getMeta(): Promise<TableMetaDto>;
   findMany(
     filters: TableQueryDto,
     pagination: TablePagination,

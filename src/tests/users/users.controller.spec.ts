@@ -6,6 +6,7 @@ import {
 
 const serviceMock = (): jest.Mocked<UserControllerService> =>
   ({
+    getMeta: jest.fn(),
     findUsers: jest.fn(),
     findUserById: jest.fn(),
     createUser: jest.fn(),

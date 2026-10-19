@@ -33,6 +33,7 @@ import { ITablesService } from './tables.service.interface';
 export type TablesControllerService = Pick<
   ITablesService,
   | 'findTables'
+  | 'getMeta'
   | 'findTableById'
   | 'createTable'
   | 'updateTable'
@@ -82,6 +83,19 @@ export class TablesController extends BaseController {
         res,
         `Tables ${data.assignedTables.join(', ')} assigned to server ${data.serverId} successfully`
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Get('/meta')
+  async getMeta(
+    _req: TypedRequest<{}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      this.ok(res, await this.tablesService.getMeta());
     } catch (error) {
       next(error);
     }

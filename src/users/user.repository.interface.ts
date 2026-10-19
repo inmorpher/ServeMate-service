@@ -3,6 +3,7 @@ import {
   UpdateUserDto,
   UserFilters,
   UserListItem,
+  UserMetaDto,
   UserRole,
   UserSortColumn,
 } from './dto';
@@ -18,6 +19,7 @@ export type UserSort = {
 };
 
 export interface IUsersRepository {
+  getMeta(): Promise<UserMetaDto>;
   findMany(
     filters: UserFilters,
     pagination: UserPagination,

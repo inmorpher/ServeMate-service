@@ -11,6 +11,7 @@ import {
   ReservationDto,
   ReservationGuestInfoDto,
   ReservationListResponse,
+  ReservationMetaDto,
   ReservationQueryDto,
   ReservationStatus,
   ReservationUpdateDto,
@@ -32,6 +33,14 @@ export class ReservationsService
     private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
+  }
+
+  async getMeta(): Promise<ReservationMetaDto> {
+    try {
+      return await this.reservationsRepository.getMeta();
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async findReservations(

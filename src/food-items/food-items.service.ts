@@ -9,6 +9,7 @@ import {
   CreateFoodItemDTO,
   FoodItemDTO,
   FoodItemsListDTO,
+  FoodMetaDto,
   SearchFoodItemsDTO,
   UpdateFoodItemDTO,
 } from './dto';
@@ -25,6 +26,14 @@ export class FoodItemsService extends BaseService implements IFoodItemsService {
   ) {
     super();
   }
+  async getMeta(): Promise<FoodMetaDto> {
+    try {
+      return await this.repository.getMeta();
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   async findFoodItems(criteria: SearchFoodItemsDTO): Promise<FoodItemsListDTO> {
     try {
       return await this.repository.findMany(criteria);

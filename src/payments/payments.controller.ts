@@ -12,6 +12,7 @@ import { TYPES } from '../types';
 import {
   PaymentCreateDto,
   PaymentCreateSchema,
+  PaymentMetaDto,
   PaymentParamsDto,
   PaymentParamsSchema,
   PaymentSearchCriteria,
@@ -24,6 +25,7 @@ import { IPaymentsService } from './payments.service.interface';
 export type PaymentsControllerService = Pick<
   IPaymentsService,
   | 'findPayments'
+  | 'getMeta'
   | 'findPaymentById'
   | 'createPayment'
   | 'completePayment'
@@ -54,6 +56,20 @@ export class PaymentsController extends BaseController {
         res,
         await this.paymentsService.findPayments(this.getValidated(req, 'query'))
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Get('/meta')
+  async getMeta(
+    _req: TypedRequest<{}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const result: PaymentMetaDto = await this.paymentsService.getMeta();
+      this.ok(res, result);
     } catch (error) {
       next(error);
     }

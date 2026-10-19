@@ -3,7 +3,7 @@ import { compare } from 'bcrypt';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { TYPES } from '../types';
-import { UserFilters, UserListItem, UserSortColumn } from './dto';
+import { UserFilters, UserListItem, UserMetaDto, UserSortColumn } from './dto';
 export type UserPagination = {
   page: number;
   pageSize: number;
@@ -17,6 +17,22 @@ export type UserSort = {
 @injectable()
 export class UsersRepository {
   constructor(@inject(TYPES.PrismaClient) private prisma: PrismaClient) {}
+  async getMeta(): Promise<UserMetaDto> {
+    const fallbackDate = new Date().toISOString();
+    const dateRange = await this.prisma.user.aggregate({
+      _min: { createdAt: true },
+      _max: { createdAt: true },
+    });
+
+    return {
+      roles: Object.values(UserRole),
+      activeStates: [true, false],
+      createdAtRange: {
+        min: dateRange._min.createdAt?.toISOString() ?? fallbackDate,
+        max: dateRange._max.createdAt?.toISOString() ?? fallbackDate,
+      },
+    };
+  }
 
   async findMany(
     filters: UserFilters,

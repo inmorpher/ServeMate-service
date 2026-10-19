@@ -11,6 +11,7 @@ import {
   CreateDrinkItemDTO,
   DrinkItemDTO,
   DrinkItemsListDTO,
+  DrinkMetaDto,
   SearchDrinkItemsDTO,
   UpdateDrinkItemDTO,
 } from './dto';
@@ -29,6 +30,14 @@ export class DrinkItemsService
   ) {
     super();
   }
+  async getMeta(): Promise<DrinkMetaDto> {
+    try {
+      return await this.repository.getMeta();
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   async findDrinkItems(
     criteria: SearchDrinkItemsDTO
   ): Promise<DrinkItemsListDTO> {
