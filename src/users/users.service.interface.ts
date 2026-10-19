@@ -7,10 +7,12 @@ import {
   UserListItem,
   UserListResponse,
   UserLoginDto,
+  UserMetaDto,
   UserQueryDto,
 } from './dto';
 
 export interface IUsersService extends BaseService {
+  getMeta(): Promise<UserMetaDto>;
   /**
    * Searches for users based on specified criteria.
    * @param criteria - The search criteria to filter users.

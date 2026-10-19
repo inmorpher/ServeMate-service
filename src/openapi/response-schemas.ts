@@ -3,22 +3,28 @@ import {
   drinkItemSchema,
   drinkItemsListSchema,
 } from '../drink-items/dto/drink-base.dto';
+import { DrinkMetaSchema } from '../drink-items/dto/drink-meta.dto';
 import {
   foodItemSchema,
   foodItemsListSchema,
 } from '../food-items/dto/food-base.dto';
+import { FoodMetaSchema } from '../food-items/dto/food-meta.dto';
 import { OrderMetaSchema } from '../orders/dto/order-meta.dto';
 import {
   OrderResponseSchema,
   OrderSearchResultSchema,
 } from '../orders/dto/order-response.dto';
 import { PaymentSchema } from '../payments/dto/payment-base.dto';
+import { PaymentMetaSchema } from '../payments/dto/payment-meta.dto';
 import {
   ReservationSchema,
   ReservationTableSchema,
 } from '../reservations/dto/reservation-base.dto';
+import { ReservationMetaSchema } from '../reservations/dto/reservation-meta.dto';
 import { TableSchema } from '../tables/dto/table-base.dto';
+import { TableMetaSchema } from '../tables/dto/table-meta.dto';
 import { UserResponseSchema } from '../users/dto/user-base.dto';
+import { UserMetaSchema } from '../users/dto/user-meta.dto';
 import { WorkspaceTabSchema } from '../workspace/dto/workspace-tab.dto';
 import { WorkspaceSchema } from '../workspace/dto/workspace.dto';
 
@@ -45,6 +51,12 @@ export const UsersListResponseSchema = z.object({
   pageSize: z.number().int().positive(),
   totalPages: z.number().int().nonnegative(),
 });
+export const UserMetaResponseSchema = UserMetaSchema;
+export const TableMetaResponseSchema = TableMetaSchema;
+export const ReservationMetaResponseSchema = ReservationMetaSchema;
+export const PaymentMetaResponseSchema = PaymentMetaSchema;
+export const FoodMetaResponseSchema = FoodMetaSchema;
+export const DrinkMetaResponseSchema = DrinkMetaSchema;
 
 export const WorkspaceBootstrapResponseSchema = z.object({
   workspace: WorkspaceSchema,
@@ -94,6 +106,7 @@ export const ApiResponseSchemas = {
   AuthenticationController_refreshToken: TokenPairResponseSchema,
   AuthenticationController_me: MeResponseSchema,
   UserController_findAll: UsersListResponseSchema,
+  UserController_getMeta: UserMetaResponseSchema,
   UserController_findOne: UserResponseSchema,
   UserController_create: UserResponseSchema,
   UserController_delete: MessageResponseSchema,
@@ -106,14 +119,17 @@ export const ApiResponseSchemas = {
   OrdersController_findOrderById: OrderResponseSchema,
   FoodItemsController_create: foodItemSchema,
   FoodItemsController_findAll: FoodItemsResponseSchema,
+  FoodItemsController_getMeta: FoodMetaResponseSchema,
   FoodItemsController_findOne: foodItemSchema,
   FoodItemsController_update: foodItemSchema,
   DrinkItemsController_create: drinkItemSchema,
   DrinkItemsController_findAll: DrinkItemsResponseSchema,
+  DrinkItemsController_getMeta: DrinkMetaResponseSchema,
   DrinkItemsController_findOne: drinkItemSchema,
   DrinkItemsController_update: drinkItemSchema,
   ReservationsController_create: ReservationMutationResponseSchema,
   ReservationsController_findAll: ReservationsListResponseSchema,
+  ReservationsController_getMeta: ReservationMetaResponseSchema,
   ReservationsController_findOne: ReservationSchema,
   ReservationsController_update: ReservationMutationResponseSchema,
   ReservationsController_updateStatus: ReservationMutationResponseSchema,
@@ -123,10 +139,12 @@ export const ApiResponseSchemas = {
   ReservationsController_updateComment: ReservationMutationResponseSchema,
   ReservationsController_delete: MessageResponseSchema,
   TablesController_findAll: TablesListResponseSchema,
+  TablesController_getMeta: TableMetaResponseSchema,
   TablesController_assign: TableAssignmentResponseSchema,
   TablesController_findOne: TableSchema,
   TablesController_update: TableSchema,
   PaymentsController_findAll: PaymentsListResponseSchema,
+  PaymentsController_getMeta: PaymentMetaResponseSchema,
   PaymentsController_findOne: PaymentSchema,
   PaymentsController_create: PaymentSchema,
   PaymentsController_complete: PaymentSchema,

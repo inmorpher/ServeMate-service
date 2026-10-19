@@ -18,6 +18,7 @@ const table = (overrides: Partial<TableDto> = {}): TableDto => ({
 
 const repositoryMock = (): jest.Mocked<ITablesRepository> =>
   ({
+    getMeta: jest.fn(),
     findMany: jest.fn(),
     findById: jest.fn(),
     findByTableNumber: jest.fn(),

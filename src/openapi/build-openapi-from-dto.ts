@@ -40,11 +40,18 @@ function loadDtoSchemas() {
     './response-schemas',
   ].map(modulePath => require(modulePath) as Record<string, unknown>);
 
-  return Object.fromEntries(
-    dtoModules
-      .flatMap(dtoModule => Object.entries(dtoModule))
-      .filter(([, value]) => isZodSchema(value))
-  ) as Record<string, z.ZodTypeAny>;
+  const schemas: Record<string, z.ZodTypeAny> = {};
+  dtoModules
+    .flatMap(dtoModule => Object.entries(dtoModule))
+    .filter(([, value]) => isZodSchema(value))
+    .forEach(([name, schema]) => {
+      if (name in schemas) {
+        throw new Error(`Duplicate DTO schema name: ${name}`);
+      }
+      schemas[name] = schema as z.ZodTypeAny;
+    });
+
+  return schemas;
 }
 
 function getControllerFiles(dir: string): string[] {
@@ -361,78 +368,12 @@ function loadControllerRoutes(): Record<string, PathItemObject> {
   return paths;
 }
 
-const NAMED_SCHEMAS = [
-  'UserResponseSchema',
-  'UserSchema',
-  'UserLoginSchema',
-  'CreateUserSchema',
-  'UpdateUserSchema',
-  'UserParamSchema',
-  'drinkItemSchema',
-  'foodItemSchema',
-  'createDrinkItemSchema',
-  'createFoodItemSchema',
-  'updateDrinkItemSchema',
-  'updateFoodItemSchema',
-  'searchDrinkItemsSchema',
-  'searchFoodItemsSchema',
-  'drinkItemsListSchema',
-  'foodItemsListSchema',
-  'OrderSchema',
-  'OrderSearchSchema',
-  'OrderCreateSchema',
-  'OrderFullSingleSchema',
-  'OrderUpdateProps',
-  'OrderUpdateItemsSchema',
-  'OrderMeta',
-  'PaymentSchema',
-  'PaymentSearchSchema',
-  'RefundSchema',
-  'ReservationSchema',
-  'CreateReservationSchema',
-  'UpdateReservationSchema',
-  'ReservationWithTablesSchema',
-  'ReservationDetailedSchema',
-  'ReservationSearchCriteria',
-  'TableBaseTableSchema',
-  'TableSchema',
-  'TableSearchCriteriaSchema',
-  'TableCreateSchema',
-  'TableUpdatesSchema',
-  'TableIdSchema',
-  'TableAssignmentSchema',
-  'TableSeatingSchema',
-  'WorkspaceSchema',
-  'WorkspaceSettingsSchema',
-  'WorkspaceTabSchema',
-  'ErrorResponseSchema',
-  'MessageResponseSchema',
-  'TokenPairResponseSchema',
-  'LoginResponseSchema',
-  'MeResponseSchema',
-  'UsersListResponseSchema',
-  'WorkspaceBootstrapResponseSchema',
-  'FoodItemsResponseSchema',
-  'DrinkItemsResponseSchema',
-  'OrdersResponseSchema',
-  'OrderMetaResponseSchema',
-  'PaymentsListResponseSchema',
-  'ReservationConflictSchema',
-  'ReservationMutationResponseSchema',
-  'ReservationsListResponseSchema',
-  'TablesListResponseSchema',
-  'TableAssignmentResponseSchema',
-];
-
 export function buildOpenApiFromDto(): OpenAPIObject {
   const dtoSchemas = loadDtoSchemas();
 
   const schemas: Record<string, unknown> = {};
-  NAMED_SCHEMAS.forEach(name => {
-    const schema = dtoSchemas[name];
-    if (schema) {
-      schemas[name] = zodToOpenApiSchema(schema);
-    }
+  Object.entries(dtoSchemas).forEach(([name, schema]) => {
+    schemas[name] = zodToOpenApiSchema(schema);
   });
 
   return {

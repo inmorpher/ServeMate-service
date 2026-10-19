@@ -6,6 +6,7 @@ const prismaMock = () => ({
     findMany: jest.fn(),
     findUnique: jest.fn(),
     count: jest.fn(),
+    aggregate: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),

@@ -6,6 +6,7 @@ import {
 
 const serviceMock = (): jest.Mocked<TablesControllerService> =>
   ({
+    getMeta: jest.fn(),
     findTables: jest.fn(),
     findTableById: jest.fn(),
     createTable: jest.fn(),

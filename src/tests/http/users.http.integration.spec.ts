@@ -32,6 +32,7 @@ const tokenServiceMock = (): jest.Mocked<ITokenService> =>
 
 const serviceMock = (): jest.Mocked<UserControllerService> =>
   ({
+    getMeta: jest.fn(),
     findUsers: jest.fn(),
     findUserById: jest.fn(),
     createUser: jest.fn(),
@@ -80,7 +81,10 @@ describe('Users HTTP integration', () => {
     const controller = new UserController(logger as any, service);
     const exceptionFilter = new ExceptionFilter(logger as any);
 
-    app.use('/api', (req, res, next) => authMiddleware.execute(req, res, next));
+    app.use('/api', (req, res, next) => {
+      if (req.path.includes('/meta')) return next();
+      return authMiddleware.execute(req, res, next);
+    });
     registerController(app, controller);
     app.use(exceptionFilter.catch.bind(exceptionFilter));
 
@@ -102,6 +106,30 @@ describe('Users HTTP integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service.findUsers.mockResolvedValue({ users: [], total: 0 } as any);
+    service.getMeta.mockResolvedValue({
+      roles: Object.values(UserRole),
+      activeStates: [true, false],
+      createdAtRange: {
+        min: '2026-01-01T00:00:00.000Z',
+        max: '2026-01-01T00:00:00.000Z',
+      },
+    });
+  });
+
+  it('serves users metadata publicly before the dynamic ID route', async () => {
+    const response = await fetch(`${baseUrl}/api/users/meta`);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      roles: Object.values(UserRole),
+      activeStates: [true, false],
+      createdAtRange: {
+        min: '2026-01-01T00:00:00.000Z',
+        max: '2026-01-01T00:00:00.000Z',
+      },
+    });
+    expect(tokenService.verifyAccessToken).not.toHaveBeenCalled();
+    expect(service.getMeta).toHaveBeenCalledTimes(1);
   });
 
   it('returns 401 through the HTTP error pipeline without a token', async () => {

@@ -8,6 +8,7 @@ import {
   PaymentCreateDto,
   PaymentDTO,
   PaymentListDTO,
+  PaymentMetaDto,
   PaymentSearchCriteria,
   RefundDTO,
 } from './dto';
@@ -25,6 +26,14 @@ export class PaymentsService extends BaseService implements IPaymentsService {
   ) {
     super();
   }
+  async getMeta(): Promise<PaymentMetaDto> {
+    try {
+      return await this.paymentsRepository.getMeta();
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   async findPayments(criteria: PaymentSearchCriteria): Promise<PaymentListDTO> {
     try {
       return await this.paymentsRepository.findMany(criteria);

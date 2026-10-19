@@ -2,11 +2,13 @@ import {
   PaymentCreateDto,
   PaymentDTO,
   PaymentListDTO,
+  PaymentMetaDto,
   PaymentSearchCriteria,
   RefundDTO,
 } from './dto';
 
 export interface IPaymentsRepository {
+  getMeta(): Promise<PaymentMetaDto>;
   findMany(criteria: PaymentSearchCriteria): Promise<PaymentListDTO>;
   findById(id: number): Promise<PaymentDTO>;
   create(orderId: number, data: PaymentCreateDto): Promise<string>;

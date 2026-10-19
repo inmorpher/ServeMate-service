@@ -8,6 +8,7 @@ import {
   ReservationDetailedDto,
   ReservationDto,
   ReservationGuestInfoDto,
+  ReservationMetaDto,
   ReservationQueryDto,
   ReservationStatus as ReservationStatusDto,
   ReservationUpdateDto,
@@ -31,6 +32,32 @@ type ReservationWithTables = Prisma.ReservationGetPayload<{
 @injectable()
 export class ReservationsRepository implements IReservationsRepository {
   constructor(@inject(TYPES.PrismaClient) private prisma: PrismaClient) {}
+  async getMeta(): Promise<ReservationMetaDto> {
+    const fallbackDate = new Date().toISOString();
+    const [reservationRange, tables] = await Promise.all([
+      this.prisma.reservation.aggregate({
+        _min: { guestsCount: true, time: true },
+        _max: { guestsCount: true, time: true },
+      }),
+      this.prisma.table.findMany({
+        select: { id: true, tableNumber: true },
+        orderBy: { tableNumber: 'asc' },
+      }),
+    ]);
+
+    return {
+      statuses: Object.values(ReservationStatus),
+      tables,
+      guestsCountRange: {
+        min: reservationRange._min.guestsCount ?? 0,
+        max: reservationRange._max.guestsCount ?? 0,
+      },
+      timeRange: {
+        min: reservationRange._min.time?.toISOString() ?? fallbackDate,
+        max: reservationRange._max.time?.toISOString() ?? fallbackDate,
+      },
+    };
+  }
 
   async findMany(criteria: ReservationQueryDto) {
     const where = this.buildWhere(criteria);

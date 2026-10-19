@@ -4,12 +4,14 @@ import {
   ReservationDto,
   ReservationGuestInfoDto,
   ReservationListResponse,
+  ReservationMetaDto,
   ReservationQueryDto,
   ReservationStatus,
   ReservationUpdateDto,
 } from './dto';
 
 export interface IReservationsService {
+  getMeta(): Promise<ReservationMetaDto>;
   findReservations(
     criteria: ReservationQueryDto
   ): Promise<ReservationListResponse>;

@@ -10,6 +10,7 @@ import {
   TableCreateDto,
   TableDto,
   TableListResponse,
+  TableMetaDto,
   TableQueryDto,
   TableSortColumn,
   TableUpdateDto,
@@ -27,6 +28,14 @@ export class TablesService extends BaseService implements ITablesService {
     private readonly realtimeGateway?: IWebSocketService
   ) {
     super();
+  }
+
+  async getMeta(): Promise<TableMetaDto> {
+    try {
+      return await this.tablesRepository.getMeta();
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async findTables(criteria: TableQueryDto): Promise<TableListResponse> {
