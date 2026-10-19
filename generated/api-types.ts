@@ -632,6 +632,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getMeta */
+        get: operations["UserController_getMeta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/{id}": {
         parameters: {
             query?: never;
@@ -646,23 +663,6 @@ export interface paths {
         post?: never;
         /** delete */
         delete: operations["UserController_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/meta": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** getMeta */
-        get: operations["UserController_getMeta"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -707,51 +707,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        UserResponseSchema: {
-            id: number;
-            name: string;
-            email: string;
-            role: string;
-            isActive?: boolean;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** Format: date-time */
-            lastLogin?: string;
-        };
-        UserSchema: {
-            id: number;
-            name: string;
-            email: string;
-            role: string;
-            isActive?: boolean;
-            password: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** Format: date-time */
-            lastLogin?: string;
-        };
-        UserLoginSchema: {
-            email: string;
-            password: string;
-        };
-        CreateUserSchema: {
-            name: string;
-            email: string;
-            role: string;
-            password: string;
-        };
-        UpdateUserSchema: {
-            name?: string;
-            email?: string;
-            role?: string;
-            isActive?: boolean;
-            /** Format: date-time */
-            lastLogin?: string;
-        };
         drinkItemSchema: {
             id: number;
             name: string;
@@ -770,119 +725,6 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
             image?: string;
-        };
-        foodItemSchema: {
-            id: number;
-            name: string;
-            price: number;
-            description: string;
-            ingredients?: string[];
-            isAvailable?: boolean;
-            popularityScore?: number;
-            image?: string;
-            category: string;
-            type: string;
-            isVegan?: boolean;
-            isGlutenFree?: boolean;
-            isVegetarian?: boolean;
-            allergies?: string[];
-            preparationTime?: number;
-            spicyLevel?: string;
-            calories?: number;
-        };
-        createDrinkItemSchema: {
-            name: string;
-            price: number;
-            description: string;
-            volume: number;
-            ingredients?: string[];
-            isAvailable?: boolean;
-            category: string;
-            alcoholPercentage?: number;
-            isCarbonated?: boolean;
-            tempriture: string;
-            popularityScore?: number;
-            image?: string;
-        };
-        createFoodItemSchema: {
-            name: string;
-            price: number;
-            description: string;
-            ingredients?: string[];
-            isAvailable?: boolean;
-            popularityScore?: number;
-            image?: string;
-            category: string;
-            type: string;
-            isVegan?: boolean;
-            isGlutenFree?: boolean;
-            isVegetarian?: boolean;
-            allergies?: string[];
-            preparationTime?: number;
-            spicyLevel?: string;
-            calories?: number;
-        };
-        updateDrinkItemSchema: {
-            name?: string;
-            price?: number;
-            description?: string;
-            volume?: number;
-            ingredients?: string[];
-            isAvailable?: boolean;
-            category?: string;
-            alcoholPercentage?: number;
-            isCarbonated?: boolean;
-            tempriture?: string;
-            popularityScore?: number;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            image?: string;
-        };
-        updateFoodItemSchema: {
-            name?: string;
-            price?: number;
-            description?: string;
-            ingredients?: string[];
-            isAvailable?: boolean;
-            popularityScore?: number;
-            image?: string;
-            category?: string;
-            type?: string;
-            isVegan?: boolean;
-            isGlutenFree?: boolean;
-            isVegetarian?: boolean;
-            allergies?: string[];
-            preparationTime?: number;
-            spicyLevel?: string;
-            calories?: number;
-        };
-        searchDrinkItemsSchema: {
-            page?: number;
-            pageSize?: number;
-            sortBy?: string;
-            sortOrder?: string;
-            name?: string;
-            category?: string;
-            isAvailable?: boolean;
-            volume?: number;
-            ingredients?: string[];
-        };
-        searchFoodItemsSchema: {
-            page?: number;
-            pageSize?: number;
-            sortBy?: string;
-            sortOrder?: string;
-            name?: string;
-            category?: string;
-            type?: string;
-            isAvailable?: boolean;
-            price?: number;
-            isVegan?: boolean;
-            isGlutenFree?: boolean;
-            isVegetarian?: boolean;
-            ingredients?: string[];
         };
         drinkItemsListSchema: {
             items: {
@@ -909,6 +751,84 @@ export interface components {
             pageSize: number;
             totalPages: number;
         };
+        createDrinkItemSchema: {
+            name: string;
+            price: number;
+            description: string;
+            volume: number;
+            ingredients?: string[];
+            isAvailable?: boolean;
+            category: string;
+            alcoholPercentage?: number;
+            isCarbonated?: boolean;
+            tempriture: string;
+            popularityScore?: number;
+            image?: string;
+        };
+        DrinkMetaSchema: {
+            categories: string[];
+            ingredients: string[];
+            availabilityStates: boolean[];
+            volumeRange: {
+                min: number;
+                max: number;
+            };
+            priceRange: {
+                min: number;
+                max: number;
+            };
+        };
+        DrinkItemParamsSchema: {
+            id: number;
+        };
+        searchDrinkItemsSchema: {
+            page?: number;
+            pageSize?: number;
+            sortBy?: string;
+            sortOrder?: string;
+            name?: string;
+            category?: string;
+            isAvailable?: boolean;
+            volume?: number;
+            ingredients?: string[];
+        };
+        updateDrinkItemSchema: {
+            name?: string;
+            price?: number;
+            description?: string;
+            volume?: number;
+            ingredients?: string[];
+            isAvailable?: boolean;
+            category?: string;
+            alcoholPercentage?: number;
+            isCarbonated?: boolean;
+            tempriture?: string;
+            popularityScore?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            image?: string;
+        };
+        foodItemSchema: {
+            id: number;
+            name: string;
+            price: number;
+            description: string;
+            ingredients?: string[];
+            isAvailable?: boolean;
+            popularityScore?: number;
+            image?: string;
+            category: string;
+            type: string;
+            isVegan?: boolean;
+            isGlutenFree?: boolean;
+            isVegetarian?: boolean;
+            allergies?: string[];
+            preparationTime?: number;
+            spicyLevel?: string;
+            calories?: number;
+        };
         foodItemsListSchema: {
             items: {
                 id: number;
@@ -933,6 +853,71 @@ export interface components {
             page: number;
             pageSize: number;
             totalPages: number;
+        };
+        createFoodItemSchema: {
+            name: string;
+            price: number;
+            description: string;
+            ingredients?: string[];
+            isAvailable?: boolean;
+            popularityScore?: number;
+            image?: string;
+            category: string;
+            type: string;
+            isVegan?: boolean;
+            isGlutenFree?: boolean;
+            isVegetarian?: boolean;
+            allergies?: string[];
+            preparationTime?: number;
+            spicyLevel?: string;
+            calories?: number;
+        };
+        FoodMetaSchema: {
+            categories: string[];
+            types: string[];
+            ingredients: string[];
+            availabilityStates: boolean[];
+            booleanFilterValues: boolean[];
+            priceRange: {
+                min: number;
+                max: number;
+            };
+        };
+        FoodItemParamsSchema: {
+            id: number;
+        };
+        searchFoodItemsSchema: {
+            page?: number;
+            pageSize?: number;
+            sortBy?: string;
+            sortOrder?: string;
+            name?: string;
+            category?: string;
+            type?: string;
+            isAvailable?: boolean;
+            price?: number;
+            isVegan?: boolean;
+            isGlutenFree?: boolean;
+            isVegetarian?: boolean;
+            ingredients?: string[];
+        };
+        updateFoodItemSchema: {
+            name?: string;
+            price?: number;
+            description?: string;
+            ingredients?: string[];
+            isAvailable?: boolean;
+            popularityScore?: number;
+            image?: string;
+            category?: string;
+            type?: string;
+            isVegan?: boolean;
+            isGlutenFree?: boolean;
+            isVegetarian?: boolean;
+            allergies?: string[];
+            preparationTime?: number;
+            spicyLevel?: string;
+            calories?: number;
         };
         OrderCreateSchema: {
             tableNumber: number;
@@ -965,6 +950,267 @@ export interface components {
                 }[];
             }[];
         };
+        CreateGuestItemsSchema: {
+            guestNumber: number;
+            items: {
+                itemId: number;
+                price: number;
+                discount?: number;
+                finalPrice?: number;
+                specialRequest?: string;
+                allergies?: string[];
+            }[];
+        };
+        CreateOrderItemSchema: {
+            itemId: number;
+            price: number;
+            discount?: number;
+            finalPrice?: number;
+            specialRequest?: string;
+            allergies?: string[];
+        };
+        GuestItemsSchema: {
+            guestNumber: number;
+            items: {
+                itemId: number;
+                price: number;
+                discount?: number;
+                finalPrice?: number;
+                specialRequest?: string;
+                allergies?: string[];
+                printed?: boolean;
+                fired?: boolean;
+                paymentStatus?: string;
+            }[];
+        };
+        GuestOrderItemSchema: {
+            itemId: number;
+            price: number;
+            discount?: number;
+            finalPrice?: number;
+            specialRequest?: string;
+            allergies?: string[];
+            printed?: boolean;
+            fired?: boolean;
+            paymentStatus?: string;
+        };
+        OrderItemSchema: {
+            id: number;
+            itemId: number;
+            price: number;
+            discount?: number;
+            finalPrice?: number;
+            specialRequest?: string;
+            allergies?: string[];
+            printed?: boolean;
+            fired?: boolean;
+            guestNumber: number;
+            paymentStatus?: string;
+        };
+        OrderItemWithProductSchema: {
+            id: number;
+            itemId: number;
+            price: number;
+            discount?: number;
+            finalPrice?: number;
+            specialRequest?: string;
+            allergies?: string[];
+            printed?: boolean;
+            fired?: boolean;
+            guestNumber: number;
+            paymentStatus?: string;
+            foodItem?: {
+                id: number;
+                name: string;
+            };
+            drinkItem?: {
+                id: number;
+                name: string;
+            };
+        };
+        OrderDateRangeSchema: {
+            min: string;
+            max: string;
+        };
+        OrderMetaSchema: {
+            statuses: string[];
+            allergies: string[];
+            maxGuests: number;
+            prices: {
+                min: number;
+                max: number;
+            };
+            dates: {
+                min: string;
+                max: string;
+            };
+            tableNumbers: number[];
+            filtered: {
+                maxGuests: number;
+                prices: {
+                    min: number;
+                    max: number;
+                };
+                dates: {
+                    min: string;
+                    max: string;
+                };
+                tableNumbers: number[];
+            };
+        };
+        OrderPriceRangeSchema: {
+            min: number;
+            max: number;
+        };
+        OrderQuerySchema: {
+            id?: number;
+            tableNumber?: number;
+            tableNumbers: number[];
+            guestsCount?: number;
+            allergies: string[];
+            serverId?: number;
+            serverName?: string;
+            status: string;
+            minAmount?: number;
+            maxAmount?: number;
+            /** Format: date-time */
+            dateFrom?: string;
+            /** Format: date-time */
+            dateTo?: string;
+            page?: number;
+            pageSize?: number;
+            sortBy?: string;
+            sortOrder?: string;
+        };
+        OrderGuestItemsSchema: {
+            guestNumber: number;
+            items: {
+                id: number;
+                name?: string;
+                itemId: number;
+                guestNumber: number;
+                allergies?: string[];
+                price: number;
+                discount: number;
+                finalPrice: number;
+                printed: boolean;
+                fired: boolean;
+                paymentStatus: string;
+                specialRequest?: string;
+            }[];
+        };
+        OrderListItemSchema: {
+            id: number;
+            status: string;
+            server: {
+                id: number;
+                name: string;
+            };
+            tableNumber: number;
+            guestsCount: number;
+            /** Format: date-time */
+            orderTime: string;
+            /** Format: date-time */
+            completionTime?: string;
+            /** Format: date-time */
+            updatedAt: string;
+            comments?: string;
+            totalAmount: number;
+            discount: number;
+            tip: number;
+        };
+        OrderResponseSchema: {
+            id: number;
+            tableNumber: number;
+            guestsCount: number;
+            /** Format: date-time */
+            orderTime: string;
+            /** Format: date-time */
+            updatedAt: string;
+            serverId: number;
+            status: string;
+            comments?: string;
+            /** Format: date-time */
+            completionTime?: string;
+            totalAmount: number;
+            discount: number;
+            tip: number;
+            shiftId?: string;
+            allergies: string[];
+            server: {
+                id: number;
+                name: string;
+            };
+            foodItems: {
+                guestNumber: number;
+                items: {
+                    id: number;
+                    name?: string;
+                    itemId: number;
+                    guestNumber: number;
+                    allergies?: string[];
+                    price: number;
+                    discount: number;
+                    finalPrice: number;
+                    printed: boolean;
+                    fired: boolean;
+                    paymentStatus: string;
+                    specialRequest?: string;
+                }[];
+            }[];
+            drinkItems: {
+                guestNumber: number;
+                items: {
+                    id: number;
+                    name?: string;
+                    itemId: number;
+                    guestNumber: number;
+                    allergies?: string[];
+                    price: number;
+                    discount: number;
+                    finalPrice: number;
+                    printed: boolean;
+                    fired: boolean;
+                    paymentStatus: string;
+                    specialRequest?: string;
+                }[];
+            }[];
+        };
+        OrderSearchResultSchema: {
+            orders: {
+                id: number;
+                status: string;
+                server: {
+                    id: number;
+                    name: string;
+                };
+                tableNumber: number;
+                guestsCount: number;
+                /** Format: date-time */
+                orderTime: string;
+                /** Format: date-time */
+                completionTime?: string;
+                /** Format: date-time */
+                updatedAt: string;
+                comments?: string;
+                totalAmount: number;
+                discount: number;
+                tip: number;
+            }[];
+            priceRange: {
+                min: number;
+                max: number;
+            };
+            dateRange: {
+                min: string;
+                max: string;
+            };
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        OrderItemIdsSchema: string;
         OrderUpdateItemsSchema: {
             foodItems?: {
                 guestNumber: number;
@@ -988,6 +1234,29 @@ export interface components {
                     allergies?: string[];
                 }[];
             }[];
+        };
+        OrderUpdateSchema: {
+            tableNumber?: number;
+            guestsCount?: number;
+            status?: string;
+            comments?: string;
+            discount?: number;
+            tip?: number;
+        };
+        PartialPaymentSchema: {
+            id?: number;
+            amount?: number;
+            tax?: number;
+            tip?: number;
+            serviceCharge?: number;
+            totalAmount?: number;
+            paymentType?: string;
+            status?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            completedAt?: string;
+            orderId?: number;
         };
         PaymentSchema: {
             id: number;
@@ -1016,6 +1285,22 @@ export interface components {
             amount: number;
             reason: string;
         };
+        PaymentCreateSchema: {
+            foodItems?: number[];
+            drinkItems?: number[];
+        };
+        PaymentMetaSchema: {
+            statuses: string[];
+            methods: string[];
+            orderIds: number[];
+            totalAmountRange: {
+                min: number;
+                max: number;
+            };
+        };
+        PaymentParamsSchema: {
+            id: number;
+        };
         ReservationSchema: {
             id: number;
             guestsCount: number;
@@ -1036,6 +1321,93 @@ export interface components {
             updatedAt: string;
             isActive: boolean;
         };
+        ReservationTableSchema: {
+            id: number;
+            tableNumber: number;
+        };
+        ReservationCreateSchema: {
+            guestsCount: number;
+            /** Format: date-time */
+            time: string;
+            name: string;
+            email?: string;
+            phone: string;
+            status: string;
+            tables?: number[];
+            comments?: string;
+        };
+        ReservationMetaSchema: {
+            statuses: string[];
+            tables: {
+                id: number;
+                tableNumber: number;
+            }[];
+            guestsCountRange: {
+                min: number;
+                max: number;
+            };
+            timeRange: {
+                min: string;
+                max: string;
+            };
+        };
+        ReservationParamsSchema: {
+            id: number;
+        };
+        ReservationQuerySchema: {
+            name?: string;
+            email?: string;
+            phone?: string;
+            status: string;
+            guestsCount?: number;
+            guestsCountMin?: number;
+            guestsCountMax?: number;
+            /** Format: date-time */
+            timeStart?: string;
+            /** Format: date-time */
+            timeEnd?: string;
+            tables: number[];
+            page?: number;
+            pageSize?: number;
+            sortBy?: string;
+            sortOrder?: string;
+        };
+        ReservationStatusSchema: {
+            status: string;
+        };
+        ReservationTablesSchema: {
+            tables: number[];
+        };
+        ReservationTimeSchema: {
+            /** Format: date-time */
+            time: string;
+        };
+        ReservationCommentSchema: {
+            comments: string;
+        };
+        ReservationGuestInfoSchema: {
+            guestsCount?: number;
+            name?: string;
+            email?: string;
+            phone?: string;
+        };
+        ReservationUpdateSchema: {
+            guestsCount?: number;
+            /** Format: date-time */
+            time?: string;
+            name?: string;
+            email?: string;
+            phone?: string;
+            status: string;
+            tables?: number[];
+            comments?: string;
+            isActive?: boolean;
+        };
+        TableAssignmentSchema: {
+            serverId: number;
+            isPrimary?: boolean;
+            assignedTables: number[];
+        };
         TableSchema: {
             id: number;
             tableNumber: number;
@@ -1052,10 +1424,165 @@ export interface components {
             additionalCapacity?: number;
             status?: string;
         };
-        TableAssignmentSchema: {
-            serverId: number;
-            isPrimary?: boolean;
-            assignedTables: number[];
+        TableMetaSchema: {
+            statuses: string[];
+            occupiedStates: boolean[];
+            tableNumbers: number[];
+            capacityRange: {
+                min: number;
+                max: number;
+            };
+        };
+        TableParamsSchema: {
+            id: number;
+        };
+        TableQuerySchema: {
+            id?: number;
+            tableNumber?: number;
+            minCapacity?: number;
+            maxCapacity?: number;
+            status: string;
+            isOccupied: boolean;
+            page?: number;
+            pageSize?: number;
+            sortBy?: string;
+            sortOrder?: string;
+        };
+        TableUpdateSchema: {
+            tableNumber?: number;
+            capacity?: number;
+            additionalCapacity?: number;
+            status?: string;
+            isOccupied: boolean;
+            guests?: number;
+        };
+        CreateUserSchema: {
+            name: string;
+            email: string;
+            role: string;
+            password: string;
+        };
+        UpdateUserSchema: {
+            name?: string;
+            email?: string;
+            role?: string;
+            isActive?: boolean;
+            /** Format: date-time */
+            lastLogin?: string;
+        };
+        UserResponseSchema: {
+            id: number;
+            name: string;
+            email: string;
+            role: string;
+            isActive?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: date-time */
+            lastLogin?: string;
+        };
+        UserSchema: {
+            id: number;
+            name: string;
+            email: string;
+            role: string;
+            isActive?: boolean;
+            password: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** Format: date-time */
+            lastLogin?: string;
+        };
+        UserLoginSchema: {
+            email: string;
+            password: string;
+        };
+        UserMetaSchema: {
+            roles: string[];
+            activeStates: boolean[];
+            createdAtRange: {
+                min: string;
+                max: string;
+            };
+        };
+        UserFiltersSchema: {
+            id?: number;
+            email?: string;
+            name?: string;
+            role: string;
+            isActive: boolean;
+            createdAfter?: string;
+            createdBefore?: string;
+        };
+        UserParamsSchema: {
+            id: number;
+        };
+        UserQuerySchema: {
+            id?: number;
+            email?: string;
+            name?: string;
+            page?: number;
+            pageSize?: number;
+            sortBy?: string;
+            sortOrder?: string;
+            role: string;
+            isActive: boolean;
+            createdAfter?: string;
+            createdBefore?: string;
+        };
+        UpdateWorkspaceSchema: {
+            tabs: {
+                id: string;
+                title: string;
+                type: string;
+                state?: {
+                    [key: string]: unknown;
+                };
+                pinned?: boolean;
+                order: number;
+            }[];
+            activeTabId?: string;
+            settings: {
+                theme?: string;
+                sidebar?: {
+                    width?: number;
+                    collapsed?: boolean;
+                };
+                notifications?: {
+                    enabled?: boolean;
+                    sound?: boolean;
+                };
+                density?: string;
+                language?: string;
+            };
+            expectedVersion: number;
+        };
+        WorkspaceSettingsSchema: {
+            theme?: string;
+            sidebar?: {
+                width?: number;
+                collapsed?: boolean;
+            };
+            notifications?: {
+                enabled?: boolean;
+                sound?: boolean;
+            };
+            density?: string;
+            language?: string;
+        };
+        WorkspaceTabSchema: {
+            id: string;
+            title: string;
+            type: string;
+            state?: {
+                [key: string]: unknown;
+            };
+            pinned?: boolean;
+            order: number;
         };
         WorkspaceSchema: {
             tabs: {
@@ -1085,41 +1612,84 @@ export interface components {
             version: number;
             updatedAt: string;
         };
-        WorkspaceSettingsSchema: {
-            theme?: string;
-            sidebar?: {
-                width?: number;
-                collapsed?: boolean;
-            };
-            notifications?: {
-                enabled?: boolean;
-                sound?: boolean;
-            };
-            density?: string;
-            language?: string;
+        DrinkItemsResponseSchema: {
+            items: {
+                id: number;
+                name: string;
+                price: number;
+                description: string;
+                volume: number;
+                ingredients?: string[];
+                isAvailable?: boolean;
+                category: string;
+                alcoholPercentage?: number;
+                isCarbonated?: boolean;
+                tempriture: string;
+                popularityScore?: number;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                image?: string;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
         };
-        WorkspaceTabSchema: {
-            id: string;
-            title: string;
-            type: string;
-            state?: {
-                [key: string]: unknown;
+        DrinkMetaResponseSchema: {
+            categories: string[];
+            ingredients: string[];
+            availabilityStates: boolean[];
+            volumeRange: {
+                min: number;
+                max: number;
             };
-            pinned?: boolean;
-            order: number;
+            priceRange: {
+                min: number;
+                max: number;
+            };
         };
         ErrorResponseSchema: {
             statusCode: number;
             message: string;
             error: string;
         };
-        MessageResponseSchema: {
-            message: string;
+        FoodItemsResponseSchema: {
+            items: {
+                id: number;
+                name: string;
+                price: number;
+                description: string;
+                ingredients?: string[];
+                isAvailable?: boolean;
+                popularityScore?: number;
+                image?: string;
+                category: string;
+                type: string;
+                isVegan?: boolean;
+                isGlutenFree?: boolean;
+                isVegetarian?: boolean;
+                allergies?: string[];
+                preparationTime?: number;
+                spicyLevel?: string;
+                calories?: number;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
         };
-        TokenPairResponseSchema: {
-            accessToken: string;
-            refreshToken: string;
-            expiresIn: number;
+        FoodMetaResponseSchema: {
+            categories: string[];
+            types: string[];
+            ingredients: string[];
+            availabilityStates: boolean[];
+            booleanFilterValues: boolean[];
+            priceRange: {
+                min: number;
+                max: number;
+            };
         };
         LoginResponseSchema: {
             accessToken: string;
@@ -1152,6 +1722,219 @@ export interface components {
                 updatedAt?: string;
                 /** Format: date-time */
                 lastLogin?: string;
+            };
+        };
+        MessageResponseSchema: {
+            message: string;
+        };
+        OrderMetaResponseSchema: {
+            statuses: string[];
+            allergies: string[];
+            maxGuests: number;
+            prices: {
+                min: number;
+                max: number;
+            };
+            dates: {
+                min: string;
+                max: string;
+            };
+            tableNumbers: number[];
+            filtered: {
+                maxGuests: number;
+                prices: {
+                    min: number;
+                    max: number;
+                };
+                dates: {
+                    min: string;
+                    max: string;
+                };
+                tableNumbers: number[];
+            };
+        };
+        OrdersResponseSchema: {
+            orders: {
+                id: number;
+                status: string;
+                server: {
+                    id: number;
+                    name: string;
+                };
+                tableNumber: number;
+                guestsCount: number;
+                /** Format: date-time */
+                orderTime: string;
+                /** Format: date-time */
+                completionTime?: string;
+                /** Format: date-time */
+                updatedAt: string;
+                comments?: string;
+                totalAmount: number;
+                discount: number;
+                tip: number;
+            }[];
+            priceRange: {
+                min: number;
+                max: number;
+            };
+            dateRange: {
+                min: string;
+                max: string;
+            };
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        PaymentMetaResponseSchema: {
+            statuses: string[];
+            methods: string[];
+            orderIds: number[];
+            totalAmountRange: {
+                min: number;
+                max: number;
+            };
+        };
+        PaymentsListResponseSchema: {
+            payments: {
+                id: number;
+                amount: number;
+                tax: number;
+                tip: number;
+                serviceCharge: number;
+                totalAmount: number;
+                paymentType: string;
+                status: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                completedAt?: string;
+                orderId: number;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        ReservationConflictSchema: {
+            reservationId: number;
+            /** Format: date-time */
+            time: string;
+            tables: {
+                id: number;
+                tableNumber: number;
+            }[];
+        };
+        ReservationMetaResponseSchema: {
+            statuses: string[];
+            tables: {
+                id: number;
+                tableNumber: number;
+            }[];
+            guestsCountRange: {
+                min: number;
+                max: number;
+            };
+            timeRange: {
+                min: string;
+                max: string;
+            };
+        };
+        ReservationMutationResponseSchema: {
+            reservation: {
+                id: number;
+                guestsCount: number;
+                /** Format: date-time */
+                time: string;
+                name: string;
+                email?: string;
+                phone: string;
+                status: string;
+                tables: {
+                    id: number;
+                    tableNumber: number;
+                }[];
+                comments?: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                isActive: boolean;
+            };
+            conflict: {
+                reservationId: number;
+                /** Format: date-time */
+                time: string;
+                tables: {
+                    id: number;
+                    tableNumber: number;
+                }[];
+            }[];
+        };
+        ReservationsListResponseSchema: {
+            list: {
+                id: number;
+                guestsCount: number;
+                /** Format: date-time */
+                time: string;
+                name: string;
+                email?: string;
+                phone: string;
+                status: string;
+                tables: {
+                    id: number;
+                    tableNumber: number;
+                }[];
+                comments?: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                isActive: boolean;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        TableAssignmentResponseSchema: string;
+        TableMetaResponseSchema: {
+            statuses: string[];
+            occupiedStates: boolean[];
+            tableNumbers: number[];
+            capacityRange: {
+                min: number;
+                max: number;
+            };
+        };
+        TablesListResponseSchema: {
+            tables: {
+                id: number;
+                tableNumber: number;
+                capacity: number;
+                status: string;
+                additionalCapacity: number;
+                isOccupied: boolean;
+                originalCapacity: number;
+                guests: number;
+            }[];
+            totalCount: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+        };
+        TokenPairResponseSchema: {
+            accessToken: string;
+            refreshToken: string;
+            expiresIn: number;
+        };
+        UserMetaResponseSchema: {
+            roles: string[];
+            activeStates: boolean[];
+            createdAtRange: {
+                min: string;
+                max: string;
             };
         };
         UsersListResponseSchema: {
@@ -1214,220 +1997,6 @@ export interface components {
             };
             activeTabData?: unknown;
         };
-        FoodItemsResponseSchema: {
-            items: {
-                id: number;
-                name: string;
-                price: number;
-                description: string;
-                ingredients?: string[];
-                isAvailable?: boolean;
-                popularityScore?: number;
-                image?: string;
-                category: string;
-                type: string;
-                isVegan?: boolean;
-                isGlutenFree?: boolean;
-                isVegetarian?: boolean;
-                allergies?: string[];
-                preparationTime?: number;
-                spicyLevel?: string;
-                calories?: number;
-            }[];
-            totalCount: number;
-            page: number;
-            pageSize: number;
-            totalPages: number;
-        };
-        DrinkItemsResponseSchema: {
-            items: {
-                id: number;
-                name: string;
-                price: number;
-                description: string;
-                volume: number;
-                ingredients?: string[];
-                isAvailable?: boolean;
-                category: string;
-                alcoholPercentage?: number;
-                isCarbonated?: boolean;
-                tempriture: string;
-                popularityScore?: number;
-                /** Format: date-time */
-                createdAt: string;
-                /** Format: date-time */
-                updatedAt: string;
-                image?: string;
-            }[];
-            totalCount: number;
-            page: number;
-            pageSize: number;
-            totalPages: number;
-        };
-        OrdersResponseSchema: {
-            orders: {
-                id: number;
-                status: string;
-                server: {
-                    id: number;
-                    name: string;
-                };
-                tableNumber: number;
-                guestsCount: number;
-                /** Format: date-time */
-                orderTime: string;
-                /** Format: date-time */
-                completionTime?: string;
-                /** Format: date-time */
-                updatedAt: string;
-                comments?: string;
-                totalAmount: number;
-                discount: number;
-                tip: number;
-            }[];
-            priceRange: {
-                min: number;
-                max: number;
-            };
-            dateRange: {
-                min: string;
-                max: string;
-            };
-            totalCount: number;
-            page: number;
-            pageSize: number;
-            totalPages: number;
-        };
-        OrderMetaResponseSchema: {
-            statuses: string[];
-            allergies: string[];
-            maxGuests: number;
-            prices: {
-                min: number;
-                max: number;
-            };
-            dates: {
-                min: string;
-                max: string;
-            };
-            tableNumbers: number[];
-            filtered: {
-                maxGuests: number;
-                prices: {
-                    min: number;
-                    max: number;
-                };
-                dates: {
-                    min: string;
-                    max: string;
-                };
-                tableNumbers: number[];
-            };
-        };
-        PaymentsListResponseSchema: {
-            payments: {
-                id: number;
-                amount: number;
-                tax: number;
-                tip: number;
-                serviceCharge: number;
-                totalAmount: number;
-                paymentType: string;
-                status: string;
-                /** Format: date-time */
-                createdAt: string;
-                /** Format: date-time */
-                completedAt?: string;
-                orderId: number;
-            }[];
-            totalCount: number;
-            page: number;
-            pageSize: number;
-            totalPages: number;
-        };
-        ReservationConflictSchema: {
-            reservationId: number;
-            /** Format: date-time */
-            time: string;
-            tables: {
-                id: number;
-                tableNumber: number;
-            }[];
-        };
-        ReservationMutationResponseSchema: {
-            reservation: {
-                id: number;
-                guestsCount: number;
-                /** Format: date-time */
-                time: string;
-                name: string;
-                email?: string;
-                phone: string;
-                status: string;
-                tables: {
-                    id: number;
-                    tableNumber: number;
-                }[];
-                comments?: string;
-                /** Format: date-time */
-                createdAt: string;
-                /** Format: date-time */
-                updatedAt: string;
-                isActive: boolean;
-            };
-            conflict: {
-                reservationId: number;
-                /** Format: date-time */
-                time: string;
-                tables: {
-                    id: number;
-                    tableNumber: number;
-                }[];
-            }[];
-        };
-        ReservationsListResponseSchema: {
-            list: {
-                id: number;
-                guestsCount: number;
-                /** Format: date-time */
-                time: string;
-                name: string;
-                email?: string;
-                phone: string;
-                status: string;
-                tables: {
-                    id: number;
-                    tableNumber: number;
-                }[];
-                comments?: string;
-                /** Format: date-time */
-                createdAt: string;
-                /** Format: date-time */
-                updatedAt: string;
-                isActive: boolean;
-            }[];
-            totalCount: number;
-            page: number;
-            pageSize: number;
-            totalPages: number;
-        };
-        TablesListResponseSchema: {
-            tables: {
-                id: number;
-                tableNumber: number;
-                capacity: number;
-                status: string;
-                additionalCapacity: number;
-                isOccupied: boolean;
-                originalCapacity: number;
-                guests: number;
-            }[];
-            totalCount: number;
-            page: number;
-            pageSize: number;
-            totalPages: number;
-        };
-        TableAssignmentResponseSchema: string;
     };
     responses: never;
     parameters: never;
@@ -8399,6 +8968,124 @@ export interface operations {
             };
         };
     };
+    UserController_getMeta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        roles: string[];
+                        activeStates: boolean[];
+                        createdAtRange: {
+                            min: string;
+                            max: string;
+                        };
+                    };
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        statusCode: number;
+                        message: string;
+                        error: string;
+                    };
+                };
+            };
+        };
+    };
     UserController_findOne: {
         parameters: {
             query?: never;
@@ -8669,124 +9356,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         message: string;
-                    };
-                };
-            };
-            /** @description Bad request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-            /** @description Conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-            /** @description Validation error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        statusCode: number;
-                        message: string;
-                        error: string;
-                    };
-                };
-            };
-        };
-    };
-    UserController_getMeta: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        roles: string[];
-                        activeStates: boolean[];
-                        createdAtRange: {
-                            min: string;
-                            max: string;
-                        };
                     };
                 };
             };

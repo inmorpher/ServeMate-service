@@ -15685,6 +15685,248 @@
         }
       }
     },
+    "/api/users/meta": {
+      "get": {
+        "summary": "getMeta",
+        "operationId": "UserController_getMeta",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "activeStates": {
+                      "type": "array",
+                      "items": {
+                        "type": "boolean"
+                      }
+                    },
+                    "createdAtRange": {
+                      "type": "object",
+                      "properties": {
+                        "min": {
+                          "type": "string"
+                        },
+                        "max": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "min",
+                        "max"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "roles",
+                    "activeStates",
+                    "createdAtRange"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/users/{id}": {
       "get": {
         "summary": "findOne",
@@ -16412,248 +16654,6 @@
             }
           }
         }
-      }
-    },
-    "/api/users/meta": {
-      "get": {
-        "summary": "getMeta",
-        "operationId": "UserController_getMeta",
-        "tags": [
-          "User"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "activeStates": {
-                      "type": "array",
-                      "items": {
-                        "type": "boolean"
-                      }
-                    },
-                    "createdAtRange": {
-                      "type": "object",
-                      "properties": {
-                        "min": {
-                          "type": "string"
-                        },
-                        "max": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "min",
-                        "max"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "roles",
-                    "activeStates",
-                    "createdAtRange"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "statusCode",
-                    "message",
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
       }
     },
     "/api/workspace": {
@@ -17670,145 +17670,6 @@
   },
   "components": {
     "schemas": {
-      "UserResponseSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lastLogin": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "email",
-          "role"
-        ]
-      },
-      "UserSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "password": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lastLogin": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "email",
-          "role",
-          "password"
-        ]
-      },
-      "UserLoginSchema": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ]
-      },
-      "CreateUserSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "email",
-          "role",
-          "password"
-        ]
-      },
-      "UpdateUserSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "lastLogin": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "drinkItemSchema": {
         "type": "object",
         "properties": {
@@ -17874,387 +17735,6 @@
           "createdAt",
           "updatedAt"
         ]
-      },
-      "foodItemSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "description": {
-            "type": "string"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "popularityScore": {
-            "type": "number"
-          },
-          "image": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "isVegan": {
-            "type": "boolean"
-          },
-          "isGlutenFree": {
-            "type": "boolean"
-          },
-          "isVegetarian": {
-            "type": "boolean"
-          },
-          "allergies": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "preparationTime": {
-            "type": "number"
-          },
-          "spicyLevel": {
-            "type": "string"
-          },
-          "calories": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "price",
-          "description",
-          "category",
-          "type"
-        ]
-      },
-      "createDrinkItemSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "description": {
-            "type": "string"
-          },
-          "volume": {
-            "type": "number"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "category": {
-            "type": "string"
-          },
-          "alcoholPercentage": {
-            "type": "number"
-          },
-          "isCarbonated": {
-            "type": "boolean"
-          },
-          "tempriture": {
-            "type": "string"
-          },
-          "popularityScore": {
-            "type": "number"
-          },
-          "image": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "price",
-          "description",
-          "volume",
-          "category",
-          "tempriture"
-        ]
-      },
-      "createFoodItemSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "description": {
-            "type": "string"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "popularityScore": {
-            "type": "number"
-          },
-          "image": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "isVegan": {
-            "type": "boolean"
-          },
-          "isGlutenFree": {
-            "type": "boolean"
-          },
-          "isVegetarian": {
-            "type": "boolean"
-          },
-          "allergies": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "preparationTime": {
-            "type": "number"
-          },
-          "spicyLevel": {
-            "type": "string"
-          },
-          "calories": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "name",
-          "price",
-          "description",
-          "category",
-          "type"
-        ]
-      },
-      "updateDrinkItemSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "description": {
-            "type": "string"
-          },
-          "volume": {
-            "type": "number"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "category": {
-            "type": "string"
-          },
-          "alcoholPercentage": {
-            "type": "number"
-          },
-          "isCarbonated": {
-            "type": "boolean"
-          },
-          "tempriture": {
-            "type": "string"
-          },
-          "popularityScore": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "image": {
-            "type": "string"
-          }
-        }
-      },
-      "updateFoodItemSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "description": {
-            "type": "string"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "popularityScore": {
-            "type": "number"
-          },
-          "image": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "isVegan": {
-            "type": "boolean"
-          },
-          "isGlutenFree": {
-            "type": "boolean"
-          },
-          "isVegetarian": {
-            "type": "boolean"
-          },
-          "allergies": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "preparationTime": {
-            "type": "number"
-          },
-          "spicyLevel": {
-            "type": "string"
-          },
-          "calories": {
-            "type": "number"
-          }
-        }
-      },
-      "searchDrinkItemsSchema": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "sortBy": {
-            "type": "string"
-          },
-          "sortOrder": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string"
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "volume": {
-            "type": "number"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "searchFoodItemsSchema": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "sortBy": {
-            "type": "string"
-          },
-          "sortOrder": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "price": {
-            "type": "number"
-          },
-          "isVegan": {
-            "type": "boolean"
-          },
-          "isGlutenFree": {
-            "type": "boolean"
-          },
-          "isVegetarian": {
-            "type": "boolean"
-          },
-          "ingredients": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
       },
       "drinkItemsListSchema": {
         "type": "object",
@@ -18347,6 +17827,286 @@
           "page",
           "pageSize",
           "totalPages"
+        ]
+      },
+      "createDrinkItemSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "string"
+          },
+          "alcoholPercentage": {
+            "type": "number"
+          },
+          "isCarbonated": {
+            "type": "boolean"
+          },
+          "tempriture": {
+            "type": "string"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "price",
+          "description",
+          "volume",
+          "category",
+          "tempriture"
+        ]
+      },
+      "DrinkMetaSchema": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availabilityStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "volumeRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "priceRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "categories",
+          "ingredients",
+          "availabilityStates",
+          "volumeRange",
+          "priceRange"
+        ]
+      },
+      "DrinkItemParamsSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "searchDrinkItemsSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "updateDrinkItemSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "string"
+          },
+          "alcoholPercentage": {
+            "type": "number"
+          },
+          "isCarbonated": {
+            "type": "boolean"
+          },
+          "tempriture": {
+            "type": "string"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "foodItemSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preparationTime": {
+            "type": "number"
+          },
+          "spicyLevel": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "price",
+          "description",
+          "category",
+          "type"
         ]
       },
       "foodItemsListSchema": {
@@ -18445,6 +18205,247 @@
           "pageSize",
           "totalPages"
         ]
+      },
+      "createFoodItemSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preparationTime": {
+            "type": "number"
+          },
+          "spicyLevel": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "price",
+          "description",
+          "category",
+          "type"
+        ]
+      },
+      "FoodMetaSchema": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availabilityStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "booleanFilterValues": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "priceRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "categories",
+          "types",
+          "ingredients",
+          "availabilityStates",
+          "booleanFilterValues",
+          "priceRange"
+        ]
+      },
+      "FoodItemParamsSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "searchFoodItemsSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "number"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "updateFoodItemSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "popularityScore": {
+            "type": "number"
+          },
+          "image": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isVegan": {
+            "type": "boolean"
+          },
+          "isGlutenFree": {
+            "type": "boolean"
+          },
+          "isVegetarian": {
+            "type": "boolean"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preparationTime": {
+            "type": "number"
+          },
+          "spicyLevel": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "number"
+          }
+        }
       },
       "OrderCreateSchema": {
         "type": "object",
@@ -18576,6 +18577,1007 @@
           "serverId"
         ]
       },
+      "CreateGuestItemsSchema": {
+        "type": "object",
+        "properties": {
+          "guestNumber": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "number"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "discount": {
+                  "type": "number"
+                },
+                "finalPrice": {
+                  "type": "number"
+                },
+                "specialRequest": {
+                  "type": "string"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "itemId",
+                "price"
+              ]
+            }
+          }
+        },
+        "required": [
+          "guestNumber",
+          "items"
+        ]
+      },
+      "CreateOrderItemSchema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "finalPrice": {
+            "type": "number"
+          },
+          "specialRequest": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "itemId",
+          "price"
+        ]
+      },
+      "GuestItemsSchema": {
+        "type": "object",
+        "properties": {
+          "guestNumber": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "number"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "discount": {
+                  "type": "number"
+                },
+                "finalPrice": {
+                  "type": "number"
+                },
+                "specialRequest": {
+                  "type": "string"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "printed": {
+                  "type": "boolean"
+                },
+                "fired": {
+                  "type": "boolean"
+                },
+                "paymentStatus": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "itemId",
+                "price"
+              ]
+            }
+          }
+        },
+        "required": [
+          "guestNumber",
+          "items"
+        ]
+      },
+      "GuestOrderItemSchema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "finalPrice": {
+            "type": "number"
+          },
+          "specialRequest": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "printed": {
+            "type": "boolean"
+          },
+          "fired": {
+            "type": "boolean"
+          },
+          "paymentStatus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId",
+          "price"
+        ]
+      },
+      "OrderItemSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "itemId": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "finalPrice": {
+            "type": "number"
+          },
+          "specialRequest": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "printed": {
+            "type": "boolean"
+          },
+          "fired": {
+            "type": "boolean"
+          },
+          "guestNumber": {
+            "type": "number"
+          },
+          "paymentStatus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "itemId",
+          "price",
+          "guestNumber"
+        ]
+      },
+      "OrderItemWithProductSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "itemId": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "finalPrice": {
+            "type": "number"
+          },
+          "specialRequest": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "printed": {
+            "type": "boolean"
+          },
+          "fired": {
+            "type": "boolean"
+          },
+          "guestNumber": {
+            "type": "number"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "foodItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "drinkItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "itemId",
+          "price",
+          "guestNumber"
+        ]
+      },
+      "OrderDateRangeSchema": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "string"
+          },
+          "max": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      },
+      "OrderMetaSchema": {
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxGuests": {
+            "type": "number"
+          },
+          "prices": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "dates": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "tableNumbers": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "filtered": {
+            "type": "object",
+            "properties": {
+              "maxGuests": {
+                "type": "number"
+              },
+              "prices": {
+                "type": "object",
+                "properties": {
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "dates": {
+                "type": "object",
+                "properties": {
+                  "min": {
+                    "type": "string"
+                  },
+                  "max": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
+              },
+              "tableNumbers": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "maxGuests",
+              "prices",
+              "dates",
+              "tableNumbers"
+            ]
+          }
+        },
+        "required": [
+          "statuses",
+          "allergies",
+          "maxGuests",
+          "prices",
+          "dates",
+          "tableNumbers",
+          "filtered"
+        ]
+      },
+      "OrderPriceRangeSchema": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      },
+      "OrderQuerySchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tableNumber": {
+            "type": "number"
+          },
+          "tableNumbers": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "serverId": {
+            "type": "number"
+          },
+          "serverName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "minAmount": {
+            "type": "number"
+          },
+          "maxAmount": {
+            "type": "number"
+          },
+          "dateFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dateTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "tableNumbers",
+          "allergies",
+          "status"
+        ]
+      },
+      "OrderGuestItemsSchema": {
+        "type": "object",
+        "properties": {
+          "guestNumber": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "itemId": {
+                  "type": "number"
+                },
+                "guestNumber": {
+                  "type": "number"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "price": {
+                  "type": "number"
+                },
+                "discount": {
+                  "type": "number"
+                },
+                "finalPrice": {
+                  "type": "number"
+                },
+                "printed": {
+                  "type": "boolean"
+                },
+                "fired": {
+                  "type": "boolean"
+                },
+                "paymentStatus": {
+                  "type": "string"
+                },
+                "specialRequest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "itemId",
+                "guestNumber",
+                "price",
+                "discount",
+                "finalPrice",
+                "printed",
+                "fired",
+                "paymentStatus"
+              ]
+            }
+          }
+        },
+        "required": [
+          "guestNumber",
+          "items"
+        ]
+      },
+      "OrderListItemSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "server": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "tableNumber": {
+            "type": "number"
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "orderTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completionTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "tip": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "server",
+          "tableNumber",
+          "guestsCount",
+          "orderTime",
+          "updatedAt",
+          "totalAmount",
+          "discount",
+          "tip"
+        ]
+      },
+      "OrderResponseSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tableNumber": {
+            "type": "number"
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "orderTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serverId": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "completionTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "tip": {
+            "type": "number"
+          },
+          "shiftId": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "server": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "foodItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "guestNumber": {
+                  "type": "number"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "itemId": {
+                        "type": "number"
+                      },
+                      "guestNumber": {
+                        "type": "number"
+                      },
+                      "allergies": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "finalPrice": {
+                        "type": "number"
+                      },
+                      "printed": {
+                        "type": "boolean"
+                      },
+                      "fired": {
+                        "type": "boolean"
+                      },
+                      "paymentStatus": {
+                        "type": "string"
+                      },
+                      "specialRequest": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "itemId",
+                      "guestNumber",
+                      "price",
+                      "discount",
+                      "finalPrice",
+                      "printed",
+                      "fired",
+                      "paymentStatus"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "guestNumber",
+                "items"
+              ]
+            }
+          },
+          "drinkItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "guestNumber": {
+                  "type": "number"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "itemId": {
+                        "type": "number"
+                      },
+                      "guestNumber": {
+                        "type": "number"
+                      },
+                      "allergies": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "finalPrice": {
+                        "type": "number"
+                      },
+                      "printed": {
+                        "type": "boolean"
+                      },
+                      "fired": {
+                        "type": "boolean"
+                      },
+                      "paymentStatus": {
+                        "type": "string"
+                      },
+                      "specialRequest": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "itemId",
+                      "guestNumber",
+                      "price",
+                      "discount",
+                      "finalPrice",
+                      "printed",
+                      "fired",
+                      "paymentStatus"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "guestNumber",
+                "items"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "tableNumber",
+          "guestsCount",
+          "orderTime",
+          "updatedAt",
+          "serverId",
+          "status",
+          "totalAmount",
+          "discount",
+          "tip",
+          "allergies",
+          "server",
+          "foodItems",
+          "drinkItems"
+        ]
+      },
+      "OrderSearchResultSchema": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "server": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ]
+                },
+                "tableNumber": {
+                  "type": "number"
+                },
+                "guestsCount": {
+                  "type": "number"
+                },
+                "orderTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "completionTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "comments": {
+                  "type": "string"
+                },
+                "totalAmount": {
+                  "type": "number"
+                },
+                "discount": {
+                  "type": "number"
+                },
+                "tip": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "server",
+                "tableNumber",
+                "guestsCount",
+                "orderTime",
+                "updatedAt",
+                "totalAmount",
+                "discount",
+                "tip"
+              ]
+            }
+          },
+          "priceRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "dateRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "totalCount": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "orders",
+          "priceRange",
+          "dateRange",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
+      },
+      "OrderItemIdsSchema": {
+        "type": "string"
+      },
       "OrderUpdateItemsSchema": {
         "type": "object",
         "properties": {
@@ -18677,6 +19679,69 @@
           }
         }
       },
+      "OrderUpdateSchema": {
+        "type": "object",
+        "properties": {
+          "tableNumber": {
+            "type": "number"
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "tip": {
+            "type": "number"
+          }
+        }
+      },
+      "PartialPaymentSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "tax": {
+            "type": "number"
+          },
+          "tip": {
+            "type": "number"
+          },
+          "serviceCharge": {
+            "type": "number"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderId": {
+            "type": "number"
+          }
+        }
+      },
       "PaymentSchema": {
         "type": "object",
         "properties": {
@@ -18767,6 +19832,78 @@
           "reason"
         ]
       },
+      "PaymentCreateSchema": {
+        "type": "object",
+        "properties": {
+          "foodItems": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "drinkItems": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "PaymentMetaSchema": {
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "orderIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "totalAmountRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "statuses",
+          "methods",
+          "orderIds",
+          "totalAmountRange"
+        ]
+      },
+      "PaymentParamsSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "ReservationSchema": {
         "type": "object",
         "properties": {
@@ -18838,6 +19975,318 @@
           "isActive"
         ]
       },
+      "ReservationTableSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tableNumber": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "tableNumber"
+        ]
+      },
+      "ReservationCreateSchema": {
+        "type": "object",
+        "properties": {
+          "guestsCount": {
+            "type": "number"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "comments": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "guestsCount",
+          "time",
+          "name",
+          "phone",
+          "status"
+        ]
+      },
+      "ReservationMetaSchema": {
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "tableNumber": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "tableNumber"
+              ]
+            }
+          },
+          "guestsCountRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "timeRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "statuses",
+          "tables",
+          "guestsCountRange",
+          "timeRange"
+        ]
+      },
+      "ReservationParamsSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "ReservationQuerySchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "guestsCount": {
+            "type": "number"
+          },
+          "guestsCountMin": {
+            "type": "number"
+          },
+          "guestsCountMax": {
+            "type": "number"
+          },
+          "timeStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "tables"
+        ]
+      },
+      "ReservationStatusSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ReservationTablesSchema": {
+        "type": "object",
+        "properties": {
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "tables"
+        ]
+      },
+      "ReservationTimeSchema": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "time"
+        ]
+      },
+      "ReservationCommentSchema": {
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "comments"
+        ]
+      },
+      "ReservationGuestInfoSchema": {
+        "type": "object",
+        "properties": {
+          "guestsCount": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "ReservationUpdateSchema": {
+        "type": "object",
+        "properties": {
+          "guestsCount": {
+            "type": "number"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "comments": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "TableAssignmentSchema": {
+        "type": "object",
+        "properties": {
+          "serverId": {
+            "type": "number"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          },
+          "assignedTables": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "serverId",
+          "assignedTables"
+        ]
+      },
       "TableSchema": {
         "type": "object",
         "properties": {
@@ -18898,25 +20347,534 @@
           "capacity"
         ]
       },
-      "TableAssignmentSchema": {
+      "TableMetaSchema": {
         "type": "object",
         "properties": {
-          "serverId": {
-            "type": "number"
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
-          "isPrimary": {
-            "type": "boolean"
+          "occupiedStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
           },
-          "assignedTables": {
+          "tableNumbers": {
             "type": "array",
             "items": {
               "type": "number"
             }
+          },
+          "capacityRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
           }
         },
         "required": [
-          "serverId",
-          "assignedTables"
+          "statuses",
+          "occupiedStates",
+          "tableNumbers",
+          "capacityRange"
+        ]
+      },
+      "TableParamsSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "TableQuerySchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tableNumber": {
+            "type": "number"
+          },
+          "minCapacity": {
+            "type": "number"
+          },
+          "maxCapacity": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "isOccupied": {
+            "type": "boolean"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "isOccupied"
+        ]
+      },
+      "TableUpdateSchema": {
+        "type": "object",
+        "properties": {
+          "tableNumber": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "additionalCapacity": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "isOccupied": {
+            "type": "boolean"
+          },
+          "guests": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "isOccupied"
+        ]
+      },
+      "CreateUserSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "role",
+          "password"
+        ]
+      },
+      "UpdateUserSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserResponseSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role"
+        ]
+      },
+      "UserSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "password": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role",
+          "password"
+        ]
+      },
+      "UserLoginSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserMetaSchema": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activeStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "createdAtRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "roles",
+          "activeStates",
+          "createdAtRange"
+        ]
+      },
+      "UserFiltersSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAfter": {
+            "type": "string"
+          },
+          "createdBefore": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "isActive"
+        ]
+      },
+      "UserParamsSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "UserQuerySchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAfter": {
+            "type": "string"
+          },
+          "createdBefore": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "isActive"
+        ]
+      },
+      "UpdateWorkspaceSchema": {
+        "type": "object",
+        "properties": {
+          "tabs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "pinned": {
+                  "type": "boolean"
+                },
+                "order": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "type",
+                "order"
+              ]
+            }
+          },
+          "activeTabId": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "object",
+            "properties": {
+              "theme": {
+                "type": "string"
+              },
+              "sidebar": {
+                "type": "object",
+                "properties": {
+                  "width": {
+                    "type": "number"
+                  },
+                  "collapsed": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "notifications": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "sound": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "density": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              }
+            }
+          },
+          "expectedVersion": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "tabs",
+          "settings",
+          "expectedVersion"
+        ]
+      },
+      "WorkspaceSettingsSchema": {
+        "type": "object",
+        "properties": {
+          "theme": {
+            "type": "string"
+          },
+          "sidebar": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number"
+              },
+              "collapsed": {
+                "type": "boolean"
+              }
+            }
+          },
+          "notifications": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "sound": {
+                "type": "boolean"
+              }
+            }
+          },
+          "density": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkspaceTabSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "state": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "order": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "type",
+          "order"
         ]
       },
       "WorkspaceSchema": {
@@ -19008,70 +20966,157 @@
           "updatedAt"
         ]
       },
-      "WorkspaceSettingsSchema": {
+      "DrinkItemsResponseSchema": {
         "type": "object",
         "properties": {
-          "theme": {
-            "type": "string"
-          },
-          "sidebar": {
-            "type": "object",
-            "properties": {
-              "width": {
-                "type": "number"
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "volume": {
+                  "type": "number"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "alcoholPercentage": {
+                  "type": "number"
+                },
+                "isCarbonated": {
+                  "type": "boolean"
+                },
+                "tempriture": {
+                  "type": "string"
+                },
+                "popularityScore": {
+                  "type": "number"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "image": {
+                  "type": "string"
+                }
               },
-              "collapsed": {
-                "type": "boolean"
-              }
+              "required": [
+                "id",
+                "name",
+                "price",
+                "description",
+                "volume",
+                "category",
+                "tempriture",
+                "createdAt",
+                "updatedAt"
+              ]
             }
           },
-          "notifications": {
-            "type": "object",
-            "properties": {
-              "enabled": {
-                "type": "boolean"
-              },
-              "sound": {
-                "type": "boolean"
-              }
-            }
+          "totalCount": {
+            "type": "number"
           },
-          "density": {
-            "type": "string"
+          "page": {
+            "type": "number"
           },
-          "language": {
-            "type": "string"
-          }
-        }
-      },
-      "WorkspaceTabSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
+          "pageSize": {
+            "type": "number"
           },
-          "title": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "state": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "pinned": {
-            "type": "boolean"
-          },
-          "order": {
+          "totalPages": {
             "type": "number"
           }
         },
         "required": [
-          "id",
-          "title",
-          "type",
-          "order"
+          "items",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
+      },
+      "DrinkMetaResponseSchema": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availabilityStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "volumeRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "priceRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "categories",
+          "ingredients",
+          "availabilityStates",
+          "volumeRange",
+          "priceRange"
         ]
       },
       "ErrorResponseSchema": {
@@ -19093,34 +21138,159 @@
           "error"
         ]
       },
-      "MessageResponseSchema": {
+      "FoodItemsResponseSchema": {
         "type": "object",
         "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "message"
-        ]
-      },
-      "TokenPairResponseSchema": {
-        "type": "object",
-        "properties": {
-          "accessToken": {
-            "type": "string"
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "popularityScore": {
+                  "type": "number"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "isVegan": {
+                  "type": "boolean"
+                },
+                "isGlutenFree": {
+                  "type": "boolean"
+                },
+                "isVegetarian": {
+                  "type": "boolean"
+                },
+                "allergies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "preparationTime": {
+                  "type": "number"
+                },
+                "spicyLevel": {
+                  "type": "string"
+                },
+                "calories": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "price",
+                "description",
+                "category",
+                "type"
+              ]
+            }
           },
-          "refreshToken": {
-            "type": "string"
+          "totalCount": {
+            "type": "number"
           },
-          "expiresIn": {
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "totalPages": {
             "type": "number"
           }
         },
         "required": [
-          "accessToken",
-          "refreshToken",
-          "expiresIn"
+          "items",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
+      },
+      "FoodMetaResponseSchema": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availabilityStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "booleanFilterValues": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "priceRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "categories",
+          "types",
+          "ingredients",
+          "availabilityStates",
+          "booleanFilterValues",
+          "priceRange"
         ]
       },
       "LoginResponseSchema": {
@@ -19227,387 +21397,130 @@
           "user"
         ]
       },
-      "UsersListResponseSchema": {
+      "MessageResponseSchema": {
         "type": "object",
         "properties": {
-          "users": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                },
-                "role": {
-                  "type": "string"
-                },
-                "isActive": {
-                  "type": "boolean"
-                },
-                "createdAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updatedAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "lastLogin": {
-                  "type": "string",
-                  "format": "date-time"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "email",
-                "role"
-              ]
-            }
-          },
-          "totalCount": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "totalPages": {
-            "type": "number"
+          "message": {
+            "type": "string"
           }
         },
         "required": [
-          "users",
-          "totalCount",
-          "page",
-          "pageSize",
-          "totalPages"
+          "message"
         ]
       },
-      "WorkspaceBootstrapResponseSchema": {
+      "OrderMetaResponseSchema": {
         "type": "object",
         "properties": {
-          "workspace": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxGuests": {
+            "type": "number"
+          },
+          "prices": {
             "type": "object",
             "properties": {
-              "tabs": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string"
-                    },
-                    "state": {
-                      "type": "object",
-                      "additionalProperties": {}
-                    },
-                    "pinned": {
-                      "type": "boolean"
-                    },
-                    "order": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "title",
-                    "type",
-                    "order"
-                  ]
-                }
+              "min": {
+                "type": "number"
               },
-              "activeTabId": {
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "dates": {
+            "type": "object",
+            "properties": {
+              "min": {
                 "type": "string"
               },
-              "settings": {
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "tableNumbers": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "filtered": {
+            "type": "object",
+            "properties": {
+              "maxGuests": {
+                "type": "number"
+              },
+              "prices": {
                 "type": "object",
                 "properties": {
-                  "theme": {
-                    "type": "string"
+                  "min": {
+                    "type": "number"
                   },
-                  "sidebar": {
-                    "type": "object",
-                    "properties": {
-                      "width": {
-                        "type": "number"
-                      },
-                      "collapsed": {
-                        "type": "boolean"
-                      }
-                    }
-                  },
-                  "notifications": {
-                    "type": "object",
-                    "properties": {
-                      "enabled": {
-                        "type": "boolean"
-                      },
-                      "sound": {
-                        "type": "boolean"
-                      }
-                    }
-                  },
-                  "density": {
-                    "type": "string"
-                  },
-                  "language": {
-                    "type": "string"
+                  "max": {
+                    "type": "number"
                   }
-                }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
               },
-              "version": {
-                "type": "number"
-              },
-              "updatedAt": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "tabs",
-              "settings",
-              "version",
-              "updatedAt"
-            ]
-          },
-          "activeTab": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string"
-              },
-              "state": {
+              "dates": {
                 "type": "object",
-                "additionalProperties": {}
+                "properties": {
+                  "min": {
+                    "type": "string"
+                  },
+                  "max": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ]
               },
-              "pinned": {
-                "type": "boolean"
-              },
-              "order": {
-                "type": "number"
+              "tableNumbers": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
               }
             },
             "required": [
-              "id",
-              "title",
-              "type",
-              "order"
+              "maxGuests",
+              "prices",
+              "dates",
+              "tableNumbers"
             ]
-          },
-          "activeTabData": {}
-        },
-        "required": [
-          "workspace"
-        ]
-      },
-      "FoodItemsResponseSchema": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "price": {
-                  "type": "number"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "ingredients": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "isAvailable": {
-                  "type": "boolean"
-                },
-                "popularityScore": {
-                  "type": "number"
-                },
-                "image": {
-                  "type": "string"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "isVegan": {
-                  "type": "boolean"
-                },
-                "isGlutenFree": {
-                  "type": "boolean"
-                },
-                "isVegetarian": {
-                  "type": "boolean"
-                },
-                "allergies": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "preparationTime": {
-                  "type": "number"
-                },
-                "spicyLevel": {
-                  "type": "string"
-                },
-                "calories": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "price",
-                "description",
-                "category",
-                "type"
-              ]
-            }
-          },
-          "totalCount": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "totalPages": {
-            "type": "number"
           }
         },
         "required": [
-          "items",
-          "totalCount",
-          "page",
-          "pageSize",
-          "totalPages"
-        ]
-      },
-      "DrinkItemsResponseSchema": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "price": {
-                  "type": "number"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "volume": {
-                  "type": "number"
-                },
-                "ingredients": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "isAvailable": {
-                  "type": "boolean"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "alcoholPercentage": {
-                  "type": "number"
-                },
-                "isCarbonated": {
-                  "type": "boolean"
-                },
-                "tempriture": {
-                  "type": "string"
-                },
-                "popularityScore": {
-                  "type": "number"
-                },
-                "createdAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updatedAt": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "image": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "price",
-                "description",
-                "volume",
-                "category",
-                "tempriture",
-                "createdAt",
-                "updatedAt"
-              ]
-            }
-          },
-          "totalCount": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "totalPages": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "items",
-          "totalCount",
-          "page",
-          "pageSize",
-          "totalPages"
+          "statuses",
+          "allergies",
+          "maxGuests",
+          "prices",
+          "dates",
+          "tableNumbers",
+          "filtered"
         ]
       },
       "OrdersResponseSchema": {
@@ -19737,7 +21650,7 @@
           "totalPages"
         ]
       },
-      "OrderMetaResponseSchema": {
+      "PaymentMetaResponseSchema": {
         "type": "object",
         "properties": {
           "statuses": {
@@ -19746,110 +21659,39 @@
               "type": "string"
             }
           },
-          "allergies": {
+          "methods": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "maxGuests": {
-            "type": "number"
-          },
-          "prices": {
-            "type": "object",
-            "properties": {
-              "min": {
-                "type": "number"
-              },
-              "max": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "min",
-              "max"
-            ]
-          },
-          "dates": {
-            "type": "object",
-            "properties": {
-              "min": {
-                "type": "string"
-              },
-              "max": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "min",
-              "max"
-            ]
-          },
-          "tableNumbers": {
+          "orderIds": {
             "type": "array",
             "items": {
               "type": "number"
             }
           },
-          "filtered": {
+          "totalAmountRange": {
             "type": "object",
             "properties": {
-              "maxGuests": {
+              "min": {
                 "type": "number"
               },
-              "prices": {
-                "type": "object",
-                "properties": {
-                  "min": {
-                    "type": "number"
-                  },
-                  "max": {
-                    "type": "number"
-                  }
-                },
-                "required": [
-                  "min",
-                  "max"
-                ]
-              },
-              "dates": {
-                "type": "object",
-                "properties": {
-                  "min": {
-                    "type": "string"
-                  },
-                  "max": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "min",
-                  "max"
-                ]
-              },
-              "tableNumbers": {
-                "type": "array",
-                "items": {
-                  "type": "number"
-                }
+              "max": {
+                "type": "number"
               }
             },
             "required": [
-              "maxGuests",
-              "prices",
-              "dates",
-              "tableNumbers"
+              "min",
+              "max"
             ]
           }
         },
         "required": [
           "statuses",
-          "allergies",
-          "maxGuests",
-          "prices",
-          "dates",
-          "tableNumbers",
-          "filtered"
+          "methods",
+          "orderIds",
+          "totalAmountRange"
         ]
       },
       "PaymentsListResponseSchema": {
@@ -19964,6 +21806,71 @@
           "reservationId",
           "time",
           "tables"
+        ]
+      },
+      "ReservationMetaResponseSchema": {
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "tableNumber": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "tableNumber"
+              ]
+            }
+          },
+          "guestsCountRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          },
+          "timeRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "statuses",
+          "tables",
+          "guestsCountRange",
+          "timeRange"
         ]
       },
       "ReservationMutationResponseSchema": {
@@ -20182,6 +22089,53 @@
           "totalPages"
         ]
       },
+      "TableAssignmentResponseSchema": {
+        "type": "string"
+      },
+      "TableMetaResponseSchema": {
+        "type": "object",
+        "properties": {
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "occupiedStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "tableNumbers": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "capacityRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "statuses",
+          "occupiedStates",
+          "tableNumbers",
+          "capacityRange"
+        ]
+      },
       "TablesListResponseSchema": {
         "type": "object",
         "properties": {
@@ -20248,8 +22202,254 @@
           "totalPages"
         ]
       },
-      "TableAssignmentResponseSchema": {
-        "type": "string"
+      "TokenPairResponseSchema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresIn"
+        ]
+      },
+      "UserMetaResponseSchema": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activeStates": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "createdAtRange": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "string"
+              },
+              "max": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ]
+          }
+        },
+        "required": [
+          "roles",
+          "activeStates",
+          "createdAtRange"
+        ]
+      },
+      "UsersListResponseSchema": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "lastLogin": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "email",
+                "role"
+              ]
+            }
+          },
+          "totalCount": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "users",
+          "totalCount",
+          "page",
+          "pageSize",
+          "totalPages"
+        ]
+      },
+      "WorkspaceBootstrapResponseSchema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "object",
+            "properties": {
+              "tabs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "pinned": {
+                      "type": "boolean"
+                    },
+                    "order": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "type",
+                    "order"
+                  ]
+                }
+              },
+              "activeTabId": {
+                "type": "string"
+              },
+              "settings": {
+                "type": "object",
+                "properties": {
+                  "theme": {
+                    "type": "string"
+                  },
+                  "sidebar": {
+                    "type": "object",
+                    "properties": {
+                      "width": {
+                        "type": "number"
+                      },
+                      "collapsed": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "notifications": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "sound": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "density": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string"
+                  }
+                }
+              },
+              "version": {
+                "type": "number"
+              },
+              "updatedAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tabs",
+              "settings",
+              "version",
+              "updatedAt"
+            ]
+          },
+          "activeTab": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "state": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "pinned": {
+                "type": "boolean"
+              },
+              "order": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "type",
+              "order"
+            ]
+          },
+          "activeTabData": {}
+        },
+        "required": [
+          "workspace"
+        ]
       }
     },
     "securitySchemes": {
